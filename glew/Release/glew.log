@@ -1,0 +1,2 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1545,5): warning MSB8012: TargetPath(C:\Project_B\code\CG_Project_B\Release\glew.lib) does not match the Library's OutputFile property value (C:\Project_B\code\CG_Project_B\glew\lib\glew.lib). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Lib.OutputFile).
+  glew.vcxproj -> C:\Project_B\code\CG_Project_B\Release\glew.lib
