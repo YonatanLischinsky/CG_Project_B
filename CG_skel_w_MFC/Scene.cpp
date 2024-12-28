@@ -20,11 +20,13 @@ extern Renderer* renderer;
 static char nameBuffer[64] = { 0 };
 static float posBuffer[3] = { 0 };
 static int g_ortho = 1;
+static int n_rays = 0;
 static int light_type_radio_button;
 static bool saved_palette_init = true;
 static ImVec4 saved_palette[32] = {};
 
 bool add_showModelDlg = false, add_showCamDlg = false, add_showLightDlg = false;
+bool simulation_showNumRaysDlg = false;
 bool showTransWindow = false;
 bool constScaleRatio = false;
 bool constScaleRatio_w = false;
@@ -390,6 +392,7 @@ void Scene::ResetPopUpFlags()
 	add_showCamDlg = false;				// Reset flag
 	add_showModelDlg = false;			// Reset flag
 	add_showLightDlg = false;			// Reset flag
+	simulation_showNumRaysDlg = false;  // Reset flag
 	memset(nameBuffer, 0, IM_ARRAYSIZE(nameBuffer));
 	memset(posBuffer, 0, sizeof(float) * 3);
 }
@@ -598,6 +601,18 @@ void Scene::drawGUI()
 
 			ImGui::EndMenu();
 		}
+		if (ImGui::BeginMenu("Simulation"))
+		{
+			if (ImGui::MenuItem("Number of rays"))	// Loading Model
+			{
+				simulation_showNumRaysDlg = true;
+			}
+			if (ImGui::MenuItem("CPU mode", NULL, cpu_mode == true))
+				cpu_mode = true;
+			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == false))
+				cpu_mode = false;
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("Models"))
 		{
 			if (models.size() > 0)
@@ -765,7 +780,7 @@ void Scene::drawGUI()
 	//---------------------------------------------------------
 	//------------ Transformations Window ---------------------
 	//---------------------------------------------------------
-	if (activeCamera != NOT_SELECTED && !add_showModelDlg && !add_showCamDlg && !add_showLightDlg && showTransWindow)
+	if (activeCamera != NOT_SELECTED && !add_showModelDlg && !add_showCamDlg && !add_showLightDlg && !simulation_showNumRaysDlg && showTransWindow)
 	{
 		closedTransfWindowFlag = false;
 		float mainMenuBarHeight = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2.0f;
@@ -830,11 +845,38 @@ void Scene::drawGUI()
 	{
 		ImGui::OpenPopup(ADD_INPUT_POPUP_TITLE);
 	}
+	if (simulation_showNumRaysDlg)
+	{
+		ImGui::OpenPopup("Number of rays");
+	}
 
 	//---------------------------------------------------
 	//------- Begin pop up - MUST BE IN THIS SCOPE ------
 	//---------------------------------------------------
 	bool open_popup_AddObject = true; //Must be here unless it won't work... (Weird ImGui stuff i guess)
+	if (ImGui::BeginPopupModal("Number of rays", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+		ImGui::InputInt("Number of rays ", &n_rays);
+
+		// Add buttons for OK and Cancel
+		ImGui::Button("OK");
+		if ((ImGui::IsItemClicked() || ImGui::IsKeyReleased(ImGui::GetKeyIndex(ImGuiKey_Enter))))
+		{
+			GUI_popup_pressedOK = true;
+			GUI_popup_pressedCANCEL = false;
+			ImGui::CloseCurrentPopup();
+			showTransWindow = false;
+		}
+		ImGui::SameLine();
+		ImGui::Button("Cancel");
+		if (ImGui::IsItemClicked() || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+		{
+			GUI_popup_pressedOK = false;
+			GUI_popup_pressedCANCEL = true;
+			ImGui::CloseCurrentPopup();
+			showTransWindow = false;
+		}
+		ImGui::EndPopup();
+	}
 	if (ImGui::BeginPopupModal(ADD_INPUT_POPUP_TITLE, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse))
 	{
 		ImGui::InputText("Name", nameBuffer, IM_ARRAYSIZE(nameBuffer));
@@ -995,6 +1037,17 @@ void Scene::drawGUI()
 			m_renderer->UpdateLightsUBO(true);
 
 		}
+	}
+	else if (simulation_showNumRaysDlg)
+	{
+		if (GUI_popup_pressedOK)
+		{
+			this->num_of_rays = n_rays;
+		}
+		else if (GUI_popup_pressedCANCEL) {
+			n_rays = this->num_of_rays;
+		}
+		ResetPopUpFlags();
 	}
 }
 

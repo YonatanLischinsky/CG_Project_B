@@ -110,6 +110,8 @@ private:
 	vector<Model*> models;
 	vector<Camera*> cameras;
 	Renderer* m_renderer;
+	uint num_of_rays;
+	bool cpu_mode = true;
 	
 
 	void AddCamera();
