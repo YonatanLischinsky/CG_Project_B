@@ -107,11 +107,6 @@ public:
 class Scene {
 
 private:
-	vector<Model*> models;
-	vector<Camera*> cameras;
-	Renderer* m_renderer;
-	uint num_of_rays;
-	bool cpu_mode = true;
 	
 
 	void AddCamera();
@@ -187,6 +182,9 @@ private:
 	GLuint skyboxVAO = 0;
 	GLuint skyboxVBO = 0;
 public:
+	vector<Model*> models;
+	vector<Camera*> cameras;
+	Renderer* m_renderer;
 	Scene(Renderer* renderer) : m_renderer(renderer)
 	{
 		AddCamera();							 //Add the first default camera
@@ -195,6 +193,7 @@ public:
 		activeLight  = 0;						 //index = 0 because it is the first
 		cameras[activeCamera]->selected = true;  //Select it because it is the default
 		lights[activeLight]->selected   = true;  //Select it because it is the default
+		num_of_rays = 0;
 	};
 	~Scene()
 	{
@@ -229,5 +228,7 @@ public:
 	int viewportWidth;
 	int viewportHeight;
 
+	uint num_of_rays;
+	bool cpu_mode = true;
 
 };

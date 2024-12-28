@@ -1,0 +1,55 @@
+﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+cl : command line warning D9025: overriding '/Os' with '/Ot'
+cl : command line warning D9002: ignoring unknown option '-Of'
+cl : command line warning D9002: ignoring unknown option '-Oa'
+  RayTransmitter.cpp
+LINK : warning LNK4044: unrecognized option '/lz'; ignored
+LINK : warning LNK4044: unrecognized option '/lpng'; ignored
+  LINK : 0 new modules and 1 (out of 96) modules have changed since prior linking
+  Invoking mt.exe:
+   /verbose
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{849CFC29-7CD2-4CAF-BF65-7555AF99BD7B}.tmp"
+   /manifest
+   "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{47659D41-1987-4D9C-BC1E-50ACCEABE2A9}.tmp"
+  Microsoft (R) Manifest Tool
+  
+  Copyright (c) Microsoft Corporation. 
+  
+  All rights reserved.
+  
+  Invoking rc.exe:
+   /v
+   /x
+   /fo
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{71930358-344E-40D1-8E32-D66FEE113D3B}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3DC0961E-FF7F-4563-9109-E5B75768C2B0}.tmp"
+  Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
+  
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  
+  
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{71930358-344E-40D1-8E32-D66FEE113D3B}.tmp
+  
+  Using codepage 1252 as default
+  
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{3DC0961E-FF7F-4563-9109-E5B75768C2B0}.tmp.
+  Writing 24:1,	lang:0x409,	size 548
+  Invoking cvtres.exe:
+   /machine:x86
+   /verbose
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{CED7AA38-9C30-4D4D-87C0-010A7AAAC0BF}.tmp"
+   /readonly
+   "Debug\CG_skel_w_MFC.res"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{71930358-344E-40D1-8E32-D66FEE113D3B}.tmp"
+  Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  
+  adding resource. type:STRING, name:7, language:0x0409, flags:0x1030, size:58
+  adding resource. type:MANIFEST, name:1, language:0x0409, flags:0x30, size:548
+  Starting pass 2
+       CG_skel_w_MFC.res
+       RayTransmitter.obj
+       MSVCRTD.lib(loadcfg.obj)
+  Finished pass 2
+  CG_skel_w_MFC.vcxproj -> C:\Project_B\code\CG_Project_B\Debug\CG_skel_w_glfw.exe

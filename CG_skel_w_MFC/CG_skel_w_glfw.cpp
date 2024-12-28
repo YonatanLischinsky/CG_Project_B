@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "MeshModel.h"
+#include "RayTransmitter.h"
 
 using namespace std;
 
@@ -29,6 +30,8 @@ using namespace std;
 //----------------------------------------------------------------------------
 Scene* scene;
 Renderer* renderer;
+RayTransmitter* rt;
+
 bool lb_down, rb_down, mb_down; //mouse buttons (left/right/middle)
 bool cam_mode;	// Camera mode ON/OFF
 bool ctrlPressing = false;
@@ -240,6 +243,8 @@ int my_main(int argc, char** argv)
 	scene = new Scene(renderer);
 	renderer->UpdateLightsUBO(true);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	rt = new RayTransmitter(scene, renderer);
+
 
 
 

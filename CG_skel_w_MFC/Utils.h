@@ -100,6 +100,11 @@ typedef struct Vertex {
 	~Vertex() {}
 } Vertex;
 
+typedef struct hit_tuple {
+	vec3 hit_point_w;
+	float distance;
+} HIT;
+
 class Line {
 private:
 	double _slope;

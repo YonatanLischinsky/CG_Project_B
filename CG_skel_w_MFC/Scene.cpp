@@ -6,7 +6,7 @@
 #include <string>
 #include <math.h>
 #include "stb_image.h"
-
+#include "RayTransmitter.h"
 
 #define CLAMP(x, l, r) (min( max((x), (l)) , (r)))
 
@@ -16,6 +16,7 @@
 
 using namespace std;
 extern Renderer* renderer;
+extern RayTransmitter* rt;
 
 static char nameBuffer[64] = { 0 };
 static float posBuffer[3] = { 0 };
@@ -603,14 +604,24 @@ void Scene::drawGUI()
 		}
 		if (ImGui::BeginMenu("Simulation"))
 		{
-			if (ImGui::MenuItem("Number of rays"))	// Loading Model
+			if (models.size() > 0 && num_of_rays > 0)
+			{
+				if (ImGui::MenuItem("Start Simulation"))
+				{
+					if (rt)
+						rt->StartSimulation();
+				}
+			}
+			if (ImGui::MenuItem("Number of rays"))
 			{
 				simulation_showNumRaysDlg = true;
 			}
-			if (ImGui::MenuItem("CPU mode", NULL, cpu_mode == true))
+			if (ImGui::MenuItem("CPU mode", NULL, cpu_mode == true)) {
 				cpu_mode = true;
-			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == false))
+			}
+			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == false)) {
 				cpu_mode = false;
+			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Models"))
@@ -845,7 +856,7 @@ void Scene::drawGUI()
 	{
 		ImGui::OpenPopup(ADD_INPUT_POPUP_TITLE);
 	}
-	if (simulation_showNumRaysDlg)
+	else if (simulation_showNumRaysDlg)
 	{
 		ImGui::OpenPopup("Number of rays");
 	}
@@ -853,7 +864,6 @@ void Scene::drawGUI()
 	//---------------------------------------------------
 	//------- Begin pop up - MUST BE IN THIS SCOPE ------
 	//---------------------------------------------------
-	bool open_popup_AddObject = true; //Must be here unless it won't work... (Weird ImGui stuff i guess)
 	if (ImGui::BeginPopupModal("Number of rays", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
 		ImGui::InputInt("Number of rays ", &n_rays);
 
@@ -877,6 +887,7 @@ void Scene::drawGUI()
 		}
 		ImGui::EndPopup();
 	}
+
 	if (ImGui::BeginPopupModal(ADD_INPUT_POPUP_TITLE, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse))
 	{
 		ImGui::InputText("Name", nameBuffer, IM_ARRAYSIZE(nameBuffer));
@@ -1038,16 +1049,19 @@ void Scene::drawGUI()
 
 		}
 	}
-	else if (simulation_showNumRaysDlg)
+	
+	if (simulation_showNumRaysDlg)
 	{
 		if (GUI_popup_pressedOK)
 		{
-			this->num_of_rays = n_rays;
+			rt->N_Rays_Updated();
+			num_of_rays = n_rays;
+			ResetPopUpFlags();
 		}
 		else if (GUI_popup_pressedCANCEL) {
 			n_rays = this->num_of_rays;
+			ResetPopUpFlags();
 		}
-		ResetPopUpFlags();
 	}
 }
 

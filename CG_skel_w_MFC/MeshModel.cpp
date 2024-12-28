@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
+#include <optional>
+
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -1157,6 +1159,67 @@ void MeshModel::UpdateAnimationInGPU()
 	}
 	glUniform1i(glGetUniformLocation(renderer->program, "colorAnimateType"), colorAnimationType);
 	glUniform1i(glGetUniformLocation(renderer->program, "vertexAnimationEnable"), (int)vertexAnimationEnable);
+}
+
+// Function to check ray-triangle intersection
+std::optional<vec3> rayTriangleIntersection( const vec3& a, const vec3& b, const vec3& c, const vec3& origin, const vec3& direction) {
+	vec3 e1 = b - a;
+	vec3 e2 = c - a;
+	vec3 h = cross(direction, e2);
+	float det = dot(e1, h);
+
+	// If determinant is near zero, ray is parallel to triangle
+	if (std::fabs(det) < EPSILON) return std::nullopt;
+	
+	float invDet = 1.0f / det;
+
+	vec3 s = origin - a;
+	float u = dot(s, h) * invDet;
+
+	// Check if intersection lies within the triangle
+	if (u < 0.0f || u > 1.0f) return std::nullopt;
+	
+	vec3 q = cross(s, e1);
+	float v = dot(direction, q) * invDet;
+
+	if (v < 0.0f || u + v > 1.0f) return std::nullopt;
+	
+	// Compute the intersection point distance
+	float t = dot(e2, q) * invDet;
+
+	// Check if the intersection is in front of the ray
+	if (t < -EPSILON) return std::nullopt;
+
+	// Calculate intersection point
+	vec3 intersection = origin + direction * t;
+	return intersection;
+}
+
+bool MeshModel::CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h)
+{
+	if (!h) return false;
+	mat4 trnsf = _world_transform * _model_transform;
+	for (uint i = 0; i < vertex_positions_triangle_gpu.size(); i+=3) {
+		vec4 a = trnsf * vec4(vertex_positions_triangle_gpu[i + 0]);
+		vec4 b = trnsf * vec4(vertex_positions_triangle_gpu[i + 1]);
+		vec4 c = trnsf * vec4(vertex_positions_triangle_gpu[i + 2]);
+
+		vec3 A = vec3(a.x, a.y, a.z) / a.w;
+		vec3 B = vec3(b.x, b.y, b.z) / b.w;
+		vec3 C = vec3(c.x, c.y, c.z) / c.w;
+
+		auto intersection = rayTriangleIntersection(A, B, C, origin, ray_direction);
+		if (intersection.has_value()) {
+			h->hit_point_w = *intersection;
+			h->distance = length(h->hit_point_w - origin);
+			return true;
+		}
+
+	}
+
+	h->distance = 0;
+	h->hit_point_w = vec3(0);
+	return false;
 }
 
 void MeshModel::calculateTangentSpace()

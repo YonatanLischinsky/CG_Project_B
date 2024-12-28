@@ -131,6 +131,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="MeshModel.cpp" />
     <ClCompile Include="Poly.cpp" />
+    <ClCompile Include="RayTransmitter.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="CG_skel_w_glfw.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="InitShader.h" />
     <ClInclude Include="mat.h" />
     <ClInclude Include="MeshModel.h" />
+    <ClInclude Include="RayTransmitter.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
