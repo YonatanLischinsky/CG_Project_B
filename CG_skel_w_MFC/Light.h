@@ -4,7 +4,7 @@
 
 using namespace std;
 
-static const vec3 down = vec3(0, -1, 0);
+static const vec3 light_default_direction = vec3(1, -1, -1);
 class Light
 {
 private:
@@ -19,7 +19,7 @@ private:
 
 public:
 	float La, Ld, Ls;
-	Light(vec3 pos = vec3(0), vec3 dir = down, LIGHT_TYPE ltype = AMBIENT_LIGHT);
+	Light(vec3 pos = vec3(0), vec3 dir = light_default_direction, LIGHT_TYPE ltype = PARALLEL_LIGHT);
 	~Light() {}
 
 	bool selected = false;
@@ -30,7 +30,7 @@ public:
 	void setColor(vec3& col) { _color = col; }
 	void setLightType(int t) { _type = (LIGHT_TYPE) t; }
 	void resetPosition() { _position = vec3(0, 0, 0); }
-	void resetDirection() { _direction = down; }
+	void resetDirection() { _direction = light_default_direction; }
 	void updatePosCameraSpace(mat4 cTransform) {
 		_positionCameraSpace = cTransform * vec4(_position);
 	}

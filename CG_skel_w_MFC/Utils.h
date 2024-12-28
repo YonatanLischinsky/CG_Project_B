@@ -43,6 +43,8 @@
 
 
 typedef unsigned int UINT;
+typedef unsigned int uint;
+
 
 inline int Index(int width, int x, int y, int c) { return (x + y * width) * 3 + c; }
 inline int Z_Index(int width, int x, int y) { return x + (y * width); }

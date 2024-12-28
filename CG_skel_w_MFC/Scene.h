@@ -9,8 +9,7 @@
 #include "Utils.h"
 
 using namespace std;
-
-
+void colorPicker(ImVec4* color, std::string button_label, std::string id);
 
 class Model
 {
@@ -105,47 +104,6 @@ public:
 	bool allowClipping = false;
 };
 
-class Fog
-{
-private:
-	float _min_dist, _max_dist, effect;
-	vec3 _color;
-	friend Scene;
-
-public:
-	Fog() : _min_dist(0), _max_dist(MAX_Z-1), effect(0), _color(vec3(0.541, 0.753, 0.78)) {	}
-
-	void setMinDist(float& min_dist) {
-		if (min_dist < _max_dist)
-			_min_dist = min_dist;
-	}
-	void setMaxDist(float& max_dist) {
-		if (max_dist > _min_dist)
-			_max_dist = max_dist;
-	}
-	void setColor(vec3& color) { _color = color; }
-	float& getMinDist() { return _min_dist; }
-	float& getMaxDist() { return _max_dist; }
-	float& getEffect() { return effect; }
-	vec3& getColor() { return _color; }
-
-	vec3& applyFog(double pDist, vec3& shadedColor)
-	{
-		//if (pDist > 0)
-			//cout << " debug" << endl;
-		//double min_dist = _min_dist / MAX_Z;
-		//double max_dist = _max_dist / MAX_Z;
-		pDist = max(_min_dist, min(pDist, _max_dist));
-		double fog_factor = (_max_dist - pDist) / (_max_dist - _min_dist);
-		//fog_factor *= (1 / effect);
-		float effect_factor = 1 - (effect / DEF_MAX_FOG_EFFECT);
-		//fog_factor = max(0, min(fog_factor, 1));	// clamp
-		vec3 res = (effect_factor + fog_factor)/2 * shadedColor + (2 - (fog_factor+effect_factor))/2 * _color;
-		return(res);
-	}
-
-};
-
 class Scene {
 
 private:
@@ -231,7 +189,6 @@ public:
 	{
 		AddCamera();							 //Add the first default camera
 		AddLight ();							 //Add the first default ambient light
-		fog = new Fog();
 		activeCamera = 0;						 //index = 0 because it is the first
 		activeLight  = 0;						 //index = 0 because it is the first
 		cameras[activeCamera]->selected = true;  //Select it because it is the default
@@ -252,10 +209,6 @@ public:
 	void setViewPort(vec4& vp);
 	void zoom(double s_offset) { cameras[activeCamera]->zoom(s_offset); }
 	
-	Fog* fog;
-	
-	//friend bool showInputDialog();
-
 	Camera* GetActiveCamera();
 	Model* GetActiveModel();
 	Light* GetActiveLight();
@@ -265,7 +218,6 @@ public:
 	int activeLight  = NOT_SELECTED;
 	int activeCamera = 0;	// Always at least one camera
 	DrawAlgo draw_algo = WIRE_FRAME;
-	bool applyFog = false;
 	bool applyBloom = false;
 	bool applyFullScreenBlur = false;
 	bool applyEnviornmentShading = false;
@@ -277,5 +229,3 @@ public:
 
 
 };
-
-

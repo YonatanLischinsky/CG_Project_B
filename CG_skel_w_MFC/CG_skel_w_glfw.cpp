@@ -32,7 +32,6 @@ Renderer* renderer;
 bool lb_down, rb_down, mb_down; //mouse buttons (left/right/middle)
 bool cam_mode;	// Camera mode ON/OFF
 bool ctrlPressing = false;
-bool r_key_Pressing = false;
 vec2 mouse_pos, mouse_pos_prev;
 float mouse_scroll;
 
@@ -70,9 +69,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			case GLFW_KEY_LEFT_CONTROL:
 				ctrlPressing = true;
 				break;
-			case GLFW_KEY_R:
-				r_key_Pressing = true;
-				break;
 		}
 	}
 	
@@ -82,9 +78,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		{
 		case GLFW_KEY_LEFT_CONTROL:
 			ctrlPressing = false;
-			break;
-		case GLFW_KEY_R:
-			r_key_Pressing = false;
 			break;
 		}
 	}
@@ -172,10 +165,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	ImGui_ImplGlfw_ScrollCallback(window, xoffset,yoffset);
 
 	//Our callback:
-	if (!ctrlPressing)
-		return;
-
-	scene->zoom(yoffset);
+	if (ctrlPressing)
+		scene->zoom(yoffset);
 }
 
 //resize window
@@ -188,8 +179,6 @@ void resize_callback(GLFWwindow* window, int width, int height)
 
 int my_main(int argc, char** argv)
 {
-
-	// 
 //----------------------------------------------------------------------------
 // ---------------------- glfw init ------------------------------------------
 //----------------------------------------------------------------------------

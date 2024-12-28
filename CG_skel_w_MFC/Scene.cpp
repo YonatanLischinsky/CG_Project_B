@@ -417,7 +417,6 @@ void Scene::draw()
 		m_renderer->drawModel(draw_algo, model, GetActiveCamera()->cTransform);
 	}
 
-	// ------------------------------------------------ TODO:
 	//4. Render cameras as 3D plus signs
 	for (auto camera : cameras)
 	{
@@ -518,681 +517,6 @@ void Scene::draw()
 
 }
 
-void colorPicker(ImVec4* color, std::string button_label, std::string id)
-{
-	ImGuiColorEditFlags flags = (ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_InputRGB);
-
-	if (saved_palette_init)
-	{
-		for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++)
-		{
-			ImGui::ColorConvertHSVtoRGB(n / 31.0f, 0.8f, 0.8f,
-				saved_palette[n].x, saved_palette[n].y, saved_palette[n].z);
-			saved_palette[n].w = 1.0f; // Alpha
-		}
-		saved_palette_init = false;
-	}
-
-	bool open_popup = ImGui::ColorButton((button_label+id).c_str(), *color, flags);
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
-	ImGui::Text(button_label.c_str());
-	if (open_popup)
-		ImGui::OpenPopup(("Color Palette"  + id).c_str());
-
-	if (ImGui::BeginPopup(("Color Palette" + id).c_str()))
-	{
-		ImGui::ColorPicker4(id.c_str(), (float*)color, flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoAlpha);
-
-		ImGui::EndPopup();
-	}
-}
-
-void Scene::drawCameraTab()
-{
-	string name(cameras[activeCamera]->getName());
-	ImGui::SeparatorText(name.c_str());
-
-	ImGui::Checkbox("Render Camera", &cameras[activeCamera]->renderCamera);
-	//bool* g_allowClipping = &(cameras[activeCamera]->allowClipping);
-	//ImGui::Checkbox("Allow clipping", g_allowClipping);
-
-
-	float* g_left = &(cameras[activeCamera]->c_left);
-	float* g_right = &(cameras[activeCamera]->c_right);
-	float* g_top = &(cameras[activeCamera]->c_top);
-	float* g_bottom = &(cameras[activeCamera]->c_bottom);
-	float* g_zNear = &(cameras[activeCamera]->c_zNear);
-	float* g_zFar = &(cameras[activeCamera]->c_zFar);
-	float* g_fovy = &(cameras[activeCamera]->c_fovy);
-	float* g_aspect = &(cameras[activeCamera]->c_aspect);
-	vec4* g_rot = &(cameras[activeCamera]->c_rot);
-	vec4* g_trnsl = &(cameras[activeCamera]->c_trnsl);
-
-	vec4* g_rot_view   = &(cameras[activeCamera]->c_rot_viewspace);
-	vec4* g_trnsl_view = &(cameras[activeCamera]->c_trnsl_viewspace);
-
-
-	float prev_left = *g_left;
-	float prev_right = *g_right;
-	float prev_bottom = *g_bottom;
-	float prev_top = *g_top;
-	float prev_zNear = *g_zNear;
-	float prev_zFar = *g_zFar;
-
-	ImGui::SeparatorText("Projection");
-	ImGui::RadioButton("Orthographic", &g_ortho, 1); ImGui::SameLine();
-	ImGui::RadioButton("Perspective", &g_ortho, 0);
-
-
-	ImGui::DragFloat("##Left_CP", g_left, 0.01f, 0, 0, "Left = %.1f "); ImGui::SameLine();
-	ImGui::DragFloat("##Right_CP", g_right, 0.01f, 0, 0, "Right = %.1f ");
-
-
-	ImGui::DragFloat("##Top_CP", g_top, 0.01f, 0, 0, "Top = %.1f "); ImGui::SameLine();
-	ImGui::DragFloat("##Bottom_CP", g_bottom, 0.01f, 0, 0, "Bot = %.1f ");
-
-
-	ImGui::DragFloat("##zNear_CP", g_zNear, 0.01f, 0, 0, "z-Near = %.1f "); ImGui::SameLine();
-	ImGui::DragFloat("##zFar_CP", g_zFar, 0.01f, 0, 0, "z-Far = %.1f ");
-
-
-	if (g_ortho == 1) /* Ortho type */
-	{
-		if (cameras[activeCamera]->isOrtho == false)
-		{
-			cameras[activeCamera]->isOrtho = true;
-			cameras[activeCamera]->resetProjection();
-		}
-
-		if (prev_left != *g_left || prev_right != *g_right ||
-			prev_bottom != *g_bottom || prev_top != *g_top ||
-			prev_zNear != *g_zNear || prev_zFar != *g_zFar)
-		{
-			cameras[activeCamera]->setOrtho();
-		}
-	}
-	else /* Perspective type */
-	{
-		if (cameras[activeCamera]->isOrtho == true)
-		{
-			cameras[activeCamera]->isOrtho = false;
-			cameras[activeCamera]->resetProjection();
-		}
-		
-		float prev_fovy = *g_fovy;
-		float prev_aspect = *g_aspect;
-
-		ImGui::DragFloat("##FovY", g_fovy, 0.01f, FOV_RANGE_MIN, FOV_RANGE_MAX, "FovY = %.1f "); ImGui::SameLine();
-		ImGui::DragFloat("##Aspect", g_aspect, 0.01f, ASPECT_RANGE_MIN, ASPECT_RANGE_MAX, "Aspect = %.1f "); ImGui::SameLine();
-		ImGui::Checkbox("Lock FovY", cameras[activeCamera]->getLockFovyPTR());
-
-		if (prev_fovy != *g_fovy || prev_aspect != *g_aspect) //User changed FOV or Aspect Ratio
-		{
-			cameras[activeCamera]->setPerspectiveByFov();
-		}
-		else if( prev_left != *g_left || prev_right != *g_right || prev_bottom != *g_bottom ||
-				 prev_top  != *g_top  || prev_zNear != *g_zNear || prev_zFar != *g_zFar )
-		{
-			if (prev_zNear == *g_zNear)
-			{
-				//zNear didn't changed - other paramater changed - UnLock fovy.
-				cameras[activeCamera]->unLockFovy();
-			}
-			
-			cameras[activeCamera]->setPerspectiveByParams();
-		}
-
-	}
-	
-	if (ImGui::Button("reset"))
-	{
-		cameras[activeCamera]->resetProjection();
-	}
-
-
-	ImGui::SeparatorText("View space");
-
-	vec4 prev_trnsl_view = *g_trnsl_view;
-	vec4 prev_rot_view = *g_rot_view;
-
-	ImGui::Text("Translation (X Y Z)");
-	ImGui::DragFloat("##X_VT", &(g_trnsl_view->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-	ImGui::DragFloat("##Y_VT", &(g_trnsl_view->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-	ImGui::DragFloat("##Z_VT", &(g_trnsl_view->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-	if (ImGui::Button("reset##VT"))
-	{
-		cameras[activeCamera]->ResetTranslation_viewspace();
-	}
-
-	ImGui::Text("Rotation (X Y Z)");
-	ImGui::DragFloat("##X_VR", &(g_rot_view->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-	ImGui::DragFloat("##Y_VR", &(g_rot_view->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-	ImGui::DragFloat("##Z_VR", &(g_rot_view->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-	if (ImGui::Button("reset##VR"))
-	{
-		cameras[activeCamera]->ResetRotation_viewspace();
-	}
-
-	if (prev_trnsl_view != *g_trnsl_view || prev_rot_view != *g_rot_view)
-	{
-		cameras[activeCamera]->updateTransform();
-	}
-
-
-	ImGui::SeparatorText("World space");
-
-	vec4 prev_trnsl = *g_trnsl;
-	vec4 prev_rot = *g_rot;
-
-	ImGui::Text("Translation (X Y Z)");
-	ImGui::DragFloat("##X_MT", &(g_trnsl->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-	ImGui::DragFloat("##Y_MT", &(g_trnsl->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-	ImGui::DragFloat("##Z_MT", &(g_trnsl->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-	if (ImGui::Button("reset##MT"))
-	{
-		cameras[activeCamera]->ResetTranslation();
-	}
-
-	ImGui::Text("Rotation (X Y Z)");
-	ImGui::DragFloat("##X_MR", &(g_rot->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-	ImGui::DragFloat("##Y_MR", &(g_rot->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-	ImGui::DragFloat("##Z_MR", &(g_rot->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-	if (ImGui::Button("reset##MR"))
-	{
-		cameras[activeCamera]->ResetRotation();
-	}
-
-	if (prev_trnsl != *g_trnsl || prev_rot != *g_rot)
-	{
-		cameras[activeCamera]->updateTransform();
-	}
-
-	if (cameras.size() > 1)
-	{
-		// Delete camera
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
-		if (ImGui::Button("Delete camera"))
-		{
-			cameras.erase(cameras.begin() + activeCamera);
-			activeCamera = max(0, activeCamera - 1);
-		}
-		ImGui::PopStyleColor(3);
-	}
-}
-
-void Scene::drawModelTab()
-{
-	MeshModel* activeMesh = (MeshModel*)models[activeModel];
-	string name(models[activeModel]->getName());
-	ImGui::SeparatorText(name.c_str());
-
-	vec4* g_trnsl = &(activeMesh->_trnsl);
-	vec4* g_rot = &(activeMesh->_rot);
-
-	bool* dispFaceNormal = &(activeMesh->showFaceNormals);
-	bool* dispVertexNormal = &(activeMesh->showVertexNormals);
-	bool* dispBoundingBox = &(activeMesh->showBoundingBox);
-
-	float* lenFaceNormal = activeMesh->getLengthFaceNormal();
-	float* lenVertNormal = activeMesh->getLengthVertexNormal();
-	if (ImGui::CollapsingHeader("Displays"))
-	{
-		ImGui::Checkbox("Display Face Normals  ", dispFaceNormal);
-
-		if (*dispFaceNormal)
-		{
-			ImGui::SameLine();
-			ImGui::DragFloat("Length##Length_Face_normal", lenFaceNormal, 0.001f, 0, 0, "%.3f");
-		}
-
-		ImGui::Checkbox("Display Vertex Normals", dispVertexNormal);
-		if (*dispVertexNormal)
-		{
-			ImGui::SameLine();
-			ImGui::DragFloat("Length##Length_Vert_normal", lenVertNormal, 0.001f, 0, 0, "%.3f");
-		}
-
-		ImGui::Checkbox("Display Bounding Box", dispBoundingBox);
-	}
-
-	if (ImGui::CollapsingHeader("Material"))
-	{
-		ImGui::SeparatorText("Textures");
-		if (ImGui::Button("Load Texture"))
-			activeMesh->loadTextureFromFile();
-		
-		ImGui::SameLine();
-		
-		if (ImGui::Button("Load Normal Map"))
-			activeMesh->loadNMapFromFile();
-
-		bool textureCoordsSetOk = (activeMesh->verticesTextures_original_gpu.size()  > 0 && activeMesh->textureMode == TEXTURE_FROM_FILE) || \
-								  (activeMesh->verticesTextures_canonical_gpu.size() > 0 && activeMesh->textureMode != TEXTURE_FROM_FILE);
-
-		if (activeMesh->textureLoaded)
-		{
-			if (textureCoordsSetOk)
-			{
-				// There is texture coordiants, enable the user to select if to use or not
-				ImGui::Checkbox("Use Texture", &(activeMesh->useTexture));
-			}
-			else
-			{
-				// There is no texture coordiants!
-				// Can't use texture
-				activeMesh->useTexture = false;
-			}
-		}
-
-		if (activeMesh->normalMapLoaded)
-		{
-			if (activeMesh->textureLoaded)
-			{
-				if (textureCoordsSetOk)
-				{
-					// There is texture coordiants, enable the user to select if to use or not
-					ImGui::SameLine();
-					ImGui::Checkbox("Use Normal Map", &(activeMesh->useNormalMap));
-				}
-				else
-				{
-					// There is no texture coordiants!
-					// Can't use normalMap
-					activeMesh->useNormalMap = false;
-				}
-
-			}
-		}
-
-		const char* items[] = { "Default texture", "XY-Plane Projection", "Spherical Projection" };
-		int prevTextMode = (int)activeMesh->textureMode;
-		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
-		ImGui::Combo("##Texture Mode", &prevTextMode, items, IM_ARRAYSIZE(items), -1.0f);
-		if (prevTextMode != activeMesh->textureMode)
-		{
-			activeMesh->textureMode = (TextureMode)prevTextMode;
-			activeMesh->UpdateTextureCoordsInGPU();
-		}
-		
-		
-		ImGui::SeparatorText("Marble Effect");
-
-		ImGui::Checkbox("Use Marble Texture", &(activeMesh->useProceduralTex));
-		if (activeMesh->useProceduralTex)
-		{
-			activeMesh->useTexture = false;
-			activeMesh->useNormalMap = false;
-
-			float* vein_freq = &(activeMesh->vein_freq);
-			int* vein_thickness = &(activeMesh->vein_thickness);
-			float* mix_factor = &(activeMesh->mix_factor);
-			float* noise_freq = &(activeMesh->noise_freq);
-			int* noise_octaves = &(activeMesh->noise_octaves);
-			float* noise_amplitude = &(activeMesh->noise_amplitude);
-
-			ImGui::Indent();
-			ImGui::SeparatorText("Details");
-			
-			ImGui::Text("Vein Frequency"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-			ImGui::DragFloat("##V_freq", vein_freq, 0.1f, 0, 30, "%.1f");
-
-			ImGui::Text("Vein Thinness"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-			ImGui::DragInt("##V_thickness", vein_thickness, 1, 0, 5);
-
-			ImGui::Text("Noise Frequency"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-			ImGui::DragFloat("##N_freq", noise_freq, 0.001f, 0, 5, "%.3f");
-
-			ImGui::Text("Noise Octaves"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-			ImGui::DragInt("##N_octaves", noise_octaves, 1, 0, 6);
-
-			ImGui::Text("Noise Amplitude"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-			ImGui::DragFloat("##N_amplitude", noise_amplitude, 0.1f, 0, 15, "%.1f");
-
-
-			vec3& base_color = (activeMesh->mcolor1);
-			vec3& vein_color = (activeMesh->mcolor2);
-
-			ImVec4 base_local = ImVec4(base_color.x, base_color.y, base_color.z, 1);
-			ImVec4 vein_local = ImVec4(vein_color.x, vein_color.y, vein_color.z, 1);
-			
-			colorPicker(&base_local, "Base Color", "##pickerBase"); ImGui::SameLine();
-			colorPicker(&vein_local, "Vein Color", "##pickerVein");
-
-			base_color.x = base_local.x;
-			base_color.y = base_local.y;
-			base_color.z = base_local.z;
-
-			vein_color.x = vein_local.x;
-			vein_color.y = vein_local.y;
-			vein_color.z = vein_local.z;
-
-			ImGui::Text("Color Mix Factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-			ImGui::DragFloat("##C_mixfactor", mix_factor, 0.01f, 0, 1, "%.2f");
-
-
-			if (ImGui::Button("Reset all##RK"))
-			{
-				*vein_freq = DEF_VEIN_FREQ;
-				*noise_freq = DEF_NOISE_FREQ;
-				*noise_octaves = DEF_NOISE_OCTAVES;
-				*noise_amplitude = DEF_NOISE_AMPLITUDE;
-				*vein_thickness = DEF_VEIN_THICKNESS;
-				*mix_factor = DEF_COL_MIX_FACTOR;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Regenerate texture"))
-			{
-				activeMesh->generateMarbleTexture();
-			}
-				
-		}
-
-
-		ImGui::SeparatorText("Material Color");
-
-		ImGui::Checkbox("Uniform Material##uni_mat", &activeMesh->isUniformMaterial);
-		Material& meshMaterial = activeMesh->getUserDefinedMaterial();
-		if (activeMesh->isUniformMaterial)
-		{
-			vec3& emis_real = meshMaterial.getEmissive();
-			vec3& diff_real = meshMaterial.getDiffuse();
-			vec3& spec_real = meshMaterial.getSpecular();
-
-			ImVec4 emis_local = ImVec4(emis_real.x, emis_real.y, emis_real.z, 1);
-			ImVec4 diff_local = ImVec4(diff_real.x, diff_real.y, diff_real.z, 1);
-			ImVec4 spec_local = ImVec4(spec_real.x, spec_real.y, spec_real.z, 1);
-
-			colorPicker(&emis_local, "Emissive Color", "##pickerEmis");
-			colorPicker(&diff_local, "Diffuse Color", "##pickerDiff");
-			colorPicker(&spec_local, "Specular Color", "##pickerSpec");
-
-			emis_real.x = emis_local.x;
-			emis_real.y = emis_local.y;
-			emis_real.z = emis_local.z;
-
-			diff_real.x = diff_local.x;
-			diff_real.y = diff_local.y;
-			diff_real.z = diff_local.z;
-
-			spec_real.x = spec_local.x;
-			spec_real.y = spec_local.y;
-			spec_real.z = spec_local.z;
-
-		}
-		else
-		{
-			if (ImGui::Button("Generate Random Material"))
-			{
-				activeMesh->GenerateMaterials();
-			}
-		}
-		
-		float* ka = &(meshMaterial.Ka);
-		float* kd = &(meshMaterial.Kd);
-		float* ks = &(meshMaterial.Ks);
-		float* emissivefactor = &(meshMaterial.EmissiveFactor);
-		int* alphaFactor = &(meshMaterial.COS_ALPHA);
-
-		ImGui::SeparatorText("Intensity");
-		ImGui::Text("Ambient Intensity (Ka)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-		ImGui::DragFloat("##K_amb", ka, 0.001f, 0, 10, "%.3f");
-
-		ImGui::Text("Diffuse Intensity (Kd)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-		ImGui::DragFloat("##K_dif", kd, 0.001f, 0, 10, "%.3f");
-
-		ImGui::Text("Specular Intensity (Ks)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-		ImGui::DragFloat("##K_spc", ks, 0.001f, 0, 10, "%.3f");
-
-		ImGui::Text("Emissive factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-		ImGui::DragFloat("##K_emsv", emissivefactor, 0.001f, 0, 1, "%.3f");
-
-		ImGui::Text("ALPHA factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-		ImGui::DragInt("##K_alpha", alphaFactor, 0.01f, 0, 100);
-		if (ImGui::Button("Reset all##RK"))
-		{
-			*ka = DEFUALT_LIGHT_Ka_VALUE;
-			*kd = DEFUALT_LIGHT_Kd_VALUE;
-			*ks = DEFUALT_LIGHT_Ks_VALUE;
-			*emissivefactor = DEFUALT_EMIS_FACTOR;
-			*alphaFactor = DEFUALT_LIGHT_ALPHA;
-		}
-
-		
-	}
-
-	if (ImGui::CollapsingHeader("Model"))
-	{
-		ImGui::Indent();
-		if (ImGui::CollapsingHeader("Model space"))
-		{
-			//ImGui::SeparatorText("Model space");
-
-			ImGui::Text("Translation (X Y Z)");
-			ImGui::DragFloat("##X_MT", &(g_trnsl->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-			ImGui::DragFloat("##Y_MT", &(g_trnsl->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-			ImGui::DragFloat("##Z_MT", &(g_trnsl->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-			if (ImGui::Button("reset##MT"))
-			{
-				activeMesh->ResetUserTransform_translate_model();
-			}
-
-			ImGui::Text("Rotation (X Y Z)");
-			ImGui::DragFloat("##X_MR", &(g_rot->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-			ImGui::DragFloat("##Y_MR", &(g_rot->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-			ImGui::DragFloat("##Z_MR", &(g_rot->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-			if (ImGui::Button("reset##MR"))
-			{
-				activeMesh->ResetUserTransform_rotate_model();
-			}
-
-			vec4* g_scale = &(activeMesh->_scale);
-
-			ImGui::Text("Scale (X Y Z)");
-			ImGui::Checkbox("keep ratio", &constScaleRatio);
-			ImGui::DragFloat("##X_MS", &(g_scale->x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
-			if (constScaleRatio)
-			{
-				g_scale->y = g_scale->z = g_scale->x;
-			}
-			else
-			{
-				ImGui::DragFloat("##Y_MS", &(g_scale->y), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
-				ImGui::DragFloat("##Z_MS", &(g_scale->z), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
-			}
-
-			if (ImGui::Button("reset##MS"))
-			{
-				activeMesh->ResetUserTransform_scale_model();
-			}
-		}
-
-		if (ImGui::CollapsingHeader("World space"))
-		{
-			//ImGui::SeparatorText("World space");
-
-			vec4* trnsl_w = &(activeMesh->_trnsl_w);
-			vec4* rot_w = &(activeMesh->_rot_w);
-			vec4* scale_w = &(activeMesh->_scale_w);
-
-
-			ImGui::Text("Translation (X Y Z)");
-			ImGui::DragFloat("##X_WT", &(trnsl_w->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-			ImGui::DragFloat("##Y_WT", &(trnsl_w->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-			ImGui::DragFloat("##Z_WT", &(trnsl_w->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-
-			if (ImGui::Button("reset##WT"))
-			{
-				activeMesh->ResetUserTransform_translate_world();
-			}
-
-
-
-
-			ImGui::Text("Rotation (X Y Z)");
-			ImGui::DragFloat("##X_WR", &(rot_w->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-			ImGui::DragFloat("##Y_WR", &(rot_w->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-			ImGui::DragFloat("##Z_WR", &(rot_w->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
-			if (ImGui::Button("reset##WR"))
-			{
-				activeMesh->ResetUserTransform_rotate_world();
-			}
-
-
-			ImGui::Text("Scale (X Y Z)");
-			ImGui::Checkbox("keep ratio##keepRatioWorld", &constScaleRatio_w);
-			ImGui::DragFloat("##X_WS", &(scale_w->x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
-			if (constScaleRatio_w)
-			{
-				scale_w->y = scale_w->z = scale_w->x;
-			}
-			else
-			{
-				ImGui::DragFloat("##Y_WS", &(scale_w->y), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
-				ImGui::DragFloat("##Z_WS", &(scale_w->z), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
-			}
-			if (ImGui::Button("reset##WS"))
-			{
-				activeMesh->ResetUserTransform_scale_world();
-			}
-		}
-		ImGui::Unindent();
-	}
-
-	if (ImGui::CollapsingHeader("Animation"))
-	{
-		int* colorAnimType = (int*) (&activeMesh->colorAnimationType);
-		ImGui::SeparatorText("Colors Animation");
-		ImGui::RadioButton("No Color Animation", colorAnimType, COLOR_ANIMATION_STATIC);
-		ImGui::RadioButton("Color Animation 1",  colorAnimType, COLOR_ANIMATION_1);
-		ImGui::RadioButton("Color Animation 2",  colorAnimType, COLOR_ANIMATION_2);
-		ImGui::SeparatorText("Vertex Animation");
-		ImGui::Checkbox("Vertex Animation##vertexAnim", &activeMesh->vertexAnimationEnable);
-
-	}
-
-	// Delete model
-	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
-	if (ImGui::Button("Delete model"))
-	{
-		models.erase(models.begin() + activeModel);
-		activeModel = NOT_SELECTED;
-	}
-	ImGui::PopStyleColor(3);
-}
-
-void Scene::drawLightTab()
-{
-	Light* currentLight = (Light*)lights[activeLight];
-	string name(currentLight->getName());
-	ImGui::SeparatorText(name.c_str());
-	bool somethingChanged = false;
-
-	vec3* light_pos = currentLight->getPositionPtr();
-	vec3* light_dir = currentLight->getDirectionPtr();
-	light_type_radio_button = (int)currentLight->getLightType();
-
-	ImGui::RadioButton("Ambient",  &light_type_radio_button, AMBIENT_LIGHT);
-	ImGui::RadioButton("Point",    &light_type_radio_button, POINT_LIGHT);  
-	ImGui::RadioButton("Parallel", &light_type_radio_button, PARALLEL_LIGHT);
-
-	if ((int)currentLight->getLightType() != light_type_radio_button)
-		somethingChanged = true;
-
-	currentLight->setLightType(light_type_radio_button);
-
-
-	vec3& color = currentLight->getColor();
-
-	ImVec4 color_local = ImVec4(color.x, color.y, color.z, 1);
-
-	colorPicker(&color_local, "Color", "##LightColor");
-
-	if (color != vec3(color_local.x, color_local.y, color_local.z))
-		somethingChanged = true;
-
-	color.x = color_local.x;
-	color.y = color_local.y;
-	color.z = color_local.z;
-	
-	if (currentLight->getLightType() == POINT_LIGHT)
-	{
-		ImGui::SeparatorText("Position");
-
-		vec3* pos = currentLight->getPositionPtr();
-		vec3 prevPos = *pos;
-		ImGui::Text("Position (X Y Z)");
-		ImGui::DragFloat("##X_WPL", &(pos->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-		ImGui::DragFloat("##Y_WPL", &(pos->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-		ImGui::DragFloat("##Z_WPL", &(pos->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-		if (ImGui::Button("reset##LP"))
-		{
-			currentLight->resetPosition();
-		}
-		if(*pos != prevPos)
-			somethingChanged = true;
-	}
-
-	if (currentLight->getLightType() == PARALLEL_LIGHT)
-	{
-		ImGui::SeparatorText("Direction");
-
-		vec3* dir = currentLight->getDirectionPtr();
-		vec3 prevDir = *dir;
-		ImGui::Text("Direction (X Y Z)");
-		ImGui::DragFloat("##X_WDL", &(dir->x), 0.1f, 0, 0, "%.1f"); ImGui::SameLine();
-		ImGui::DragFloat("##Y_WDL", &(dir->y), 0.1f, 0, 0, "%.1f"); ImGui::SameLine();
-		ImGui::DragFloat("##Z_WDL", &(dir->z), 0.1f, 0, 0, "%.1f"); ImGui::SameLine();
-		if (ImGui::Button("reset##LD"))
-		{
-			currentLight->resetDirection();
-		}
-		if (*dir != prevDir)
-			somethingChanged = true;
-	}
-
-	ImGui::SeparatorText("Light Intensity");
-
-	float* la = &(currentLight->La);
-	float* ld = &(currentLight->Ld);
-	float* ls = &(currentLight->Ls);
-
-	float prevLa = *la;
-	float prevLd = *ld;
-	float prevLs = *ls;
-
-	if (currentLight->getLightType() == AMBIENT_LIGHT)
-	{
-		ImGui::Text("Ambient Intensity "); ImGui::SameLine();
-		ImGui::DragFloat("##I_amb", la, 0.001f, 0, 10, "%.3f");
-	}
-
-	else
-	{
-		ImGui::Text("Diffuse Intensity   "); ImGui::SameLine();
-		ImGui::DragFloat("##I_dif", ld, 0.001f, 0, 10, "%.3f");
-	
-		ImGui::Text("Specular Intensity"); ImGui::SameLine();
-		ImGui::DragFloat("##I_spc", ls, 0.001f, 0, 10, "%.3f");
-	}
-
-
-	if (ImGui::Button("Reset all intensity##RI"))
-	{
-		*la = DEFUALT_LIGHT_LA_VALUE;
-		*ld = DEFUALT_LIGHT_LD_VALUE;
-		*ls = DEFUALT_LIGHT_LS_VALUE;
-	}
-	if (prevLa != *la || prevLd != *ld || prevLs != *ls)
-		somethingChanged = true;
-
-	if (somethingChanged)
-		m_renderer->UpdateLightsUBO(false);
-}
-
 void Scene::drawGUI()
 {
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -1247,53 +571,18 @@ void Scene::drawGUI()
 					showTransWindow = true;
 				}
 			}
-			if (ImGui::BeginMenu("Primitive Model"))	// Creating PrimModel of many types
-			{
-				if (ImGui::MenuItem("Cube"))
-				{
-					Cube* cube = new Cube(m_renderer);
-					models.push_back(cube);
-
-					strcpy(nameBuffer, cube->getName().c_str());
-					add_showModelDlg = true;
-					showTransWindow = true;
-				}
-
-				if (ImGui::MenuItem("Pyramid (square)"))
-				{
-					Pyramid* pyr = new Pyramid(m_renderer);
-					models.push_back(pyr);
-
-					strcpy(nameBuffer, pyr->getName().c_str());
-					add_showModelDlg = true;
-					showTransWindow = true;
-				}
-
-				if (ImGui::MenuItem("Pyramid (triangular)"))
-				{
-					TriPyramid* tri_pyr = new TriPyramid(m_renderer);
-					models.push_back(tri_pyr);
-
-					strcpy(nameBuffer, tri_pyr->getName().c_str());
-					add_showModelDlg = true;
-					showTransWindow = true;
-				}
-				ImGui::EndMenu();
-
-			}
-			if (ImGui::MenuItem("Camera"))
-			{
-				AddCamera();
-				strcpy(nameBuffer, cameras.back()->getName().c_str());
-				vec4 c_trnsl = cameras.back()->getTranslation();
-				posBuffer[0] = c_trnsl.x;
-				posBuffer[1] = c_trnsl.y;
-				posBuffer[2] = c_trnsl.z;
-
-				add_showCamDlg = true;
-				showTransWindow = true;
-			}
-
+			//if (ImGui::MenuItem("Camera"))
+			//{
+			//	AddCamera();
+			//	strcpy(nameBuffer, cameras.back()->getName().c_str());
+			//	vec4 c_trnsl = cameras.back()->getTranslation();
+			//	posBuffer[0] = c_trnsl.x;
+			//	posBuffer[1] = c_trnsl.y;
+			//	posBuffer[2] = c_trnsl.z;
+			//
+			//	add_showCamDlg = true;
+			//	showTransWindow = true;
+			//}
 			if (ImGui::MenuItem("Light Source"))
 			{
 				AddLight();
@@ -1327,25 +616,25 @@ void Scene::drawGUI()
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Cameras"))
-		{
-			int len = cameras.size();
-			for (int c = 0; c < len; c++)
-			{
-				if (ImGui::MenuItem(cameras[c]->getName().c_str(), NULL, &cameras[c]->selected))
-				{
-					/* Deselect all others */
-					for (int t = 0; t < len; t++)
-						cameras[t]->selected = false;
-
-					/* Select current camera */
-					activeCamera = c;
-					cameras[c]->selected = true;
-					showTransWindow = true;
-				}
-			}
-			ImGui::EndMenu();
-		}
+		//if (ImGui::BeginMenu("Cameras"))
+		//{
+		//	int len = cameras.size();
+		//	for (int c = 0; c < len; c++)
+		//	{
+		//		if (ImGui::MenuItem(cameras[c]->getName().c_str(), NULL, &cameras[c]->selected))
+		//		{
+		//			/* Deselect all others */
+		//			for (int t = 0; t < len; t++)
+		//				cameras[t]->selected = false;
+		//
+		//			/* Select current camera */
+		//			activeCamera = c;
+		//			cameras[c]->selected = true;
+		//			showTransWindow = true;
+		//		}
+		//	}
+		//	ImGui::EndMenu();
+		//}
 		if (ImGui::BeginMenu("Lights"))
 		{
 			int len = lights.size();
@@ -1463,84 +752,6 @@ void Scene::drawGUI()
 			}
 
 			ImGui::EndMenu();	// End Shading algo menu
-		}
-		if (ImGui::BeginMenu("Environment Mapping"))
-		{
-			if (ImGui::MenuItem("Enable"))
-			{
-				applyEnviornmentShading = true;
-				if (cubeMapId == 0)
-				{
-					glUseProgram(renderer->program);
-					glActiveTexture(GL_TEXTURE3);
-					glGenTextures(1, &cubeMapId);
-					glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
-
-					vector<string> imagesNames = vector<string>(skyBoxImages.size());
-					CFileDialog dlg(TRUE, _T("nx.png"), NULL, NULL, _T("(nx.png)|nx.png|All Files (*.*)|*.*||"));
-					if (dlg.DoModal() == IDOK)
-					{
-						std::string filePath((LPCTSTR)dlg.GetPathName());
-						string justPath = filePath.substr(0, 1 + filePath.find_last_of('\\'));
-						for (UINT i = 0; i < imagesNames.size(); i++)
-							imagesNames[i] = justPath;
-
-						imagesNames[0] += string("nx.png");
-						imagesNames[1] += string("px.png");
-						imagesNames[2] += string("py.png");
-						imagesNames[3] += string("ny.png");
-						imagesNames[4] += string("pz.png");
-						imagesNames[5] += string("nz.png");
-
-						for (UINT i = 0; i < skyBoxImages.size(); i++)
-						{
-							if (i == 2 || i == 3) //Flip just for up and down
-								stbi_set_flip_vertically_on_load(true);
-							else
-								stbi_set_flip_vertically_on_load(false);
-
-							skyBoxImages[i].image_data = stbi_load(imagesNames[i].c_str(), &skyBoxImages[i].width, &skyBoxImages[i].height, &skyBoxImages[i].channels, 0);
-
-							glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-							glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-							glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-							glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-							glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-							glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, skyBoxImages[i].width, skyBoxImages[i].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyBoxImages[i].image_data);
-
-							stbi_image_free(skyBoxImages[i].image_data);
-						}
-
-						glGenVertexArrays(1, &skyboxVAO);
-						glBindVertexArray(skyboxVAO);
-						glGenBuffers(1, &skyboxVBO);
-
-						/* vPosition */
-						{
-							glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-							int lenInBytes = sizeof(skyboxVertices);
-							glBufferData(GL_ARRAY_BUFFER, lenInBytes, skyboxVertices, GL_STATIC_DRAW);
-							GLint vPosition = glGetAttribLocation(renderer->program, "vPosition");
-							glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-							glEnableVertexAttribArray(vPosition);
-						}
-					}
-					else
-					{
-						glDeleteTextures(1, &cubeMapId);
-						glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-						cubeMapId = 0;
-						applyEnviornmentShading = false;
-					}
-				}
-			}
-			if (ImGui::MenuItem("Disable"))
-			{
-				applyEnviornmentShading = false;
-			}
-
-			ImGui::EndMenu();	// End Options menu
 		}
 		if (ImGui::Button("Dark/Light Mode##lightmode"))
 		{
@@ -1785,6 +996,681 @@ void Scene::drawGUI()
 
 		}
 	}
+}
+
+void colorPicker(ImVec4* color, std::string button_label, std::string id)
+{
+	ImGuiColorEditFlags flags = (ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_InputRGB);
+
+	if (saved_palette_init)
+	{
+		for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++)
+		{
+			ImGui::ColorConvertHSVtoRGB(n / 31.0f, 0.8f, 0.8f,
+				saved_palette[n].x, saved_palette[n].y, saved_palette[n].z);
+			saved_palette[n].w = 1.0f; // Alpha
+		}
+		saved_palette_init = false;
+	}
+
+	bool open_popup = ImGui::ColorButton((button_label+id).c_str(), *color, flags);
+	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::Text(button_label.c_str());
+	if (open_popup)
+		ImGui::OpenPopup(("Color Palette"  + id).c_str());
+
+	if (ImGui::BeginPopup(("Color Palette" + id).c_str()))
+	{
+		ImGui::ColorPicker4(id.c_str(), (float*)color, flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoAlpha);
+
+		ImGui::EndPopup();
+	}
+}
+
+void Scene::drawCameraTab()
+{
+	string name(cameras[activeCamera]->getName());
+	ImGui::SeparatorText(name.c_str());
+
+	//ImGui::Checkbox("Render Camera", &cameras[activeCamera]->renderCamera);
+	//bool* g_allowClipping = &(cameras[activeCamera]->allowClipping);
+	//ImGui::Checkbox("Allow clipping", g_allowClipping);
+
+
+	float* g_left = &(cameras[activeCamera]->c_left);
+	float* g_right = &(cameras[activeCamera]->c_right);
+	float* g_top = &(cameras[activeCamera]->c_top);
+	float* g_bottom = &(cameras[activeCamera]->c_bottom);
+	float* g_zNear = &(cameras[activeCamera]->c_zNear);
+	float* g_zFar = &(cameras[activeCamera]->c_zFar);
+	float* g_fovy = &(cameras[activeCamera]->c_fovy);
+	float* g_aspect = &(cameras[activeCamera]->c_aspect);
+	vec4* g_rot = &(cameras[activeCamera]->c_rot);
+	vec4* g_trnsl = &(cameras[activeCamera]->c_trnsl);
+
+	vec4* g_rot_view   = &(cameras[activeCamera]->c_rot_viewspace);
+	vec4* g_trnsl_view = &(cameras[activeCamera]->c_trnsl_viewspace);
+
+
+	float prev_left = *g_left;
+	float prev_right = *g_right;
+	float prev_bottom = *g_bottom;
+	float prev_top = *g_top;
+	float prev_zNear = *g_zNear;
+	float prev_zFar = *g_zFar;
+
+	ImGui::SeparatorText("Projection");
+	ImGui::RadioButton("Orthographic", &g_ortho, 1); ImGui::SameLine();
+	ImGui::RadioButton("Perspective", &g_ortho, 0);
+
+
+	ImGui::DragFloat("##Left_CP", g_left, 0.01f, 0, 0, "Left = %.1f "); ImGui::SameLine();
+	ImGui::DragFloat("##Right_CP", g_right, 0.01f, 0, 0, "Right = %.1f ");
+
+
+	ImGui::DragFloat("##Top_CP", g_top, 0.01f, 0, 0, "Top = %.1f "); ImGui::SameLine();
+	ImGui::DragFloat("##Bottom_CP", g_bottom, 0.01f, 0, 0, "Bot = %.1f ");
+
+
+	ImGui::DragFloat("##zNear_CP", g_zNear, 0.01f, 0, 0, "z-Near = %.1f "); ImGui::SameLine();
+	ImGui::DragFloat("##zFar_CP", g_zFar, 0.01f, 0, 0, "z-Far = %.1f ");
+
+
+	if (g_ortho == 1) /* Ortho type */
+	{
+		if (cameras[activeCamera]->isOrtho == false)
+		{
+			cameras[activeCamera]->isOrtho = true;
+			cameras[activeCamera]->resetProjection();
+		}
+
+		if (prev_left != *g_left || prev_right != *g_right ||
+			prev_bottom != *g_bottom || prev_top != *g_top ||
+			prev_zNear != *g_zNear || prev_zFar != *g_zFar)
+		{
+			cameras[activeCamera]->setOrtho();
+		}
+	}
+	else /* Perspective type */
+	{
+		if (cameras[activeCamera]->isOrtho == true)
+		{
+			cameras[activeCamera]->isOrtho = false;
+			cameras[activeCamera]->resetProjection();
+		}
+		
+		float prev_fovy = *g_fovy;
+		float prev_aspect = *g_aspect;
+
+		ImGui::DragFloat("##FovY", g_fovy, 0.01f, FOV_RANGE_MIN, FOV_RANGE_MAX, "FovY = %.1f "); ImGui::SameLine();
+		ImGui::DragFloat("##Aspect", g_aspect, 0.01f, ASPECT_RANGE_MIN, ASPECT_RANGE_MAX, "Aspect = %.1f "); ImGui::SameLine();
+		ImGui::Checkbox("Lock FovY", cameras[activeCamera]->getLockFovyPTR());
+
+		if (prev_fovy != *g_fovy || prev_aspect != *g_aspect) //User changed FOV or Aspect Ratio
+		{
+			cameras[activeCamera]->setPerspectiveByFov();
+		}
+		else if( prev_left != *g_left || prev_right != *g_right || prev_bottom != *g_bottom ||
+				 prev_top  != *g_top  || prev_zNear != *g_zNear || prev_zFar != *g_zFar )
+		{
+			if (prev_zNear == *g_zNear)
+			{
+				//zNear didn't changed - other paramater changed - UnLock fovy.
+				cameras[activeCamera]->unLockFovy();
+			}
+			
+			cameras[activeCamera]->setPerspectiveByParams();
+		}
+
+	}
+	
+	if (ImGui::Button("reset"))
+	{
+		cameras[activeCamera]->resetProjection();
+	}
+
+
+	ImGui::SeparatorText("View space");
+
+	vec4 prev_trnsl_view = *g_trnsl_view;
+	vec4 prev_rot_view = *g_rot_view;
+
+	ImGui::Text("Translation (X Y Z)");
+	ImGui::DragFloat("##X_VT", &(g_trnsl_view->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+	ImGui::DragFloat("##Y_VT", &(g_trnsl_view->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+	ImGui::DragFloat("##Z_VT", &(g_trnsl_view->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+	if (ImGui::Button("reset##VT"))
+	{
+		cameras[activeCamera]->ResetTranslation_viewspace();
+	}
+
+	ImGui::Text("Rotation (X Y Z)");
+	ImGui::DragFloat("##X_VR", &(g_rot_view->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+	ImGui::DragFloat("##Y_VR", &(g_rot_view->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+	ImGui::DragFloat("##Z_VR", &(g_rot_view->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+	if (ImGui::Button("reset##VR"))
+	{
+		cameras[activeCamera]->ResetRotation_viewspace();
+	}
+
+	if (prev_trnsl_view != *g_trnsl_view || prev_rot_view != *g_rot_view)
+	{
+		cameras[activeCamera]->updateTransform();
+	}
+
+
+	ImGui::SeparatorText("World space");
+
+	vec4 prev_trnsl = *g_trnsl;
+	vec4 prev_rot = *g_rot;
+
+	ImGui::Text("Translation (X Y Z)");
+	ImGui::DragFloat("##X_MT", &(g_trnsl->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+	ImGui::DragFloat("##Y_MT", &(g_trnsl->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+	ImGui::DragFloat("##Z_MT", &(g_trnsl->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+	if (ImGui::Button("reset##MT"))
+	{
+		cameras[activeCamera]->ResetTranslation();
+	}
+
+	ImGui::Text("Rotation (X Y Z)");
+	ImGui::DragFloat("##X_MR", &(g_rot->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+	ImGui::DragFloat("##Y_MR", &(g_rot->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+	ImGui::DragFloat("##Z_MR", &(g_rot->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+	if (ImGui::Button("reset##MR"))
+	{
+		cameras[activeCamera]->ResetRotation();
+	}
+
+	if (prev_trnsl != *g_trnsl || prev_rot != *g_rot)
+	{
+		cameras[activeCamera]->updateTransform();
+	}
+
+	if (cameras.size() > 1)
+	{
+		// Delete camera
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
+		if (ImGui::Button("Delete camera"))
+		{
+			cameras.erase(cameras.begin() + activeCamera);
+			activeCamera = max(0, activeCamera - 1);
+		}
+		ImGui::PopStyleColor(3);
+	}
+}
+
+void Scene::drawModelTab()
+{
+	MeshModel* activeMesh = (MeshModel*)models[activeModel];
+	string name(models[activeModel]->getName());
+	ImGui::SeparatorText(name.c_str());
+
+	vec4* g_trnsl = &(activeMesh->_trnsl);
+	vec4* g_rot = &(activeMesh->_rot);
+
+	bool* dispFaceNormal = &(activeMesh->showFaceNormals);
+	bool* dispVertexNormal = &(activeMesh->showVertexNormals);
+	bool* dispBoundingBox = &(activeMesh->showBoundingBox);
+
+	float* lenFaceNormal = activeMesh->getLengthFaceNormal();
+	float* lenVertNormal = activeMesh->getLengthVertexNormal();
+	//if (ImGui::CollapsingHeader("Displays"))
+	//{
+	//	ImGui::Checkbox("Display Face Normals  ", dispFaceNormal);
+
+	//	if (*dispFaceNormal)
+	//	{
+	//		ImGui::SameLine();
+	//		ImGui::DragFloat("Length##Length_Face_normal", lenFaceNormal, 0.001f, 0, 0, "%.3f");
+	//	}
+
+	//	ImGui::Checkbox("Display Vertex Normals", dispVertexNormal);
+	//	if (*dispVertexNormal)
+	//	{
+	//		ImGui::SameLine();
+	//		ImGui::DragFloat("Length##Length_Vert_normal", lenVertNormal, 0.001f, 0, 0, "%.3f");
+	//	}
+
+	//	ImGui::Checkbox("Display Bounding Box", dispBoundingBox);
+	//}
+
+	//if (ImGui::CollapsingHeader("Material"))
+	//{
+	//	ImGui::SeparatorText("Textures");
+	//	if (ImGui::Button("Load Texture"))
+	//		activeMesh->loadTextureFromFile();
+	//	
+	//	ImGui::SameLine();
+	//	
+	//	if (ImGui::Button("Load Normal Map"))
+	//		activeMesh->loadNMapFromFile();
+
+	//	bool textureCoordsSetOk = (activeMesh->verticesTextures_original_gpu.size()  > 0 && activeMesh->textureMode == TEXTURE_FROM_FILE) || \
+	//							  (activeMesh->verticesTextures_canonical_gpu.size() > 0 && activeMesh->textureMode != TEXTURE_FROM_FILE);
+
+	//	if (activeMesh->textureLoaded)
+	//	{
+	//		if (textureCoordsSetOk)
+	//		{
+	//			// There is texture coordiants, enable the user to select if to use or not
+	//			ImGui::Checkbox("Use Texture", &(activeMesh->useTexture));
+	//		}
+	//		else
+	//		{
+	//			// There is no texture coordiants!
+	//			// Can't use texture
+	//			activeMesh->useTexture = false;
+	//		}
+	//	}
+
+	//	if (activeMesh->normalMapLoaded)
+	//	{
+	//		if (activeMesh->textureLoaded)
+	//		{
+	//			if (textureCoordsSetOk)
+	//			{
+	//				// There is texture coordiants, enable the user to select if to use or not
+	//				ImGui::SameLine();
+	//				ImGui::Checkbox("Use Normal Map", &(activeMesh->useNormalMap));
+	//			}
+	//			else
+	//			{
+	//				// There is no texture coordiants!
+	//				// Can't use normalMap
+	//				activeMesh->useNormalMap = false;
+	//			}
+
+	//		}
+	//	}
+
+	//	const char* items[] = { "Default texture", "XY-Plane Projection", "Spherical Projection" };
+	//	int prevTextMode = (int)activeMesh->textureMode;
+	//	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
+	//	ImGui::Combo("##Texture Mode", &prevTextMode, items, IM_ARRAYSIZE(items), -1.0f);
+	//	if (prevTextMode != activeMesh->textureMode)
+	//	{
+	//		activeMesh->textureMode = (TextureMode)prevTextMode;
+	//		activeMesh->UpdateTextureCoordsInGPU();
+	//	}
+	//	
+	//	
+	//	ImGui::SeparatorText("Marble Effect");
+
+	//	ImGui::Checkbox("Use Marble Texture", &(activeMesh->useProceduralTex));
+	//	if (activeMesh->useProceduralTex)
+	//	{
+	//		activeMesh->useTexture = false;
+	//		activeMesh->useNormalMap = false;
+
+	//		float* vein_freq = &(activeMesh->vein_freq);
+	//		int* vein_thickness = &(activeMesh->vein_thickness);
+	//		float* mix_factor = &(activeMesh->mix_factor);
+	//		float* noise_freq = &(activeMesh->noise_freq);
+	//		int* noise_octaves = &(activeMesh->noise_octaves);
+	//		float* noise_amplitude = &(activeMesh->noise_amplitude);
+
+	//		ImGui::Indent();
+	//		ImGui::SeparatorText("Details");
+	//		
+	//		ImGui::Text("Vein Frequency"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//		ImGui::DragFloat("##V_freq", vein_freq, 0.1f, 0, 30, "%.1f");
+
+	//		ImGui::Text("Vein Thinness"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//		ImGui::DragInt("##V_thickness", vein_thickness, 1, 0, 5);
+
+	//		ImGui::Text("Noise Frequency"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//		ImGui::DragFloat("##N_freq", noise_freq, 0.001f, 0, 5, "%.3f");
+
+	//		ImGui::Text("Noise Octaves"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//		ImGui::DragInt("##N_octaves", noise_octaves, 1, 0, 6);
+
+	//		ImGui::Text("Noise Amplitude"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//		ImGui::DragFloat("##N_amplitude", noise_amplitude, 0.1f, 0, 15, "%.1f");
+
+
+	//		vec3& base_color = (activeMesh->mcolor1);
+	//		vec3& vein_color = (activeMesh->mcolor2);
+
+	//		ImVec4 base_local = ImVec4(base_color.x, base_color.y, base_color.z, 1);
+	//		ImVec4 vein_local = ImVec4(vein_color.x, vein_color.y, vein_color.z, 1);
+	//		
+	//		colorPicker(&base_local, "Base Color", "##pickerBase"); ImGui::SameLine();
+	//		colorPicker(&vein_local, "Vein Color", "##pickerVein");
+
+	//		base_color.x = base_local.x;
+	//		base_color.y = base_local.y;
+	//		base_color.z = base_local.z;
+
+	//		vein_color.x = vein_local.x;
+	//		vein_color.y = vein_local.y;
+	//		vein_color.z = vein_local.z;
+
+	//		ImGui::Text("Color Mix Factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//		ImGui::DragFloat("##C_mixfactor", mix_factor, 0.01f, 0, 1, "%.2f");
+
+
+	//		if (ImGui::Button("Reset all##RK"))
+	//		{
+	//			*vein_freq = DEF_VEIN_FREQ;
+	//			*noise_freq = DEF_NOISE_FREQ;
+	//			*noise_octaves = DEF_NOISE_OCTAVES;
+	//			*noise_amplitude = DEF_NOISE_AMPLITUDE;
+	//			*vein_thickness = DEF_VEIN_THICKNESS;
+	//			*mix_factor = DEF_COL_MIX_FACTOR;
+	//		}
+	//		ImGui::SameLine();
+	//		if (ImGui::Button("Regenerate texture"))
+	//		{
+	//			activeMesh->generateMarbleTexture();
+	//		}
+	//			
+	//	}
+
+
+	//	ImGui::SeparatorText("Material Color");
+
+	//	ImGui::Checkbox("Uniform Material##uni_mat", &activeMesh->isUniformMaterial);
+	//	Material& meshMaterial = activeMesh->getUserDefinedMaterial();
+	//	if (activeMesh->isUniformMaterial)
+	//	{
+	//		vec3& emis_real = meshMaterial.getEmissive();
+	//		vec3& diff_real = meshMaterial.getDiffuse();
+	//		vec3& spec_real = meshMaterial.getSpecular();
+
+	//		ImVec4 emis_local = ImVec4(emis_real.x, emis_real.y, emis_real.z, 1);
+	//		ImVec4 diff_local = ImVec4(diff_real.x, diff_real.y, diff_real.z, 1);
+	//		ImVec4 spec_local = ImVec4(spec_real.x, spec_real.y, spec_real.z, 1);
+
+	//		colorPicker(&emis_local, "Emissive Color", "##pickerEmis");
+	//		colorPicker(&diff_local, "Diffuse Color", "##pickerDiff");
+	//		colorPicker(&spec_local, "Specular Color", "##pickerSpec");
+
+	//		emis_real.x = emis_local.x;
+	//		emis_real.y = emis_local.y;
+	//		emis_real.z = emis_local.z;
+
+	//		diff_real.x = diff_local.x;
+	//		diff_real.y = diff_local.y;
+	//		diff_real.z = diff_local.z;
+
+	//		spec_real.x = spec_local.x;
+	//		spec_real.y = spec_local.y;
+	//		spec_real.z = spec_local.z;
+
+	//	}
+	//	else
+	//	{
+	//		if (ImGui::Button("Generate Random Material"))
+	//		{
+	//			activeMesh->GenerateMaterials();
+	//		}
+	//	}
+	//	
+	//	float* ka = &(meshMaterial.Ka);
+	//	float* kd = &(meshMaterial.Kd);
+	//	float* ks = &(meshMaterial.Ks);
+	//	float* emissivefactor = &(meshMaterial.EmissiveFactor);
+	//	int* alphaFactor = &(meshMaterial.COS_ALPHA);
+
+	//	ImGui::SeparatorText("Intensity");
+	//	ImGui::Text("Ambient Intensity (Ka)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//	ImGui::DragFloat("##K_amb", ka, 0.001f, 0, 10, "%.3f");
+
+	//	ImGui::Text("Diffuse Intensity (Kd)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//	ImGui::DragFloat("##K_dif", kd, 0.001f, 0, 10, "%.3f");
+
+	//	ImGui::Text("Specular Intensity (Ks)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//	ImGui::DragFloat("##K_spc", ks, 0.001f, 0, 10, "%.3f");
+
+	//	ImGui::Text("Emissive factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//	ImGui::DragFloat("##K_emsv", emissivefactor, 0.001f, 0, 1, "%.3f");
+
+	//	ImGui::Text("ALPHA factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
+	//	ImGui::DragInt("##K_alpha", alphaFactor, 0.01f, 0, 100);
+	//	if (ImGui::Button("Reset all##RK"))
+	//	{
+	//		*ka = DEFUALT_LIGHT_Ka_VALUE;
+	//		*kd = DEFUALT_LIGHT_Kd_VALUE;
+	//		*ks = DEFUALT_LIGHT_Ks_VALUE;
+	//		*emissivefactor = DEFUALT_EMIS_FACTOR;
+	//		*alphaFactor = DEFUALT_LIGHT_ALPHA;
+	//	}
+
+	//	
+	//}
+
+	if (ImGui::CollapsingHeader("Model"))
+	{
+		ImGui::Indent();
+		if (ImGui::CollapsingHeader("Model space"))
+		{
+			//ImGui::SeparatorText("Model space");
+
+			ImGui::Text("Translation (X Y Z)");
+			ImGui::DragFloat("##X_MT", &(g_trnsl->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+			ImGui::DragFloat("##Y_MT", &(g_trnsl->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+			ImGui::DragFloat("##Z_MT", &(g_trnsl->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+			if (ImGui::Button("reset##MT"))
+			{
+				activeMesh->ResetUserTransform_translate_model();
+			}
+
+			ImGui::Text("Rotation (X Y Z)");
+			ImGui::DragFloat("##X_MR", &(g_rot->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+			ImGui::DragFloat("##Y_MR", &(g_rot->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+			ImGui::DragFloat("##Z_MR", &(g_rot->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+			if (ImGui::Button("reset##MR"))
+			{
+				activeMesh->ResetUserTransform_rotate_model();
+			}
+
+			vec4* g_scale = &(activeMesh->_scale);
+
+			ImGui::Text("Scale (X Y Z)");
+			ImGui::Checkbox("keep ratio", &constScaleRatio);
+			ImGui::DragFloat("##X_MS", &(g_scale->x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+			if (constScaleRatio)
+			{
+				g_scale->y = g_scale->z = g_scale->x;
+			}
+			else
+			{
+				ImGui::DragFloat("##Y_MS", &(g_scale->y), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+				ImGui::DragFloat("##Z_MS", &(g_scale->z), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+			}
+
+			if (ImGui::Button("reset##MS"))
+			{
+				activeMesh->ResetUserTransform_scale_model();
+			}
+		}
+
+		if (ImGui::CollapsingHeader("World space"))
+		{
+			//ImGui::SeparatorText("World space");
+
+			vec4* trnsl_w = &(activeMesh->_trnsl_w);
+			vec4* rot_w = &(activeMesh->_rot_w);
+			vec4* scale_w = &(activeMesh->_scale_w);
+
+
+			ImGui::Text("Translation (X Y Z)");
+			ImGui::DragFloat("##X_WT", &(trnsl_w->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+			ImGui::DragFloat("##Y_WT", &(trnsl_w->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+			ImGui::DragFloat("##Z_WT", &(trnsl_w->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+
+			if (ImGui::Button("reset##WT"))
+			{
+				activeMesh->ResetUserTransform_translate_world();
+			}
+
+
+
+
+			ImGui::Text("Rotation (X Y Z)");
+			ImGui::DragFloat("##X_WR", &(rot_w->x), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+			ImGui::DragFloat("##Y_WR", &(rot_w->y), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+			ImGui::DragFloat("##Z_WR", &(rot_w->z), 0.1f, 0, 0, "%.0f"); ImGui::SameLine();
+			if (ImGui::Button("reset##WR"))
+			{
+				activeMesh->ResetUserTransform_rotate_world();
+			}
+
+
+			ImGui::Text("Scale (X Y Z)");
+			ImGui::Checkbox("keep ratio##keepRatioWorld", &constScaleRatio_w);
+			ImGui::DragFloat("##X_WS", &(scale_w->x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+			if (constScaleRatio_w)
+			{
+				scale_w->y = scale_w->z = scale_w->x;
+			}
+			else
+			{
+				ImGui::DragFloat("##Y_WS", &(scale_w->y), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+				ImGui::DragFloat("##Z_WS", &(scale_w->z), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+			}
+			if (ImGui::Button("reset##WS"))
+			{
+				activeMesh->ResetUserTransform_scale_world();
+			}
+		}
+		ImGui::Unindent();
+	}
+
+	//if (ImGui::CollapsingHeader("Animation"))
+	//{
+	//	int* colorAnimType = (int*) (&activeMesh->colorAnimationType);
+	//	ImGui::SeparatorText("Colors Animation");
+	//	ImGui::RadioButton("No Color Animation", colorAnimType, COLOR_ANIMATION_STATIC);
+	//	ImGui::RadioButton("Color Animation 1",  colorAnimType, COLOR_ANIMATION_1);
+	//	ImGui::RadioButton("Color Animation 2",  colorAnimType, COLOR_ANIMATION_2);
+	//	ImGui::SeparatorText("Vertex Animation");
+	//	ImGui::Checkbox("Vertex Animation##vertexAnim", &activeMesh->vertexAnimationEnable);
+
+	//}
+
+	// Delete model
+	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
+	if (ImGui::Button("Delete model"))
+	{
+		models.erase(models.begin() + activeModel);
+		activeModel = NOT_SELECTED;
+	}
+	ImGui::PopStyleColor(3);
+}
+
+void Scene::drawLightTab()
+{
+	Light* currentLight = (Light*)lights[activeLight];
+	string name(currentLight->getName());
+	ImGui::SeparatorText(name.c_str());
+	bool somethingChanged = false;
+
+	vec3* light_pos = currentLight->getPositionPtr();
+	vec3* light_dir = currentLight->getDirectionPtr();
+	light_type_radio_button = (int)currentLight->getLightType();
+
+	ImGui::RadioButton("Ambient",  &light_type_radio_button, AMBIENT_LIGHT);
+	ImGui::RadioButton("Point",    &light_type_radio_button, POINT_LIGHT);  
+	ImGui::RadioButton("Parallel", &light_type_radio_button, PARALLEL_LIGHT);
+
+	if ((int)currentLight->getLightType() != light_type_radio_button)
+		somethingChanged = true;
+
+	currentLight->setLightType(light_type_radio_button);
+
+
+	vec3& color = currentLight->getColor();
+
+	ImVec4 color_local = ImVec4(color.x, color.y, color.z, 1);
+
+	colorPicker(&color_local, "Color", "##LightColor");
+
+	if (color != vec3(color_local.x, color_local.y, color_local.z))
+		somethingChanged = true;
+
+	color.x = color_local.x;
+	color.y = color_local.y;
+	color.z = color_local.z;
+	
+	if (currentLight->getLightType() == POINT_LIGHT)
+	{
+		ImGui::SeparatorText("Position");
+
+		vec3* pos = currentLight->getPositionPtr();
+		vec3 prevPos = *pos;
+		ImGui::Text("Position (X Y Z)");
+		ImGui::DragFloat("##X_WPL", &(pos->x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+		ImGui::DragFloat("##Y_WPL", &(pos->y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+		ImGui::DragFloat("##Z_WPL", &(pos->z), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+		if (ImGui::Button("reset##LP"))
+		{
+			currentLight->resetPosition();
+		}
+		if(*pos != prevPos)
+			somethingChanged = true;
+	}
+
+	if (currentLight->getLightType() == PARALLEL_LIGHT)
+	{
+		ImGui::SeparatorText("Direction");
+
+		vec3* dir = currentLight->getDirectionPtr();
+		vec3 prevDir = *dir;
+		ImGui::Text("Direction (X Y Z)");
+		ImGui::DragFloat("##X_WDL", &(dir->x), 0.1f, 0, 0, "%.1f"); ImGui::SameLine();
+		ImGui::DragFloat("##Y_WDL", &(dir->y), 0.1f, 0, 0, "%.1f"); ImGui::SameLine();
+		ImGui::DragFloat("##Z_WDL", &(dir->z), 0.1f, 0, 0, "%.1f"); ImGui::SameLine();
+		if (ImGui::Button("reset##LD"))
+		{
+			currentLight->resetDirection();
+		}
+		if (*dir != prevDir)
+			somethingChanged = true;
+	}
+
+	ImGui::SeparatorText("Light Intensity");
+
+	float* la = &(currentLight->La);
+	float* ld = &(currentLight->Ld);
+	float* ls = &(currentLight->Ls);
+
+	float prevLa = *la;
+	float prevLd = *ld;
+	float prevLs = *ls;
+
+	if (currentLight->getLightType() == AMBIENT_LIGHT)
+	{
+		ImGui::Text("Ambient Intensity "); ImGui::SameLine();
+		ImGui::DragFloat("##I_amb", la, 0.001f, 0, 10, "%.3f");
+	}
+
+	else
+	{
+		ImGui::Text("Diffuse Intensity   "); ImGui::SameLine();
+		ImGui::DragFloat("##I_dif", ld, 0.001f, 0, 10, "%.3f");
+	
+		ImGui::Text("Specular Intensity"); ImGui::SameLine();
+		ImGui::DragFloat("##I_spc", ls, 0.001f, 0, 10, "%.3f");
+	}
+
+
+	if (ImGui::Button("Reset all intensity##RI"))
+	{
+		*la = DEFUALT_LIGHT_LA_VALUE;
+		*ld = DEFUALT_LIGHT_LD_VALUE;
+		*ls = DEFUALT_LIGHT_LS_VALUE;
+	}
+	if (prevLa != *la || prevLd != *ld || prevLs != *ls)
+		somethingChanged = true;
+
+	if (somethingChanged)
+		m_renderer->UpdateLightsUBO(false);
 }
 
 Camera* Scene::GetActiveCamera()

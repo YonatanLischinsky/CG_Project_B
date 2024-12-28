@@ -1,12 +1,4 @@
-﻿  stdafx.cpp
-  imgui_impl_glfw.cpp
-  imgui_impl_opengl3.cpp
-  imgui.cpp
-  imgui_demo.cpp
-  imgui_draw.cpp
-  imgui_tables.cpp
-  imgui_widgets.cpp
-  InitShader.cpp
+﻿  CG_skel_w_glfw.cpp
   Light.cpp
   MeshModel.cpp
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\xmemory(681,47): warning C4244: 'initializing': conversion from 'const _Ty' to '_Objty', possible loss of data
@@ -83,11 +75,8 @@ C:\Project_B\code\CG_Project_B\CG_skel_w_MFC\MeshModel.cpp(1219): message : see 
               _Iter=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<float>>>,
               _Alloc=std::allocator<unsigned char>
           ]
-  Poly.cpp
   Renderer.cpp
   Scene.cpp
-  CG_skel_w_glfw.cpp
-  Utils.cpp
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
   Finished generating code
