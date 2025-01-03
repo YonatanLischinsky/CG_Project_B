@@ -29,6 +29,7 @@ static ImVec4 saved_palette[32] = {};
 bool add_showModelDlg = false, add_showCamDlg = false, add_showLightDlg = false;
 bool simulation_showNumRaysDlg = false;
 bool showTransWindow = false;
+bool show_rayhits = true;
 bool constScaleRatio = false;
 bool constScaleRatio_w = false;
 int transformationWindowWidth = 0;
@@ -406,10 +407,6 @@ void Scene::draw()
 	//2. Update general uniforms in GPU:
 	UpdateGeneralUniformInGPU();
 	
-	//6. Draw rays
-	if (rt && rt->GetBufferLen() != 0) {
-		m_renderer->drawRays(GetActiveCamera()->cTransform);
-	}
 
 	//3. draw each Model
 	for (auto model : models)
@@ -523,6 +520,10 @@ void Scene::draw()
 		//UpdateGeneralUniformInGPU(); //Reset the GPU data (projection matrix updated)
 	}
 
+	//6. Draw rays
+	if (show_rayhits && rt && rt->GetBufferLen() != 0) {
+		m_renderer->drawRays(GetActiveCamera()->cTransform);
+	}
 
 }
 
@@ -627,6 +628,14 @@ void Scene::drawGUI()
 			}
 			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == false)) {
 				cpu_mode = false;
+			}
+			if (show_rayhits && ImGui::Button("Hide rays##hiderays"))
+			{
+				show_rayhits = !show_rayhits;
+			}
+			else if (!show_rayhits && ImGui::Button("Show rays##showrays"))
+			{
+				show_rayhits = !show_rayhits;
 			}
 			ImGui::EndMenu();
 		}
