@@ -23,12 +23,14 @@ in vec3 vPosition;
 in vec3 fPosition;
 in vec3 vn;
 in vec3 fn;
+in vec3 raysPos;
 in vec3 non_uniformColor_diffuse_FLAT;  //every 3 is duplicated to be the average of the face (to make a uniform same color for FLAT shading)
 in vec3 non_uniformColor_diffuse;       //simple 1to1 mapping for every vertex - it's color
 in vec2 texcoord;
 in vec3 tangent;
 
 /* Uniforms */
+uniform int displayRays;
 uniform int algo_shading;
 uniform int displayBBox;
 uniform int displayVnormal;
@@ -36,6 +38,7 @@ uniform int displayFnormal;
 uniform int displaySkyBox;
 uniform int displayCameraIcon;
 uniform int numLights;
+
 uniform float vnFactor;
 uniform float fnFactor;
 
@@ -45,6 +48,7 @@ uniform mat4 model_normals;
 uniform mat4 view_normals;
 
 uniform mat4 projection;
+uniform mat4 projection_normals;
 uniform vec3 wireframeColor;
 uniform int colorAnimateType;
 uniform int vertexAnimationEnable;
@@ -108,8 +112,6 @@ int current_COS_ALPHA;
 mat4 modelview;
 mat4 modelview_normals;
 vec3 tangentVec, bitangentVec, nmN;
-
-
 
 vec3 calcIntensity(int i, vec3 P, vec3 N, int typeOfColor)
 {
@@ -205,7 +207,7 @@ void main()
 
     st = texcoord;
     vPos = vec4(vPosition, 1);
-    if(vertexAnimationEnable == 1 && displayBBox == 0 && displayFnormal == 0 && displayVnormal == 0 && displaySkyBox == 0 && displayCameraIcon == 0)
+    if(vertexAnimationEnable == 1 && displayBBox == 0 && displayFnormal == 0 && displayVnormal == 0 && displaySkyBox == 0 && displayCameraIcon == 0 && displayRays == 0)
     {
         float PI = 3.14159265359f;
         
@@ -228,9 +230,7 @@ void main()
     vPos_Cameraspace = modelview * vPos;
     vertPos_worldspace = (model * vPos).xyz;
     resultPosition = projection * vPos_Cameraspace;
-   
-   
-   
+
    // Normal map calculations
     vec4 temp_tangent = vec4(tangent,1);
     temp_tangent = modelview_normals * temp_tangent;
@@ -275,6 +275,11 @@ void main()
     else if(displayCameraIcon == 1)
     {
         outputColor = vec3(0, 1, 0);  // green
+    }
+    else if (displayRays == 1)
+    {
+        resultPosition = projection * modelview * vec4(raysPos, 1);
+        outputColor = vec3(1, 0, 0);
     }
     else // draw shading algos
     {
@@ -348,6 +353,4 @@ void main()
     
     gl_Position = resultPosition;
     vertPos = vPosition;
-
-
 }

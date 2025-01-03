@@ -1,5 +1,7 @@
 #include "RayTransmitter.h"
 #include "MeshModel.h"
+#include "Scene.h"
+#include "Renderer.h"
 
 std::vector<vec3> RayTransmitter::getNrays(uint n)
 {
@@ -28,6 +30,17 @@ std::vector<vec3> RayTransmitter::getNrays(uint n)
 	return rays;
 }
 
+RayTransmitter::RayTransmitter(Scene* s, Renderer* r) {
+	this->scene = s;
+	this->renderer = r;
+
+	pos_w = vec3(0);
+	rays = std::vector<vec3>(0);
+	hits = std::vector<HIT>(0);
+
+	GenerateAllGPU_Stuff();
+}
+
 void RayTransmitter::StartSimulation()
 {
 	// Get first time N directions relative to (0,0,0)
@@ -38,6 +51,7 @@ void RayTransmitter::StartSimulation()
 	// At this points we got N rays we want to shoot starting from our position.
 
 	// for CPU version:
+	hits.clear();
 	for (auto& r : rays) {
 		//if r collided with any face (triangle)
 			// Add the HIT (hit point in world space and distance (hit_point - pos_w)
@@ -45,7 +59,6 @@ void RayTransmitter::StartSimulation()
 		// else
 			// misses++;
 
-		//3. draw each Model
 		HIT possible_hit = { 0 };
 		for (auto model : scene->models)
 		{
@@ -58,9 +71,10 @@ void RayTransmitter::StartSimulation()
 				break;
 			}
 		}
-		if (possible_hit.distance == 0) // no hit found at all
-			misses++;
 	}
+	UpdateRaysDataInGPU();
+
+
 
 	//for GPU version:
 		// load the model data as a triangle list
@@ -69,4 +83,64 @@ void RayTransmitter::StartSimulation()
 		// Launch the Compute shader for the collision detection
 		// Read the output of Compute Shader from shared memory
 
+}
+
+void RayTransmitter::UpdateRaysDataInGPU()
+{
+	if (VAO == 0 | VBO == 0)
+		return;
+
+	rays_data_gpu.clear();
+	for (auto& h : hits) {
+		rays_data_gpu.push_back(h.origin_w);
+		rays_data_gpu.push_back(h.hit_point_w);
+	}
+
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	int lenInBytes = rays_data_gpu.size() * 3 * sizeof(float);
+	glBufferData(GL_ARRAY_BUFFER, lenInBytes, rays_data_gpu.data(), GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+}
+
+void RayTransmitter::UpdateModelViewInGPU(mat4& Tc, mat4& Tc_for_normals)
+{
+	// Calculate model view matrix:
+	mat4 model = mat4(1) * mat4(1);
+	mat4 view = Tc;
+
+	// Calculate model view matrix:
+	mat4 model_normals = mat4(1) * mat4(1);
+	mat4 view_normals = Tc_for_normals;
+
+	/* Bind the model matrix*/
+	glUniformMatrix4fv(glGetUniformLocation(renderer->program, "model"), 1, GL_TRUE, &(model[0][0]));
+
+	/* Bind the view matrix*/
+	glUniformMatrix4fv(glGetUniformLocation(renderer->program, "view"), 1, GL_TRUE, &(view[0][0]));
+
+	/* Bind the model_normals matrix*/
+	glUniformMatrix4fv(glGetUniformLocation(renderer->program, "model_normals"), 1, GL_TRUE, &(model_normals[0][0]));
+
+	/* Bind the view_normals matrix*/
+	glUniformMatrix4fv(glGetUniformLocation(renderer->program, "view_normals"), 1, GL_TRUE, &(view_normals[0][0]));
+}
+
+void RayTransmitter::GenerateAllGPU_Stuff()
+{
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	//Genereate VAO and VBOs in GPU:
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	GLint raysPos = glGetAttribLocation(renderer->program, "raysPos");
+	glVertexAttribPointer(raysPos, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(raysPos);
+
+	glBindVertexArray(0);
 }

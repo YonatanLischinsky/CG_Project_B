@@ -3,8 +3,11 @@
 #include "InitShader.h"
 #include "GL\freeglut.h"
 #include "MeshModel.h"
+#include "RayTransmitter.h"
+
 
 extern Scene* scene;
+extern RayTransmitter* rt;
 
 Renderer::Renderer(int width, int height, GLFWwindow* window) :
 	m_width(width), m_height(height)
@@ -100,6 +103,22 @@ void Renderer::drawModel(DrawAlgo draw_algo, Model* model, mat4& cTransform)
 		glUniform1i(glGetUniformLocation(program, "displayFnormal"), 0);
 	}
 	
+	glBindVertexArray(0);
+
+}
+
+void Renderer::drawRays(mat4& cTransform)
+{
+	if (!rt ) return;
+
+	rt->UpdateModelViewInGPU(scene->GetActiveCamera()->cTransform, scene->GetActiveCamera()->rotationMat_normals);
+
+	glBindVertexArray(rt->VAO);
+	glUniform1i(glGetUniformLocation(program, "displayRays"), 1);
+	glDrawArrays(GL_LINES, 0, rt->GetBufferLen());
+	glUniform1i(glGetUniformLocation(program, "displayRays"), 0);
+	
+
 	glBindVertexArray(0);
 
 }

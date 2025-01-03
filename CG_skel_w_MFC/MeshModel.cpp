@@ -1210,6 +1210,7 @@ bool MeshModel::CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h)
 
 		auto intersection = rayTriangleIntersection(A, B, C, origin, ray_direction);
 		if (intersection.has_value()) {
+			h->origin_w = origin;
 			h->hit_point_w = *intersection;
 			h->distance = length(h->hit_point_w - origin);
 			return true;
@@ -1217,8 +1218,9 @@ bool MeshModel::CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h)
 
 	}
 
-	h->distance = 0;
+	h->origin_w = vec3(0);
 	h->hit_point_w = vec3(0);
+	h->distance = 0;
 	return false;
 }
 

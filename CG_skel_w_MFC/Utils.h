@@ -101,6 +101,7 @@ typedef struct Vertex {
 } Vertex;
 
 typedef struct hit_tuple {
+	vec3 origin_w;
 	vec3 hit_point_w;
 	float distance;
 } HIT;

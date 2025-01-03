@@ -7,24 +7,21 @@ private:
 	Scene* scene;
 	Renderer* renderer;
 	vec3 pos_w;
-	uint misses;
 	std::vector<HIT> hits;
 	std::vector<vec3> rays;
+	std::vector<vec3> rays_data_gpu;
 	std::vector<vec3> getNrays(uint n);
-
+	void UpdateRaysDataInGPU();
+	void GenerateAllGPU_Stuff();
 public:
-	RayTransmitter(Scene* s, Renderer* r) : scene(s), renderer(r) {
-		pos_w = vec3(0);
-		misses = 0;
-		rays = std::vector<vec3>(0);
-		hits = std::vector<HIT>(0);
-	}
+	GLuint VAO = 0;
+	GLuint VBO = 0;
 
+	RayTransmitter(Scene* s, Renderer* r);
+	void UpdateModelViewInGPU(mat4& Tc, mat4& Tc_for_normals);
 	void N_Rays_Updated() { rays.clear(); }
 	void SetPosition_w(vec3 p) { pos_w = p; }
-	std::vector<HIT>& GetHits() { return hits; }
-	uint GetMisses() { return misses; }
-
+	int GetBufferLen() { return rays_data_gpu.size(); }
 	void StartSimulation();
 
 };

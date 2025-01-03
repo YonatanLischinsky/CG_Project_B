@@ -406,6 +406,11 @@ void Scene::draw()
 	//2. Update general uniforms in GPU:
 	UpdateGeneralUniformInGPU();
 	
+	//6. Draw rays
+	if (rt && rt->GetBufferLen() != 0) {
+		m_renderer->drawRays(GetActiveCamera()->cTransform);
+	}
+
 	//3. draw each Model
 	for (auto model : models)
 	{

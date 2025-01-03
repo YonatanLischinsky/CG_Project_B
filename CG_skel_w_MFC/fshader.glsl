@@ -53,6 +53,7 @@ uniform int applyEnviornmentShading;
 
 
 /* Uniforms */
+uniform int   displayRays;
 uniform vec3  wireframeColor;
 uniform vec3  cameraPos;
 uniform float smoothTime;
@@ -181,7 +182,6 @@ vec4 calcNormalTangent()
     return vec4(normalize(TBN * normal_from_map), 1);
 }
 
-
 vec3 marble_color(float x)
 {
     vec3 col;
@@ -199,7 +199,6 @@ vec3 marble_color(float x)
     return col;
 }
 
-
 float turbulence(vec3 p, int octaves)
 {
     float val = 0.0;
@@ -211,7 +210,6 @@ float turbulence(vec3 p, int octaves)
     }
     return val;
 }
-
 
 /* Main */
 void main()
@@ -227,7 +225,7 @@ void main()
     }
 
 
-    if(algo_shading == 0 || displayBBox == 1 || displayVnormal == 1 || displayFnormal == 1 || displayCameraIcon == 1) //WireFrame
+    if(algo_shading == 0 || displayBBox == 1 || displayVnormal == 1 || displayFnormal == 1 || displayCameraIcon == 1 || displayRays == 1) //WireFrame
     {
 	    FragColor = vec4(outputColor, 1);
     }

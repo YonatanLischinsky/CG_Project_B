@@ -193,7 +193,7 @@ public:
 		activeLight  = 0;						 //index = 0 because it is the first
 		cameras[activeCamera]->selected = true;  //Select it because it is the default
 		lights[activeLight]->selected   = true;  //Select it because it is the default
-		num_of_rays = 0;
+		num_of_rays = 500;
 	};
 	~Scene()
 	{
