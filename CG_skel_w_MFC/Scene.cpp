@@ -620,6 +620,7 @@ void Scene::drawGUI()
 			if (ImGui::MenuItem("Number of rays"))
 			{
 				simulation_showNumRaysDlg = true;
+				n_rays = num_of_rays;
 			}
 			if (ImGui::MenuItem("CPU mode", NULL, cpu_mode == true)) {
 				cpu_mode = true;

@@ -18,11 +18,11 @@ std::vector<vec3> RayTransmitter::getNrays(uint n)
 
 		// Convert spherical coordinates to Cartesian coordinates
 		float x = std::sin(theta) * std::cos(phi);
-		float y = std::sin(theta) * std::sin(phi);
-		float z = std::cos(theta);
+		float z = std::sin(theta) * std::sin(phi);
+		float y = std::cos(theta);
 
 		// Add only the top hemisphere points (z >= 0)
-		if (z >= 0.0f) {
+		if (y >= 0) {
 			rays.push_back(vec3(x, y, z));
 		}
 	}

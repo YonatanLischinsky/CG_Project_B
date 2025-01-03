@@ -187,13 +187,13 @@ public:
 	Renderer* m_renderer;
 	Scene(Renderer* renderer) : m_renderer(renderer)
 	{
+		num_of_rays = 500;
 		AddCamera();							 //Add the first default camera
 		AddLight ();							 //Add the first default ambient light
 		activeCamera = 0;						 //index = 0 because it is the first
 		activeLight  = 0;						 //index = 0 because it is the first
 		cameras[activeCamera]->selected = true;  //Select it because it is the default
 		lights[activeLight]->selected   = true;  //Select it because it is the default
-		num_of_rays = 500;
 	};
 	~Scene()
 	{
