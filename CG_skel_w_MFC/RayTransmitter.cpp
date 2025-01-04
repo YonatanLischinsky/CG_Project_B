@@ -21,7 +21,7 @@ std::vector<vec3> RayTransmitter::getNrays(uint n)
 		float z = std::sin(theta) * std::sin(phi);
 		float y = std::cos(theta);
 
-		// Add only the top hemisphere points (z >= 0)
+		// Add only the top hemisphere points (y >= 0)
 		if (y >= 0) {
 			rays.push_back(vec3(x, y, z));
 		}

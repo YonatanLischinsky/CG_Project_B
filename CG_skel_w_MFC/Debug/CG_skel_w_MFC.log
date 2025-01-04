@@ -2,16 +2,16 @@
 cl : command line warning D9025: overriding '/Os' with '/Ot'
 cl : command line warning D9002: ignoring unknown option '-Of'
 cl : command line warning D9002: ignoring unknown option '-Oa'
-  Scene.cpp
+  RayTransmitter.cpp
 LINK : warning LNK4044: unrecognized option '/lz'; ignored
 LINK : warning LNK4044: unrecognized option '/lpng'; ignored
   LINK : 0 new modules and 1 (out of 96) modules have changed since prior linking
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{0CFC2418-5163-4E7A-83AE-C7691CF1396F}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{611A42AA-CFC5-4B03-BC89-C725F727AEC3}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{07BAE57A-78BE-4A58-AF0C-176818E40D64}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{BFDBE593-E632-416E-BAA0-CCD9B269BA86}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -22,26 +22,26 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{27CFB725-68D7-4121-A44E-3C5237A626BB}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{28B51C8B-6150-4A38-BA52-B0D0F45006F3}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3F794E72-9D07-4B6C-B1C4-C02E63E59C36}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{B75AC380-AD83-4629-9E15-7AA131403A4B}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{27CFB725-68D7-4121-A44E-3C5237A626BB}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{3F794E72-9D07-4B6C-B1C4-C02E63E59C36}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{28B51C8B-6150-4A38-BA52-B0D0F45006F3}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{B75AC380-AD83-4629-9E15-7AA131403A4B}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{119DDC82-1573-4339-8FCD-7A82EB90F55A}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{D907E206-7759-422B-9D6C-F0E7F07A33DA}.tmp"
    /readonly
    "Debug\CG_skel_w_MFC.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{27CFB725-68D7-4121-A44E-3C5237A626BB}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3F794E72-9D07-4B6C-B1C4-C02E63E59C36}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
@@ -49,7 +49,7 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
   adding resource. type:MANIFEST, name:1, language:0x0409, flags:0x30, size:548
   Starting pass 2
        CG_skel_w_MFC.res
-       Scene.obj
+       RayTransmitter.obj
        MSVCRTD.lib(loadcfg.obj)
   Finished pass 2
   CG_skel_w_MFC.vcxproj -> C:\Project_B\code\CG_Project_B\Debug\CG_skel_w_glfw.exe
