@@ -230,6 +230,7 @@ int my_main(int argc, char** argv)
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= (ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad);
 	io.Fonts->AddFontFromFileTTF("../imgui/fonts/NotoSans-Medium.ttf", 18.0f);
+	io.Fonts->AddFontFromFileTTF("../imgui/fonts/NotoSans-Medium.ttf", 24.0f);
 	
 
 	// Setup Platform/Renderer backends

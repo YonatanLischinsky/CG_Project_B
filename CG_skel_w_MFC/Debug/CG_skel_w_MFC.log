@@ -8,10 +8,10 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
   LINK : 0 new modules and 1 (out of 100) modules have changed since prior linking
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{F3F75371-7FF5-496E-A314-70C3B54472B4}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{81AA13FC-CE93-4B3C-A549-2BF2E7C18B54}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{D9AD308B-FA10-4C35-8E4D-6B2EB0F56D8F}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{54C0065F-243C-4467-AF77-9DE9F790DC20}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -22,31 +22,34 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{0BF940B9-02D4-4CB9-BEFB-22952BDCD98B}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{7960F8E3-7ACE-4FBA-B891-B05D57C9182C}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{645C89A1-702F-4B0E-8B53-5CB473CBA7C6}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{DA3DBDC6-A5D6-4AF7-AAC7-0CFC652DDAF4}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{0BF940B9-02D4-4CB9-BEFB-22952BDCD98B}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{645C89A1-702F-4B0E-8B53-5CB473CBA7C6}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{7960F8E3-7ACE-4FBA-B891-B05D57C9182C}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{DA3DBDC6-A5D6-4AF7-AAC7-0CFC652DDAF4}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{DF3FCF0C-027C-48DA-8575-B7B1E8537C24}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{67E60D22-D7EF-4412-A6DD-4CF565437207}.tmp"
    /readonly
    "Debug\CG_skel_w_MFC.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{0BF940B9-02D4-4CB9-BEFB-22952BDCD98B}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{645C89A1-702F-4B0E-8B53-5CB473CBA7C6}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   adding resource. type:STRING, name:7, language:0x0409, flags:0x1030, size:58
   adding resource. type:MANIFEST, name:1, language:0x0409, flags:0x30, size:548
+  Searching libraries
+      Searching ..\glew\lib\glew.lib:
+  Finished searching libraries
   Starting pass 2
        CG_skel_w_MFC.res
        Scene.obj

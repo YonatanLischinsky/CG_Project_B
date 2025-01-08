@@ -1803,6 +1803,7 @@ void Scene::drawSimTab()
 	time_micro	+= std::to_string(rt->sim_result.time_micro);
 	method		+= rt->sim_result.method == 0 ? "CPU" : "GPU";
 
+	ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // 2 is the index of the larger font
 	ImGui::Text(hits.c_str());
 	ImGui::Text(total_rays.c_str());
 	ImGui::Text(hit_ratio.c_str());
@@ -1811,6 +1812,7 @@ void Scene::drawSimTab()
 	ImGui::Text(time_mili.c_str());
 	ImGui::Text(time_micro.c_str());
 	ImGui::Text(method.c_str());
+	ImGui::PopFont();
 
 	if (ImGui::Button("Save results##sim_save"))
 	{
