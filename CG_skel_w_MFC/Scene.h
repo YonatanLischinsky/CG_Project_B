@@ -117,7 +117,7 @@ private:
 	void drawCameraTab();
 	void drawModelTab();
 	void drawLightTab();
-	//void drawEffectsTab();
+	void drawSimTab();
 
 	bool GUI_popup_pressedOK = false, GUI_popup_pressedCANCEL = false;
 	bool showGrid = false;

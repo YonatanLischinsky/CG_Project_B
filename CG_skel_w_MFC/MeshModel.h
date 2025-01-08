@@ -182,5 +182,6 @@ public:
 	void UpdateAnimationInGPU();
 
 	bool CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h);
+	uint GetNumberOfPolygons();
 
 };

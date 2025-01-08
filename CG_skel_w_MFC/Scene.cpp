@@ -13,6 +13,7 @@
 #define MODEL_TAB_INDEX  0
 #define CAMERA_TAB_INDEX 1
 #define LIGHT_TAB_INDEX  2
+#define SIM_TAB_INDEX	 3
 
 using namespace std;
 extern Renderer* renderer;
@@ -25,6 +26,7 @@ static int n_rays = 0;
 static int light_type_radio_button;
 static bool saved_palette_init = true;
 static ImVec4 saved_palette[32] = {};
+static int selectedTab = 0;
 
 bool add_showModelDlg = false, add_showCamDlg = false, add_showLightDlg = false;
 bool simulation_showNumRaysDlg = false;
@@ -347,6 +349,10 @@ void Camera::zoom(double s_offset, double update_rate)
 //--------------------------------------------------
 //-------------------- SCENE ----------------------
 //--------------------------------------------------
+std::string floatToStringWithPrecision(float value, uint precision = 3) {
+	value = std::round(value * 1000.0f) / 1000.0f; // Round to 3 decimal places
+	return std::to_string(value).substr(0, std::to_string(value).find('.') + precision+1); // Keep only 3 decimals
+}
 
 void Scene::AddCamera()
 {
@@ -615,7 +621,9 @@ void Scene::drawGUI()
 				if (ImGui::MenuItem("Start Simulation"))
 				{
 					if (rt)
-						rt->StartSimulation();
+						rt->StartSimulation(cpu_mode ? 0 : 1);
+					showTransWindow = true;
+					selectedTab = SIM_TAB_INDEX;
 				}
 			}
 			if (ImGui::MenuItem("Number of rays"))
@@ -639,9 +647,9 @@ void Scene::drawGUI()
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Models"))
+		if (models.size() > 0)
 		{
-			if (models.size() > 0)
+			if (ImGui::BeginMenu("Models"))
 			{
 				int len = models.size();
 				for (int c = 0; c < len; c++)
@@ -654,8 +662,8 @@ void Scene::drawGUI()
 						showTransWindow = true;
 					}
 				}
+				ImGui::EndMenu();
 			}
-			ImGui::EndMenu();
 		}
 		//if (ImGui::BeginMenu("Cameras"))
 		//{
@@ -813,7 +821,7 @@ void Scene::drawGUI()
 		ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarHeight), ImGuiCond_Always);
 		ImGui::SetNextWindowSizeConstraints(ImVec2(350, m_renderer->GetWindowSize().y - mainMenuBarHeight), \
 			ImVec2(m_renderer->GetWindowSize().x / 2, m_renderer->GetWindowSize().y - mainMenuBarHeight));
-		if (ImGui::Begin("Transformations Window", &showTransWindow, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
+		if (ImGui::Begin("Control Window", &showTransWindow, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 		{
 			int currentWidth = (int)ImGui::GetWindowSize().x;
 			if (currentWidth != transformationWindowWidth)
@@ -822,39 +830,39 @@ void Scene::drawGUI()
 				resize_callback_handle(m_renderer->GetWindowSize().x, m_renderer->GetWindowSize().y);
 			}
 
-			const char* names[3] = { 0 };
-			names[MODEL_TAB_INDEX] = "Model";
-			names[CAMERA_TAB_INDEX] = "Camera";
-			names[LIGHT_TAB_INDEX] = "Light";
-			//names[EFFECTS_TAB_INDEX] = "Effects";
-
+			const char* names[4] = { "Model", "Camera", "Light", "Simulation" };
 			ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+
 			if (ImGui::BeginTabBar("TransBar", tab_bar_flags))
 			{
 				ImGui::PushItemWidth(80);
-				for (int n = 0; n < ARRAYSIZE(names); n++)
-				{
-					if (activeModel == NOT_SELECTED && n == MODEL_TAB_INDEX)
-						continue;
 
-					if (ImGui::BeginTabItem(names[n], 0, tab_bar_flags))
+				for (int n = 0; n < ARRAYSIZE(names); n++) {
+					if (n == MODEL_TAB_INDEX && activeModel == NOT_SELECTED)
+						continue;
+					
+					ImGuiTabItemFlags tabFlags = (selectedTab == n) ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+
+					// Render the tab
+					if (ImGui::BeginTabItem(names[n], nullptr, tabFlags)) 
 					{
+						if (ImGui::IsItemActive())
+							selectedTab = n;
+
+						// Draw the appropriate content
 						if (n == MODEL_TAB_INDEX)
-						{
 							drawModelTab();
-						}
 						else if (n == CAMERA_TAB_INDEX)
-						{
 							drawCameraTab();
-						}
 						else if (n == LIGHT_TAB_INDEX)
-						{
 							drawLightTab();
-						}
+						else if (n == SIM_TAB_INDEX)
+							drawSimTab();
 
 						ImGui::EndTabItem();
 					}
 				}
+				
 				ImGui::PopItemWidth();
 				ImGui::EndTabBar();
 			}
@@ -1753,6 +1761,44 @@ void Scene::drawLightTab()
 
 	if (somethingChanged)
 		m_renderer->UpdateLightsUBO(false);
+}
+
+void Scene::drawSimTab()
+{
+	ImGui::SeparatorText("Simulation Results");
+
+
+	std::string hits		= "Hits: ";
+	std::string total_rays	= "Total Rays: ";
+	std::string hit_ratio	= "hit ratio: ";
+	std::string total_poly	= "Total polygons: ";
+	std::string time		= "Time [seconds]: ";
+	std::string time_mili	= "Time [millisec]: ";
+	std::string time_micro	= "Time [microsec]: ";
+	std::string method		= "Method: ";
+	
+	hits		+= std::to_string(rt->sim_result.hits);
+	total_rays	+= std::to_string(rt->sim_result.rays);
+	hit_ratio	+= floatToStringWithPrecision((float)rt->sim_result.hits * 100.0f / (float)rt->sim_result.rays, 1) + " %%";
+	total_poly	+= std::to_string(rt->sim_result.polygons);
+	time		+= floatToStringWithPrecision(rt->sim_result.time_seconds, 3);
+	time_mili	+= std::to_string(rt->sim_result.time_milli);
+	time_micro	+= std::to_string(rt->sim_result.time_micro);
+	method		+= rt->sim_result.method == 0 ? "CPU" : "GPU";
+
+	ImGui::Text(hits.c_str());
+	ImGui::Text(total_rays.c_str());
+	ImGui::Text(hit_ratio.c_str());
+	ImGui::Text(total_poly.c_str());
+	ImGui::Text(time.c_str());
+	ImGui::Text(time_mili.c_str());
+	ImGui::Text(time_micro.c_str());
+	ImGui::Text(method.c_str());
+
+	if (ImGui::Button("Save results##sim_save"))
+	{
+		// TODO: Save the results to a .txt file
+	}
 }
 
 Camera* Scene::GetActiveCamera()

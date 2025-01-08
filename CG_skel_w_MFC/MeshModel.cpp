@@ -1198,6 +1198,10 @@ std::optional<vec3> rayTriangleIntersection( const vec3& a, const vec3& b, const
 bool MeshModel::CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h)
 {
 	if (!h) return false;
+	h->origin_w = vec3(0);
+	h->hit_point_w = vec3(0);
+	h->distance = -1;
+
 	mat4 trnsf = _world_transform * _model_transform;
 	for (uint i = 0; i < vertex_positions_triangle_gpu.size(); i+=3) {
 		vec4 a = trnsf * vec4(vertex_positions_triangle_gpu[i + 0]);
@@ -1210,18 +1214,21 @@ bool MeshModel::CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h)
 
 		auto intersection = rayTriangleIntersection(A, B, C, origin, ray_direction);
 		if (intersection.has_value()) {
-			h->origin_w = origin;
-			h->hit_point_w = *intersection;
-			h->distance = length(h->hit_point_w - origin);
-			return true;
+			/* Get first or shortest ray */
+			if (h->distance == -1 || length(*intersection - origin) < h->distance) {
+				h->origin_w = origin;
+				h->hit_point_w = *intersection;
+				h->distance = length(*intersection - origin);
+			}
 		}
 
 	}
+	return h->distance != -1;
+}
 
-	h->origin_w = vec3(0);
-	h->hit_point_w = vec3(0);
-	h->distance = 0;
-	return false;
+uint MeshModel::GetNumberOfPolygons()
+{
+	return (uint) (vertex_positions_triangle_gpu.size() / 3);
 }
 
 void MeshModel::calculateTangentSpace()

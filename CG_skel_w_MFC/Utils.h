@@ -106,6 +106,19 @@ typedef struct hit_tuple {
 	float distance;
 } HIT;
 
+typedef unsigned long long ULONG64;
+typedef unsigned char UCHAR;
+
+typedef struct sim_res {
+	ULONG64 hits;
+	ULONG64 rays;
+	ULONG64 polygons;
+	float	time_seconds;
+	ULONG64 time_milli;
+	ULONG64 time_micro;
+	UCHAR	method; /*  0 = CPU  ,  1 = GPU  */
+} SIM_RESULT;
+
 class Line {
 private:
 	double _slope;
@@ -258,3 +271,4 @@ typedef enum TextureMode
 	TEXTURE_CANONICAL_1,		// Project on XY place
 	TEXTURE_CANONICAL_2,		// Spherical 
 } TextureMode;
+

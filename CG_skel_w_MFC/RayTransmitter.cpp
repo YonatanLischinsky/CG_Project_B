@@ -37,11 +37,12 @@ RayTransmitter::RayTransmitter(Scene* s, Renderer* r) {
 	pos_w = vec3(0);
 	rays = std::vector<vec3>(0);
 	hits = std::vector<HIT>(0);
+	sim_result = { 0 };
 
 	GenerateAllGPU_Stuff();
 }
 
-void RayTransmitter::StartSimulation()
+void RayTransmitter::StartSimulation(uint method)
 {
 	// Get first time N directions relative to (0,0,0)
 	if (rays.size() == 0) {
@@ -49,40 +50,60 @@ void RayTransmitter::StartSimulation()
 	}
 
 	// At this points we got N rays we want to shoot starting from our position.
+	// CPU version:
+	if (method == 0) 
+	{
+		
+		this->start_time = chrono::high_resolution_clock::now();
 
-	// for CPU version:
-	hits.clear();
-	for (auto& r : rays) {
-		//if r collided with any face (triangle)
-			// Add the HIT (hit point in world space and distance (hit_point - pos_w)
-			// continue to next ray
-		// else
-			// misses++;
-
-		HIT possible_hit = { 0 };
-		for (auto model : scene->models)
-		{
-			MeshModel* p = (MeshModel*)model;
-			p->updateTransform();
-			p->updateTransformWorld();
-			if (p->CollisionCheck(this->pos_w, r, &possible_hit))
+		hits.clear();
+		for (auto& r : rays) {
+			HIT possible_hit = { 0 };
+			bool intersected_already = false;
+			for (auto model : scene->models)
 			{
-				this->hits.push_back(possible_hit);
-				break;
+				MeshModel* p = (MeshModel*)model;
+				p->updateTransform();
+				p->updateTransformWorld();
+				if (p->CollisionCheck(this->pos_w, r, &possible_hit))
+				{
+					if (intersected_already) {
+						if (hits[hits.size() - 1].distance > possible_hit.distance) {
+							hits[hits.size() - 1] = possible_hit;
+						}
+					}
+					else {
+						this->hits.push_back(possible_hit);
+						intersected_already = true;
+					}
+				}
 			}
 		}
+	
+		this->end_time = chrono::high_resolution_clock::now();
+
+		UpdateRaysDataInGPU(); /* visualization */
 	}
-	UpdateRaysDataInGPU();
-
-
-
-	//for GPU version:
+	//GPU version:
+	else
+	{
 		// load the model data as a triangle list
 		// load the rays (directions)
 		// load the uniform position of the Transmitter
 		// Launch the Compute shader for the collision detection
 		// Read the output of Compute Shader from shared memory
+	}
 
+	/* Update Simulation results object */
+	sim_result.hits = hits.size();
+	sim_result.rays = rays.size();
+	sim_result.polygons = 0;
+	for (auto& model : scene->models) sim_result.polygons += ((MeshModel*)model)->GetNumberOfPolygons();
+	auto sim_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+	sim_result.time_seconds = std::chrono::duration<float>(sim_time).count();
+	sim_result.time_milli	= std::chrono::duration<float>(sim_time).count() * 1000.0f;
+	sim_result.time_micro	= std::chrono::duration<float>(sim_time).count() * 1000000.0f;
+	sim_result.method		= method;
 }
 
 void RayTransmitter::UpdateRaysDataInGPU()

@@ -5,13 +5,13 @@ cl : command line warning D9002: ignoring unknown option '-Oa'
   RayTransmitter.cpp
 LINK : warning LNK4044: unrecognized option '/lz'; ignored
 LINK : warning LNK4044: unrecognized option '/lpng'; ignored
-  LINK : 0 new modules and 1 (out of 96) modules have changed since prior linking
+  LINK : 0 new modules and 1 (out of 98) modules have changed since prior linking
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{611A42AA-CFC5-4B03-BC89-C725F727AEC3}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{B83403E0-7B14-4398-878E-AEDC038DF9D6}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{BFDBE593-E632-416E-BAA0-CCD9B269BA86}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{8E183560-8BEE-4732-B50B-48A74D886C1F}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -22,26 +22,26 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3F794E72-9D07-4B6C-B1C4-C02E63E59C36}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{B75AC380-AD83-4629-9E15-7AA131403A4B}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{7E98C786-0B7F-4E05-B607-EAD64E781297}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{6A4E683B-CC0F-47D1-8161-3B1CAD6CBC8A}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{3F794E72-9D07-4B6C-B1C4-C02E63E59C36}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{7E98C786-0B7F-4E05-B607-EAD64E781297}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{B75AC380-AD83-4629-9E15-7AA131403A4B}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{6A4E683B-CC0F-47D1-8161-3B1CAD6CBC8A}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{D907E206-7759-422B-9D6C-F0E7F07A33DA}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{C5E3F029-0C3D-4293-92E1-BF9607C36B7C}.tmp"
    /readonly
    "Debug\CG_skel_w_MFC.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3F794E72-9D07-4B6C-B1C4-C02E63E59C36}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{7E98C786-0B7F-4E05-B607-EAD64E781297}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
