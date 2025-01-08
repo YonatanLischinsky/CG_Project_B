@@ -118,6 +118,7 @@ private:
 	void drawModelTab();
 	void drawLightTab();
 	void drawSimTab();
+	void drawSimRouteTab();
 
 	bool GUI_popup_pressedOK = false, GUI_popup_pressedCANCEL = false;
 	bool showGrid = false;
@@ -230,5 +231,6 @@ public:
 
 	uint num_of_rays;
 	bool cpu_mode = true;
+	int display_misses = true;
 
 };

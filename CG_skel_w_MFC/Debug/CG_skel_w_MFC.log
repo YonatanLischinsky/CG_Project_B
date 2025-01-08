@@ -2,16 +2,16 @@
 cl : command line warning D9025: overriding '/Os' with '/Ot'
 cl : command line warning D9002: ignoring unknown option '-Of'
 cl : command line warning D9002: ignoring unknown option '-Oa'
-  Scene.cpp
+  Renderer.cpp
 LINK : warning LNK4044: unrecognized option '/lz'; ignored
 LINK : warning LNK4044: unrecognized option '/lpng'; ignored
   LINK : 0 new modules and 1 (out of 100) modules have changed since prior linking
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{81AA13FC-CE93-4B3C-A549-2BF2E7C18B54}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{9EFE9667-456A-42E4-B783-7F633DB17469}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{54C0065F-243C-4467-AF77-9DE9F790DC20}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{0C47CF76-BCAD-4302-91B8-E3CC8F358F2C}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -22,37 +22,34 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{645C89A1-702F-4B0E-8B53-5CB473CBA7C6}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{DA3DBDC6-A5D6-4AF7-AAC7-0CFC652DDAF4}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{259DA782-C486-44F6-B13E-CC60399AAF65}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{5C632CAC-DFA3-422E-803D-F9186CACFF23}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{645C89A1-702F-4B0E-8B53-5CB473CBA7C6}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{259DA782-C486-44F6-B13E-CC60399AAF65}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{DA3DBDC6-A5D6-4AF7-AAC7-0CFC652DDAF4}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{5C632CAC-DFA3-422E-803D-F9186CACFF23}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{67E60D22-D7EF-4412-A6DD-4CF565437207}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{CADC0115-49A9-4F7B-AB83-434101C7B23D}.tmp"
    /readonly
    "Debug\CG_skel_w_MFC.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{645C89A1-702F-4B0E-8B53-5CB473CBA7C6}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{259DA782-C486-44F6-B13E-CC60399AAF65}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   adding resource. type:STRING, name:7, language:0x0409, flags:0x1030, size:58
   adding resource. type:MANIFEST, name:1, language:0x0409, flags:0x30, size:548
-  Searching libraries
-      Searching ..\glew\lib\glew.lib:
-  Finished searching libraries
   Starting pass 2
        CG_skel_w_MFC.res
-       Scene.obj
+       Renderer.obj
        MSVCRTD.lib(loadcfg.obj)
   Finished pass 2
   CG_skel_w_MFC.vcxproj -> C:\Project_B\code\CG_Project_B\Debug\CG_skel_w_glfw.exe

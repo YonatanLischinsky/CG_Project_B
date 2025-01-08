@@ -18,10 +18,11 @@
 
 #define CLAMP(x, l, r) (min( max((x), (l)) , (r)))
 
-#define MODEL_TAB_INDEX  0
-#define CAMERA_TAB_INDEX 1
-#define LIGHT_TAB_INDEX  2
-#define SIM_TAB_INDEX	 3
+#define MODEL_TAB_INDEX		 0
+#define CAMERA_TAB_INDEX	 1
+#define LIGHT_TAB_INDEX		 2
+#define SIM_ROUTE_TAB_INDEX	 3
+#define SIM_TAB_INDEX		 4
 
 using namespace std;
 extern Renderer* renderer;
@@ -544,7 +545,7 @@ void Scene::draw()
 	}
 
 	//6. Draw rays
-	if (show_rayhits && rt && rt->GetBufferLen() != 0) {
+	if (show_rayhits && rt && rt->GetHitBufferLen() != 0) {
 		m_renderer->drawRays(GetActiveCamera()->cTransform);
 	}
 
@@ -661,6 +662,17 @@ void Scene::drawGUI()
 			else if (!show_rayhits && ImGui::Button("Show rays##showrays"))
 			{
 				show_rayhits = !show_rayhits;
+			}
+			if (show_rayhits)
+			{
+				if (display_misses && ImGui::Button("Hide misses##hidemisses"))
+				{
+					display_misses = !display_misses;
+				}
+				else if (!display_misses && ImGui::Button("Show misses##showmisses"))
+				{
+					display_misses = !display_misses;
+				}
 			}
 			ImGui::EndMenu();
 		}
@@ -847,7 +859,7 @@ void Scene::drawGUI()
 				resize_callback_handle(m_renderer->GetWindowSize().x, m_renderer->GetWindowSize().y);
 			}
 
-			const char* names[4] = { "Model", "Camera", "Light", "Simulation" };
+			const char* names[5] = { "Model", "Camera", "Light", "Sim Route", "Sim Result" };
 			ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 
 			if (ImGui::BeginTabBar("TransBar", tab_bar_flags))
@@ -873,6 +885,8 @@ void Scene::drawGUI()
 							drawCameraTab();
 						else if (n == LIGHT_TAB_INDEX)
 							drawLightTab();
+						else if (n == SIM_ROUTE_TAB_INDEX)
+							drawSimRouteTab();
 						else if (n == SIM_TAB_INDEX)
 							drawSimTab();
 
@@ -1785,15 +1799,17 @@ void Scene::drawSimTab()
 	ImGui::SeparatorText("Simulation Results");
 
 
+	std::string route_pts	= "Route points: ";
 	std::string hits		= "Hits: ";
 	std::string total_rays	= "Total Rays: ";
-	std::string hit_ratio	= "hit ratio: ";
+	std::string hit_ratio	= "Hit Ratio: ";
 	std::string total_poly	= "Total polygons: ";
 	std::string time		= "Time [seconds]: ";
 	std::string time_mili	= "Time [millisec]: ";
 	std::string time_micro	= "Time [microsec]: ";
 	std::string method		= "Method: ";
 	
+	route_pts	+= std::to_string(rt->sim_result.route_pts);
 	hits		+= std::to_string(rt->sim_result.hits);
 	total_rays	+= std::to_string(rt->sim_result.rays);
 	hit_ratio	+= floatToStringWithPrecision((float)rt->sim_result.hits * 100.0f / (float)rt->sim_result.rays, 1) + " %%";
@@ -1804,6 +1820,7 @@ void Scene::drawSimTab()
 	method		+= rt->sim_result.method == 0 ? "CPU" : "GPU";
 
 	ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // 2 is the index of the larger font
+	ImGui::Text(route_pts.c_str());
 	ImGui::Text(hits.c_str());
 	ImGui::Text(total_rays.c_str());
 	ImGui::Text(hit_ratio.c_str());
@@ -1831,6 +1848,7 @@ void Scene::drawSimTab()
 
 		// Write the results to the file
 		file << "Simulation Results:\n";
+		file << route_pts << "\n";
 		file << hits << "\n";
 		file << total_rays << "\n";
 		file << hit_ratio << "\n";
@@ -1845,6 +1863,33 @@ void Scene::drawSimTab()
 
 		std::cout << "Results successfully saved to " << fname << std::endl;
 	}
+}
+
+void Scene::drawSimRouteTab()
+{
+	ImGui::SeparatorText("Simulation Route");
+
+	ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // 2 is the index of the larger font
+	for (uint i = 0; i < rt->route.size(); i++)
+	{
+		std::string line = "Point " + std::to_string(i + 1) + " (x,y,z)";
+		//std::string p = "(" + std::to_string(rt->route[i].x) + ", " + std::to_string(rt->route[i].y) + ", " + std::to_string(rt->route[i].z) + ")";
+		ImGui::Text(line.c_str()); ImGui::SameLine();
+		ImGui::DragFloat((string("##X_PT_") + std::to_string(i)).c_str(), &(rt->route[i].x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+		ImGui::DragFloat((string("##Y_PT_") + std::to_string(i)).c_str(), &(rt->route[i].y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
+		ImGui::DragFloat((string("##Z_PT_") + std::to_string(i)).c_str(), &(rt->route[i].z), 0.01f, 0, 0, "%.1f"); if(rt->route.size() > 1) ImGui::SameLine();
+		if (rt->route.size() > 1) {
+			if (ImGui::Button((string("remove##del_pt_") + std::to_string(i)).c_str()))
+			{
+				rt->route.erase(rt->route.begin() + i);
+			}
+		}
+	}
+	if (ImGui::Button("Add point##add_point"))
+	{
+		rt->route.push_back(rt->route[rt->route.size()-1]);
+	}
+	ImGui::PopFont();
 }
 
 Camera* Scene::GetActiveCamera()

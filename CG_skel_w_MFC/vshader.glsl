@@ -31,6 +31,7 @@ in vec3 tangent;
 
 /* Uniforms */
 uniform int displayRays;
+uniform int displayMisses;
 uniform int algo_shading;
 uniform int displayBBox;
 uniform int displayVnormal;
@@ -207,14 +208,6 @@ void main()
 
     st = texcoord;
     vPos = vec4(vPosition, 1);
-    if(vertexAnimationEnable == 1 && displayBBox == 0 && displayFnormal == 0 && displayVnormal == 0 && displaySkyBox == 0 && displayCameraIcon == 0 && displayRays == 0)
-    {
-        float PI = 3.14159265359f;
-        
-        float displacementX = sin(vPos.y + (time)*2*PI) * 0.15 * (maxX - minX); 
-
-        vPos.x += displacementX;
-    }
     fPos = vec4(fPosition, 1);
     current_Color_emissive = uniformColor_emissive;
     current_Color_diffuse  = uniformColor_diffuse;
@@ -279,7 +272,12 @@ void main()
     else if (displayRays == 1)
     {
         resultPosition = projection * modelview * vec4(raysPos, 1);
-        outputColor = vec3(1, 0, 0);
+        if (displayMisses == 0) {
+            outputColor = vec3(0, 1, 0); // Green rays (for hits)
+        }
+        else {
+            outputColor = vec3(1, 0, 0); // Red rays (for misses)
+        }
     }
     else // draw shading algos
     {

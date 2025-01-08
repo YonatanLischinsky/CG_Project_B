@@ -110,6 +110,7 @@ typedef unsigned long long ULONG64;
 typedef unsigned char UCHAR;
 
 typedef struct sim_res {
+	ULONG64 route_pts;
 	ULONG64 hits;
 	ULONG64 rays;
 	ULONG64 polygons;

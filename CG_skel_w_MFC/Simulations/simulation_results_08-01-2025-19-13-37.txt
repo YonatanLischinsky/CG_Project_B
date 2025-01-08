@@ -1,9 +1,0 @@
-Simulation Results:
-Hits: 1498
-Total Rays: 2500
-hit ratio: 59.9 %%
-Total polygons: 162058
-Time [seconds]: 163.785
-Time [millisec]: 163784
-Time [microsec]: 163784896
-Method: CPU
