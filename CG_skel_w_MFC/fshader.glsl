@@ -54,6 +54,7 @@ uniform int applyEnviornmentShading;
 
 /* Uniforms */
 uniform int   displayRays;
+uniform int   displayMisses;
 uniform vec3  wireframeColor;
 uniform vec3  cameraPos;
 uniform float smoothTime;
@@ -225,7 +226,7 @@ void main()
     }
 
 
-    if (algo_shading == 0 || displayBBox == 1 || displayVnormal == 1 || displayFnormal == 1 || displayCameraIcon == 1 || displayRays == 1) //WireFrame
+    if (algo_shading == 0 || displayBBox == 1 || displayVnormal == 1 || displayFnormal == 1 || displayCameraIcon == 1 || displayRays == 1 || displayMisses == 1) //WireFrame
     {
         FragColor = vec4(outputColor, 1);
     }

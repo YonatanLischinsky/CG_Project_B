@@ -89,7 +89,7 @@ void RayTransmitter::StartSimulation(uint method)
 				if (!intersected_already) {
 					HIT miss = { 0 };
 					miss.origin_w = this->pos_w;
-					miss.hit_point_w = miss.origin_w + 1000000 * r;
+					miss.hit_point_w = miss.origin_w + 10000000 * r;
 					misses[i].push_back(miss);
 				}
 			}

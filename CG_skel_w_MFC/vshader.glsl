@@ -269,7 +269,7 @@ void main()
     {
         outputColor = vec3(0, 1, 0);  // green
     }
-    else if (displayRays == 1)
+    else if (displayRays == 1 || displayMisses == 1)
     {
         resultPosition = projection * modelview * vec4(raysPos, 1);
         if (displayMisses == 0) {

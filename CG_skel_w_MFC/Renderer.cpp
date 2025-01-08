@@ -114,18 +114,18 @@ void Renderer::drawRays(mat4& cTransform)
 	rt->UpdateModelViewInGPU(scene->GetActiveCamera()->cTransform, scene->GetActiveCamera()->rotationMat_normals);
 	
 	glBindVertexArray(rt->VAO);
-	glUniform1i(glGetUniformLocation(program, "displayRays"), 1);
-	glDrawArrays(GL_LINES, 0, rt->GetHitBufferLen() * 2);
-	if (scene->display_misses) {
+	if (scene->display_rays_hits) {
+		glUniform1i(glGetUniformLocation(program, "displayRays"), 1);
+		glDrawArrays(GL_LINES, 0, rt->GetHitBufferLen() * 2);
+		glUniform1i(glGetUniformLocation(program, "displayRays"), 0);
+	}
+	if (scene->display_rays_misses) {
 		glUniform1i(glGetUniformLocation(program, "displayMisses"), 1);
 		glDrawArrays(GL_LINES, rt->GetHitBufferLen() * 2, rt->GetMissBufferLen() * 2);
 		glUniform1i(glGetUniformLocation(program, "displayMisses"), 0);
 	}
-	glUniform1i(glGetUniformLocation(program, "displayRays"), 0);
 	
-
 	glBindVertexArray(0);
-
 }
 
 void Renderer::UpdateLightsUBO(bool reallocate_ubo)

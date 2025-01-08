@@ -75,7 +75,7 @@ public:
 	void setPerspectiveByParams();
 	void UpdateProjectionMatInGPU();
 	void resetProjection();
-	void zoom(double s_offset, double update_rate = 0.1);
+	void zoom(double s_offset, double update_rate = 0.02);
 	
 	void setName(std::string newName) { name = newName; }
 	std::string& getName() { return name; }
@@ -231,6 +231,7 @@ public:
 
 	uint num_of_rays;
 	bool cpu_mode = true;
-	int display_misses = true;
+	bool display_rays_hits = true;
+	bool display_rays_misses = false;
 
 };

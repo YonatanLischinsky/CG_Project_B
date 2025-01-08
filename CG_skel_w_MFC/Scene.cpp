@@ -40,7 +40,6 @@ static int selectedTab = 0;
 bool add_showModelDlg = false, add_showCamDlg = false, add_showLightDlg = false;
 bool simulation_showNumRaysDlg = false;
 bool showTransWindow = false;
-bool show_rayhits = true;
 bool constScaleRatio = false;
 bool constScaleRatio_w = false;
 int transformationWindowWidth = 0;
@@ -545,7 +544,7 @@ void Scene::draw()
 	}
 
 	//6. Draw rays
-	if (show_rayhits && rt && rt->GetHitBufferLen() != 0) {
+	if (rt && rt->GetHitBufferLen() != 0) {
 		m_renderer->drawRays(GetActiveCamera()->cTransform);
 	}
 
@@ -655,25 +654,8 @@ void Scene::drawGUI()
 			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == false)) {
 				cpu_mode = false;
 			}
-			if (show_rayhits && ImGui::Button("Hide rays##hiderays"))
-			{
-				show_rayhits = !show_rayhits;
-			}
-			else if (!show_rayhits && ImGui::Button("Show rays##showrays"))
-			{
-				show_rayhits = !show_rayhits;
-			}
-			if (show_rayhits)
-			{
-				if (display_misses && ImGui::Button("Hide misses##hidemisses"))
-				{
-					display_misses = !display_misses;
-				}
-				else if (!display_misses && ImGui::Button("Show misses##showmisses"))
-				{
-					display_misses = !display_misses;
-				}
-			}
+			ImGui::Checkbox("Show Hits", &display_rays_hits);
+			ImGui::Checkbox("Show Misses", &display_rays_misses);
 			ImGui::EndMenu();
 		}
 		if (models.size() > 0)
@@ -1797,20 +1779,23 @@ void Scene::drawLightTab()
 void Scene::drawSimTab()
 {
 	ImGui::SeparatorText("Simulation Results");
+	
+	if (rt->sim_result.route_pts == 0) return;
 
-
-	std::string route_pts	= "Route points: ";
-	std::string hits		= "Hits: ";
+	std::string method		= "Method: ";
+	std::string route_pts	= "Path check-points: ";
+	std::string rays_pt		= "Rays per check-point: ";
+	std::string hits		= "Total Hits: ";
 	std::string total_rays	= "Total Rays: ";
 	std::string hit_ratio	= "Hit Ratio: ";
 	std::string total_poly	= "Total polygons: ";
 	std::string time		= "Time [seconds]: ";
 	std::string time_mili	= "Time [millisec]: ";
 	std::string time_micro	= "Time [microsec]: ";
-	std::string method		= "Method: ";
 	
 	route_pts	+= std::to_string(rt->sim_result.route_pts);
 	hits		+= std::to_string(rt->sim_result.hits);
+	rays_pt		+= std::to_string((int) (rt->sim_result.rays / rt->sim_result.route_pts));
 	total_rays	+= std::to_string(rt->sim_result.rays);
 	hit_ratio	+= floatToStringWithPrecision((float)rt->sim_result.hits * 100.0f / (float)rt->sim_result.rays, 1) + " %%";
 	total_poly	+= std::to_string(rt->sim_result.polygons);
@@ -1820,7 +1805,9 @@ void Scene::drawSimTab()
 	method		+= rt->sim_result.method == 0 ? "CPU" : "GPU";
 
 	ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // 2 is the index of the larger font
+	ImGui::Text(method.c_str());
 	ImGui::Text(route_pts.c_str());
+	ImGui::Text(rays_pt.c_str());
 	ImGui::Text(hits.c_str());
 	ImGui::Text(total_rays.c_str());
 	ImGui::Text(hit_ratio.c_str());
@@ -1828,7 +1815,6 @@ void Scene::drawSimTab()
 	ImGui::Text(time.c_str());
 	ImGui::Text(time_mili.c_str());
 	ImGui::Text(time_micro.c_str());
-	ImGui::Text(method.c_str());
 	ImGui::PopFont();
 
 	if (ImGui::Button("Save results##sim_save"))
@@ -1848,7 +1834,9 @@ void Scene::drawSimTab()
 
 		// Write the results to the file
 		file << "Simulation Results:\n";
+		file <<  method << "\n";
 		file << route_pts << "\n";
+		file << rays_pt << "\n";
 		file << hits << "\n";
 		file << total_rays << "\n";
 		file << hit_ratio << "\n";
@@ -1856,7 +1844,6 @@ void Scene::drawSimTab()
 		file << time << "\n";
 		file << time_mili << "\n";
 		file << time_micro << "\n";
-		file <<  method << "\n";
 
 		// Close the file
 		file.close();
