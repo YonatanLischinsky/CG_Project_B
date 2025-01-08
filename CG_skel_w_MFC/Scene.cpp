@@ -1,12 +1,20 @@
 #include "stdafx.h"
+#include <string>
+#include <fstream>
+#include <math.h>
+#include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <filesystem> // For directory creation (C++17)
 #include "Scene.h"
 #include "MeshModel.h"
 #include "PrimMeshModel.h"
 #include "CG_skel_w_glfw.h"
-#include <string>
-#include <math.h>
 #include "stb_image.h"
 #include "RayTransmitter.h"
+
+
 
 #define CLAMP(x, l, r) (min( max((x), (l)) , (r)))
 
@@ -352,6 +360,15 @@ void Camera::zoom(double s_offset, double update_rate)
 std::string floatToStringWithPrecision(float value, uint precision = 3) {
 	value = std::round(value * 1000.0f) / 1000.0f; // Round to 3 decimal places
 	return std::to_string(value).substr(0, std::to_string(value).find('.') + precision+1); // Keep only 3 decimals
+}
+
+std::string GetCurrentTimeString() {
+	auto time_t_now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	std::tm local_time;
+	localtime_s(&local_time, &time_t_now);
+	std::ostringstream oss;
+	oss << std::put_time(&local_time, "%d-%m-%Y-%H-%M-%S");
+	return oss.str();
 }
 
 void Scene::AddCamera()
@@ -1797,7 +1814,34 @@ void Scene::drawSimTab()
 
 	if (ImGui::Button("Save results##sim_save"))
 	{
-		// TODO: Save the results to a .txt file
+		std::string directory = "Simulations";
+		std::filesystem::create_directory(directory); // Creates the directory if it doesn't exist
+
+		// Open a file in write mode
+		string fname = directory + "/" + "simulation_results_" + GetCurrentTimeString() + ".txt";
+		std::ofstream file(fname);
+
+		// Check if the file is successfully opened
+		if (!file.is_open()) {
+			std::cerr << "Error: Unable to open file for writing.\n";
+			return;
+		}
+
+		// Write the results to the file
+		file << "Simulation Results:\n";
+		file << hits << "\n";
+		file << total_rays << "\n";
+		file << hit_ratio << "\n";
+		file << total_poly << "\n";
+		file << time << "\n";
+		file << time_mili << "\n";
+		file << time_micro << "\n";
+		file <<  method << "\n";
+
+		// Close the file
+		file.close();
+
+		std::cout << "Results successfully saved to " << fname << std::endl;
 	}
 }
 
