@@ -2,16 +2,97 @@
 cl : command line warning D9025: overriding '/Os' with '/Ot'
 cl : command line warning D9002: ignoring unknown option '-Of'
 cl : command line warning D9002: ignoring unknown option '-Oa'
+  CG_skel_w_glfw.cpp
+  Generating Code...
+  Compiling...
+  Scene.cpp
   Renderer.cpp
+  RayTransmitter.cpp
+  MeshModel.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\xmemory(681,47): warning C4244: 'initializing': conversion from 'const _Ty' to '_Objty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+          and
+          [
+              _Objty=unsigned char
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\xmemory(1619): message : see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,const float&>(_Alloc &,_Objty *const ,const float &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<unsigned char>,
+              _Ty=unsigned char,
+              _Objty=unsigned char
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\xmemory(1620): message : see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,const float&>(_Alloc &,_Objty *const ,const float &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<unsigned char>,
+              _Ty=unsigned char,
+              _Objty=unsigned char
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\xmemory(1659): message : see reference to function template instantiation 'void std::_Uninitialized_backout_al<_Alloc>::_Emplace_back<const float&>(const float &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<unsigned char>
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\xmemory(1659): message : see reference to function template instantiation 'void std::_Uninitialized_backout_al<_Alloc>::_Emplace_back<const float&>(const float &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<unsigned char>
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vector(1641): message : see reference to function template instantiation 'unsigned char *std::_Uninitialized_copy<_Iter,std::allocator<unsigned char>>(const _InIt,const _InIt,unsigned char *,_Alloc &)' being compiled
+          with
+          [
+              _Iter=const float *,
+              _InIt=const float *,
+              _Alloc=std::allocator<unsigned char>
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vector(517): message : see reference to function template instantiation 'unsigned char *std::vector<unsigned char,std::allocator<unsigned char>>::_Ucopy<_Iter>(_Iter,_Iter,unsigned char *)' being compiled
+          with
+          [
+              _Iter=const float *
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vector(517): message : see reference to function template instantiation 'unsigned char *std::vector<unsigned char,std::allocator<unsigned char>>::_Ucopy<_Iter>(_Iter,_Iter,unsigned char *)' being compiled
+          with
+          [
+              _Iter=const float *
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vector(529): message : see reference to function template instantiation 'void std::vector<unsigned char,std::allocator<unsigned char>>::_Range_construct_or_tidy<const float*>(_Iter,_Iter,std::forward_iterator_tag)' being compiled
+          with
+          [
+              _Iter=const float *
+          ]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vector(529): message : see reference to function template instantiation 'void std::vector<unsigned char,std::allocator<unsigned char>>::_Range_construct_or_tidy<const float*>(_Iter,_Iter,std::forward_iterator_tag)' being compiled
+          with
+          [
+              _Iter=const float *
+          ]
+C:\Project_B\code\CG_Project_B\CG_skel_w_MFC\MeshModel.cpp(1291): message : see reference to function template instantiation 'std::vector<unsigned char,std::allocator<unsigned char>>::vector<std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,0>(_Iter,_Iter,const _Alloc &)' being compiled
+          with
+          [
+              _Ty=float,
+              _Iter=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<float>>>,
+              _Alloc=std::allocator<unsigned char>
+          ]
+C:\Project_B\code\CG_Project_B\CG_skel_w_MFC\MeshModel.cpp(1291): message : see reference to function template instantiation 'std::vector<unsigned char,std::allocator<unsigned char>>::vector<std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,0>(_Iter,_Iter,const _Alloc &)' being compiled
+          with
+          [
+              _Ty=float,
+              _Iter=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<float>>>,
+              _Alloc=std::allocator<unsigned char>
+          ]
+  Generating Code...
 LINK : warning LNK4044: unrecognized option '/lz'; ignored
 LINK : warning LNK4044: unrecognized option '/lpng'; ignored
-  LINK : 0 new modules and 1 (out of 100) modules have changed since prior linking
+  LINK : 0 new modules and 5 (out of 100) modules have changed since prior linking
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{9EFE9667-456A-42E4-B783-7F633DB17469}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{D2632D5A-3946-4927-A8FC-E58E698973A4}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{0C47CF76-BCAD-4302-91B8-E3CC8F358F2C}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{5918D798-E2F1-45D5-9C87-AFE47B714D37}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -22,34 +103,41 @@ LINK : warning LNK4044: unrecognized option '/lpng'; ignored
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{259DA782-C486-44F6-B13E-CC60399AAF65}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{5C632CAC-DFA3-422E-803D-F9186CACFF23}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{DE33F44F-EE2B-4831-8408-A8CCDD0BF3C8}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{FC207CD1-F3FA-44CD-8281-F71D53F4C552}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{259DA782-C486-44F6-B13E-CC60399AAF65}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{DE33F44F-EE2B-4831-8408-A8CCDD0BF3C8}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{5C632CAC-DFA3-422E-803D-F9186CACFF23}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{FC207CD1-F3FA-44CD-8281-F71D53F4C552}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{CADC0115-49A9-4F7B-AB83-434101C7B23D}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{16A9842D-2AA3-4E19-9585-79DCD9557D71}.tmp"
    /readonly
    "Debug\CG_skel_w_MFC.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{259DA782-C486-44F6-B13E-CC60399AAF65}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{DE33F44F-EE2B-4831-8408-A8CCDD0BF3C8}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   adding resource. type:STRING, name:7, language:0x0409, flags:0x1030, size:58
   adding resource. type:MANIFEST, name:1, language:0x0409, flags:0x30, size:548
+  Searching libraries
+      Searching ..\glew\lib\glew.lib:
+  Finished searching libraries
   Starting pass 2
        CG_skel_w_MFC.res
+       CG_skel_w_glfw.obj
+       Scene.obj
        Renderer.obj
+       RayTransmitter.obj
+       MeshModel.obj
        MSVCRTD.lib(loadcfg.obj)
   Finished pass 2
   CG_skel_w_MFC.vcxproj -> C:\Project_B\code\CG_Project_B\Debug\CG_skel_w_glfw.exe

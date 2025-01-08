@@ -84,7 +84,7 @@ public:
 	void setStartPosition(vec4& pos) { c_trnsl = pos; }
 	
 	void updateTransform();
-	void ResetTranslation() { c_trnsl = vec4(0,0,10,1); }
+	void ResetTranslation() { c_trnsl = vec4(0,1.5f,3.0f,1); }
 	void ResetRotation() { c_rot = vec4(0,0,0,1); }
 	
 	void iconInit();
