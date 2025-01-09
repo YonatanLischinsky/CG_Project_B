@@ -102,9 +102,9 @@ void RayTransmitter::StartSimulation(uint method)
 	//GPU version:
 	else
 	{
-		// load the model data as a triangle list
-		// load the rays (directions)
-		// load the uniform position of the Transmitter
+		// 1. load the model data as a triangle list
+		// 2. load the rays (directions)
+		// 3. load the uniform position of the Transmitter
 		// Launch the Compute shader for the collision detection
 		// Read the output of Compute Shader from shared memory
 	}
