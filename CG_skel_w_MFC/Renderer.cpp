@@ -63,8 +63,8 @@ void Renderer::drawModel(DrawAlgo draw_algo, Model* model, mat4& cTransform)
 
 	pModel->UpdateModelViewInGPU( cTransform, scene->GetActiveCamera()->rotationMat_normals);
 	pModel->UpdateMaterialinGPU();
-	pModel->UpdateTextureInGPU();
-	pModel->UpdateAnimationInGPU();
+	//pModel->UpdateTextureInGPU();
+	//pModel->UpdateAnimationInGPU();
 
 	if (draw_algo == WIRE_FRAME)
 	{
@@ -113,7 +113,7 @@ void Renderer::drawRays(mat4& cTransform)
 
 	rt->UpdateModelViewInGPU(scene->GetActiveCamera()->cTransform, scene->GetActiveCamera()->rotationMat_normals);
 	
-	glBindVertexArray(rt->VAO);
+	glBindVertexArray(rt->VAO[0]);
 	if (scene->display_rays_hits) {
 		glUniform1i(glGetUniformLocation(program, "displayRays"), 1);
 		glDrawArrays(GL_LINES, 0, rt->GetHitBufferLen() * 2);
@@ -124,7 +124,6 @@ void Renderer::drawRays(mat4& cTransform)
 		glDrawArrays(GL_LINES, rt->GetHitBufferLen() * 2, rt->GetMissBufferLen() * 2);
 		glUniform1i(glGetUniformLocation(program, "displayMisses"), 0);
 	}
-	
 	glBindVertexArray(0);
 }
 

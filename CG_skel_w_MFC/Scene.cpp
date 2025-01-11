@@ -430,7 +430,6 @@ void Scene::draw()
 	//2. Update general uniforms in GPU:
 	UpdateGeneralUniformInGPU();
 	
-
 	//3. draw each Model
 	for (auto model : models)
 	{
@@ -446,104 +445,7 @@ void Scene::draw()
 		m_renderer->drawModel(draw_algo, model, GetActiveCamera()->cTransform);
 	}
 
-	//4. Render cameras as 3D plus signs
-	for (auto camera : cameras)
-	{
-		if (camera->renderCamera && camera != cameras[activeCamera])
-		{
-			if (camera->VAO == 0)
-			{
-				glGenVertexArrays(1, &camera->VAO);
-
-				glBindVertexArray(camera->VAO);
-				glGenBuffers(1, &camera->VBO);
-				glBindBuffer(GL_ARRAY_BUFFER, camera->VBO);
-
-
-				int lenInBytes = camera->getIconBufferSize() * 3 * sizeof(float);
-				glBufferData(GL_ARRAY_BUFFER, lenInBytes, camera->icon, GL_STATIC_DRAW);
-
-				GLint vPosition = glGetAttribLocation(renderer->program, "vPosition");
-				glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-				glEnableVertexAttribArray(vPosition);
-			}
-
-			// Calculate model view matrix:
-			mat4 model = camera->transform_mid_worldspace;
-			mat4 view = cameras[activeCamera]->cTransform;
-			
-			/* Bind the model matrix*/
-			glUniformMatrix4fv(glGetUniformLocation(renderer->program, "model"), 1, GL_TRUE, &(model[0][0]));
-
-			/* Bind the view matrix*/
-			glUniformMatrix4fv(glGetUniformLocation(renderer->program, "view"), 1, GL_TRUE, &(view[0][0]));
-
-			///* Bind the model_normals matrix*/
-			//glUniformMatrix4fv(glGetUniformLocation(renderer->program, "model_normals"), 1, GL_TRUE, &(model_normals[0][0]));
-			///* Bind the view_normals matrix*/
-			//glUniformMatrix4fv(glGetUniformLocation(renderer->program, "view_normals"), 1, GL_TRUE, &(view_normals[0][0]));
-
-
-
-
-			glBindVertexArray(camera->VAO);
-			glUniform1i(glGetUniformLocation(m_renderer->program, "displayCameraIcon"), 1);
-			glDrawArrays(GL_LINES, 0, camera->getIconBufferSize()); //3 lines
-			glUniform1i(glGetUniformLocation(m_renderer->program, "displayCameraIcon"), 0);
-
-			//if (camera->iconDraw(cameras[activeCamera]->cTransform, cameras[activeCamera]->projection))
-			//{
-			//	//vec2* icon_vertices = camera->getIconBuffer();
-			//	//unsigned int len = camera->getIconBufferSize();
-			//	//if (icon_vertices)
-			//	//{
-			//	//	m_renderer->SetBufferLines(icon_vertices, len-2, vec4(0.75, 0, 0.8));
-			//	//	m_renderer->SetBufferLines((icon_vertices + len - 2), 2, vec4(0, 0.8, 0.15));
-			//	//}
-			//}
-		}
-	}
-	
-	//5. Draw skybox (if enabled)
-	if (applyEnviornmentShading)
-	{
-		mat4 modelEmptyMat = mat4(1);
-		mat4 clean_view_mat = mat4(TopLeft3(GetActiveCamera()->cTransform), vec3(0, 0, 0), 1);
-		mat4 temp_clean_projection = GetActiveCamera()->GetPerspectiveoMatrix();
-
-
-		/* Bind the model matrix*/
-		glUniformMatrix4fv(glGetUniformLocation(renderer->program, "model"), 1, GL_TRUE, &(modelEmptyMat[0][0]));
-
-		/* Bind the view matrix*/
-		glUniformMatrix4fv(glGetUniformLocation(renderer->program, "view"), 1, GL_TRUE, &(clean_view_mat[0][0]));
-
-		/* Bind the projection matrix*/
-		glUniformMatrix4fv(glGetUniformLocation(renderer->program, "projection"), 1, GL_TRUE, &(temp_clean_projection[0][0]));
-
-		/* Bind the cameraPos vec3*/
-		vec3 cameraPos = GetActiveCamera()->getPosition();
-		glUniform3fv(glGetUniformLocation(renderer->program, "cameraPos"), 1, &cameraPos[0]);
-		glUniform1i(glGetUniformLocation(renderer->program, "skybox"), 5);
-
-		/* Bind the Texture unit */
-		glUniform1i(glGetUniformLocation(renderer->program, "skybox"), 3);	//GL_TEXTURE3
-
-		glDepthFunc(GL_LEQUAL);
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
-		glUniform1i(glGetUniformLocation(m_renderer->program, "displaySkyBox"), 1);
-		glDrawArrays(GL_TRIANGLES, 0, 36); //36 vertices for a 3d box;
-		glUniform1i(glGetUniformLocation(m_renderer->program, "displaySkyBox"), 0);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS);
-
-
-		//UpdateGeneralUniformInGPU(); //Reset the GPU data (projection matrix updated)
-	}
-
-	//6. Draw rays
+	//4. Draw rays
 	if (rt && rt->GetHitBufferLen() != 0) {
 		m_renderer->drawRays(GetActiveCamera()->cTransform);
 	}
@@ -1908,7 +1810,10 @@ void Scene::UpdateGeneralUniformInGPU()
 {
 	glUniform1i(glGetUniformLocation(m_renderer->program, "algo_shading"), (int)draw_algo);
 	glUniform1i(glGetUniformLocation(m_renderer->program, "numLights"), (int)lights.size());
-	glUniform1i(glGetUniformLocation(m_renderer->program, "applyEnviornmentShading"), (int)applyEnviornmentShading);
+	glUniform1i(glGetUniformLocation(m_renderer->program, "simulation"), 0);
+	glUniform1i(glGetUniformLocation(m_renderer->program, "displayMisses"), 0);
+	glUniform1i(glGetUniformLocation(m_renderer->program, "displayRays"), 0);
+
 	GetActiveCamera()->UpdateProjectionMatInGPU();
 }
 

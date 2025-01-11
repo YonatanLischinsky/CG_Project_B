@@ -35,6 +35,7 @@ protected:
 
 	vector<vec3> vertex_positions_raw;					 // Raw data from .obj file.
 	vector<vec3> vertex_positions_triangle_gpu;			 // Vertex positions data in triangle form
+	vector<vec3> vertex_world_positions_triangle_gpu;	 // Vertex world positions data in triangle form
 	vector<vec3> vertex_face_positions_triangle_gpu;	 // Face positions data in triangle form
 	vector<vec3> vertex_vn_triangle_gpu;				 // Vertex Normal direction in triangle form
 	vector<vec3> vertex_fn_triangle_gpu;				 // Face Normal direction in triangle form
@@ -183,5 +184,6 @@ public:
 
 	bool CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h);
 	uint GetNumberOfPolygons();
+	std::vector<vec3>& GetTrianglesWorldPos();
 
 };

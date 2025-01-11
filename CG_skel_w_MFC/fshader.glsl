@@ -33,8 +33,6 @@ in vec3       interpolated_emissive;
 in vec3       interpolated_diffuse;
 in vec3       interpolated_specular;
 
-/* Textures*/
-
 /* Uniforms */
 uniform int   displayRays;
 uniform int   displayMisses;
@@ -53,6 +51,7 @@ float current_Kd;
 float current_Ks;
 float current_EmissiveFactor;
 int current_COS_ALPHA;
+
 
 /* Functions */
 
@@ -133,9 +132,6 @@ vec3 getColor(vec4 point, vec4 normal)
 /* Main */
 void main()
 {
-    vec4 textureColor;
-    vec3 normal_from_map;
-
     if (algo_shading == 0 || displayRays == 1 || displayMisses == 1) //WireFrame
     {
         FragColor = vec4(outputColor, 1);
@@ -167,4 +163,6 @@ void main()
             FragColor = vec4(getColor(P, N), 1);
         }
     }
+    
 }
+

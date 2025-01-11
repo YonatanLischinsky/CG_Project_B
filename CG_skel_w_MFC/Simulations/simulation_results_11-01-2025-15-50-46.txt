@@ -1,0 +1,11 @@
+Simulation Results:
+Method: CPU
+Path check-points: 2
+Rays per check-point: 500
+Total Hits: 246
+Total Rays: 1000
+Hit Ratio: 24.6 %%
+Total polygons: 902
+Time [seconds]: 0.370
+Time [millisec]: 369
+Time [microsec]: 369813

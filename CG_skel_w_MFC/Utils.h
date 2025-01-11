@@ -104,6 +104,8 @@ typedef struct hit_tuple {
 	vec3 origin_w;
 	vec3 hit_point_w;
 	float distance;
+	float padding;
+	/* HIT is 8 floats */
 } HIT;
 
 typedef unsigned long long ULONG64;

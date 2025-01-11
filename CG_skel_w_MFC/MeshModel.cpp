@@ -1092,6 +1092,8 @@ void MeshModel::UpdateMaterialinGPU()
 
 void MeshModel::UpdateTextureInGPU()
 {
+	return;
+
 	/* Bind the TextureMap enable / disable */
 	glUniform1i(glGetUniformLocation(renderer->program, "usingTexture"), (int)useTexture);
 	glUniform1i(glGetUniformLocation(renderer->program, "usingNormalMap"), (int)useNormalMap);
@@ -1229,6 +1231,20 @@ bool MeshModel::CollisionCheck(vec3 origin, vec3 ray_direction, HIT* h)
 uint MeshModel::GetNumberOfPolygons()
 {
 	return (uint) (vertex_positions_triangle_gpu.size() / 3);
+}
+
+std::vector<vec3>& MeshModel::GetTrianglesWorldPos()
+{
+	vertex_world_positions_triangle_gpu.clear();
+	updateTransform();
+	updateTransformWorld();
+	mat4 trnsf = _world_transform * _model_transform;
+	for (uint i = 0; i < vertex_positions_triangle_gpu.size(); i ++) {
+		vec4 a = trnsf * vec4(vertex_positions_triangle_gpu[i]);
+		vec3 A = vec3(a.x, a.y, a.z) / a.w;
+		vertex_world_positions_triangle_gpu.push_back(A);
+	}
+	return vertex_world_positions_triangle_gpu;
 }
 
 void MeshModel::calculateTangentSpace()

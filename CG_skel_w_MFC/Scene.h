@@ -230,7 +230,7 @@ public:
 	int viewportHeight;
 
 	uint num_of_rays;
-	bool cpu_mode = true;
+	bool cpu_mode = false;
 	bool display_rays_hits = true;
 	bool display_rays_misses = false;
 

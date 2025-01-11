@@ -11,6 +11,22 @@ struct LightProperties
     int type;  // Ambient=0 / Point=1 / parallel=2
 };
 
+struct Triangle
+{
+    vec3 v0;
+    vec3 v1;
+    vec3 v2;
+};
+
+struct HIT {
+    vec3 origin_w;    // Ray origin in world space          3 floats        12 bytes
+    vec3 hit_point_w; // Closest hit point in world space   3 floats        12 bytes
+    float distance;   // Distance to the hit point          1 float         4 bytes
+    float padding;    // Padding for alignment              1 float         4 bytes
+                      
+                      // Total size: 8 floats   ==  8 * 4 Bytes = 32Bytes
+};
+
 /* UBO */
 layout(std140) uniform Lights
 {
@@ -24,21 +40,17 @@ in vec3 fPosition;
 in vec3 vn;
 in vec3 fn;
 in vec3 raysPos;
+in vec3 rayDirections;
+in vec3 route;
 in vec3 non_uniformColor_diffuse_FLAT;  //every 3 is duplicated to be the average of the face (to make a uniform same color for FLAT shading)
 in vec3 non_uniformColor_diffuse;       //simple 1to1 mapping for every vertex - it's color
-in vec2 texcoord;
-in vec3 tangent;
 
 /* Uniforms */
 uniform int displayRays;
 uniform int displayMisses;
 uniform int algo_shading;
-uniform int displayBBox;
-uniform int displayVnormal;
-uniform int displayFnormal;
-uniform int displaySkyBox;
-uniform int displayCameraIcon;
 uniform int numLights;
+uniform int numTriangles;
 
 uniform float vnFactor;
 uniform float fnFactor;
@@ -48,17 +60,12 @@ uniform mat4 view;
 uniform mat4 model_normals;
 uniform mat4 view_normals;
 
-uniform mat4 projection;
-uniform mat4 projection_normals;
-uniform vec3 wireframeColor;
-uniform int colorAnimateType;
-uniform int vertexAnimationEnable;
-uniform float minX;
-uniform float maxX;
-uniform float time;
-uniform float smoothTime;
-uniform sampler2D normalMap;
-uniform int applyEnviornmentShading;
+uniform mat4          projection;
+uniform mat4          projection_normals;
+uniform vec3          wireframeColor;
+uniform int           simulation;
+uniform samplerBuffer triangleBuffer;
+
 
 /* Material */
 uniform vec3 uniformColor_emissive;
@@ -70,10 +77,6 @@ uniform float Ks;
 uniform float EmissiveFactor;
 uniform int COS_ALPHA;
 uniform bool isUniformMaterial;
-uniform bool usingTexture;
-uniform bool usingNormalMap;
-uniform bool usingMarbleTex;
-
 
 /* Output */
 flat out vec3 flat_outputColor;
@@ -88,13 +91,10 @@ flat out float interpolated_Kd;
 flat out float interpolated_Ks;
 flat out float interpolated_EmissiveFactor;
 flat out int   interpolated_COS_ALPHA;
-out vec2 st;
 out vec3 vertPos;
-out mat3      TBN;
 out vec3 vertPos_worldspace;
 out vec3 normal_worldspace;
-out vec3 skyboxCoords;
-
+out HIT hitResult; // Closest intersection point or special value for miss
 
 /* Locals */
 vec4 vPos;
@@ -112,7 +112,6 @@ float current_EmissiveFactor;
 int current_COS_ALPHA;
 mat4 modelview;
 mat4 modelview_normals;
-vec3 tangentVec, bitangentVec, nmN;
 
 vec3 calcIntensity(int i, vec3 P, vec3 N, int typeOfColor)
 {
@@ -188,25 +187,91 @@ vec3 getColor(vec4 point, vec4 normal)
     return clamp(result, vec3(0), vec3(1));
 }
 
-void calcTBN(vec4 N)
-{
-    nmN = normalize(vec3(N/N.w));
-    bitangentVec = normalize(cross(tangent, nmN));
-    TBN = mat3(tangentVec, bitangentVec, nmN);
+Triangle getTriangle(int index) {
+    vec4 t0 = texelFetch(triangleBuffer, (index * 3) + 0); // First vertex
+    vec4 t1 = texelFetch(triangleBuffer, (index * 3) + 1); // Second vertex
+    vec4 t2 = texelFetch(triangleBuffer, (index * 3) + 2); // Third vertex
+    return Triangle(t0.xyz, t1.xyz, t2.xyz);
 }
 
-vec4 calcNormalTangent()
+bool intersectRayTriangle(vec3 origin, vec3 dir, Triangle tri, out float t, out vec3 hit) {
+    vec3 edge1 = tri.v1 - tri.v0;
+    vec3 edge2 = tri.v2 - tri.v0;
+    vec3 pvec = cross(dir, edge2);
+    float det = dot(edge1, pvec);
+
+    // Use a small tolerance
+    if (abs(det) < 1e-6) return false; // Parallel or degenerate
+
+    float invDet = 1.0 / det;
+
+    vec3 tvec = origin - tri.v0;
+    float u = dot(tvec, pvec) * invDet;
+
+    // Check if the intersection lies outside the triangle
+    if (u < 0.0 || u > 1.0) return false;
+
+    vec3 qvec = cross(tvec, edge1);
+    float v = dot(dir, qvec) * invDet;
+
+    if (v < 0.0 || u + v > 1.0) return false;
+
+    // Calculate the intersection distance
+    t = dot(edge2, qvec) * invDet;
+
+    // Allow for small tolerance
+    if (t < -1e-6) return false; // Intersection behind the ray origin
+
+    // Compute the intersection point
+    hit = origin + t * dir;
+    return true;
+}
+
+void simulate()
 {
-    vec3 normal_from_map = texture2D(normalMap, st).rgb * 2.0 - 1.0; // Normalize to [-1,1]
-    return vec4(normalize(TBN * normal_from_map), 1);
+    vec3 rayOrigin = vec3(0,0,0); // Assuming rays originate from (0,0,0)
+    float closestDist = 10e20; // Large initial value
+    vec3 closestHit = vec3(0,0,0);
+    bool found = false;
+
+    for (int i = 0; i < numTriangles; ++i) {
+        Triangle tri = getTriangle(i);
+        float t;
+        vec3 hit;
+        if (intersectRayTriangle(rayOrigin, rayDirections, tri, t, hit) == true) {
+            float distance = length(hit - rayOrigin); // Correct distance calculation
+            if (distance < closestDist) {
+                closestDist = distance; // Store the correct distance
+                closestHit = hit;       // Store the closest intersection point
+                found = true;
+            }
+        }
+    }
+
+
+    if (found) {
+        hitResult.origin_w = rayOrigin;
+        hitResult.hit_point_w = closestHit;
+        hitResult.distance = closestDist;
+        hitResult.padding = 0.0; // Ensure 16-byte alignment
+    }
+    else {
+        hitResult.origin_w = rayOrigin;
+        hitResult.hit_point_w = rayOrigin + normalize(rayDirections) * 1e20;
+        hitResult.distance = -1.0; // Special value for miss
+        hitResult.padding = 0.0;
+    }
 }
 
 void main()
 {
+    if (simulation == 1) {
+        simulate();
+        return;
+    }
+
     modelview = view * model;
     modelview_normals = view_normals * model_normals;
-
-    st = texcoord;
     vPos = vec4(vPosition, 1);
     fPos = vec4(fPosition, 1);
     current_Color_emissive = uniformColor_emissive;
@@ -217,59 +282,11 @@ void main()
     current_Ks = Ks;
     current_EmissiveFactor = EmissiveFactor;
     current_COS_ALPHA = COS_ALPHA;
-    if(isUniformMaterial == false)
-        current_Color_diffuse  = non_uniformColor_diffuse;
-    vertexIndex = gl_VertexID;
     vPos_Cameraspace = modelview * vPos;
     vertPos_worldspace = (model * vPos).xyz;
     resultPosition = projection * vPos_Cameraspace;
 
-   // Normal map calculations
-    vec4 temp_tangent = vec4(tangent,1);
-    temp_tangent = modelview_normals * temp_tangent;
-    tangentVec = normalize(vec3(temp_tangent/temp_tangent.w));
-
-
-    if(displayBBox == 1)
-    {
-        outputColor = vec3(0, 1, 0);  // green
-    }
-    else if (displayFnormal == 1)
-    {
-        outputColor = vec3(0, 0, 1);  // blue
-        if(vertexIndex % 2 == 1) 
-        {
-            vec4 normalDir = normalize(projection * normalize(modelview_normals * vec4(fn,1)));
-            vec4 startPoint = resultPosition / resultPosition.w;
-            resultPosition = startPoint + (normalDir * fnFactor);
-            resultPosition.w = 1;
-        }
-    }
-    else if (displayVnormal == 1)
-    {
-        outputColor = vec3(1, 0, 0);
-        if(vertexIndex % 2 == 1) 
-        {
-            vec4 normalDir = normalize(projection * normalize(modelview_normals * vec4(vn,1)));
-            vec4 startPoint = resultPosition / resultPosition.w;
-            resultPosition = startPoint + (normalDir * vnFactor);
-            resultPosition.w = 1;
-        }
-    }
-    else if(displaySkyBox == 1)
-    {
-        if(applyEnviornmentShading == 1)
-        {
-            skyboxCoords = vPosition;
-            gl_Position = (projection * modelview * vec4(vPosition, 1)).xyww;
-            return;
-        }
-    }
-    else if(displayCameraIcon == 1)
-    {
-        outputColor = vec3(0, 1, 0);  // green
-    }
-    else if (displayRays == 1 || displayMisses == 1)
+    if (displayRays == 1 || displayMisses == 1)
     {
         resultPosition = projection * modelview * vec4(raysPos, 1);
         if (displayMisses == 0) {
@@ -291,36 +308,13 @@ void main()
             {
                 vec4 P = modelview * vec4(fPosition, 1);
                 vec4 N = modelview_normals * vec4(fn, 1);
-                
-                if(usingNormalMap)
-                {
-                    calcTBN(N);
-                    N = calcNormalTangent();
-                }
-
-                if(isUniformMaterial == false)
-                    current_Color_diffuse  = non_uniformColor_diffuse_FLAT;
-
                 flat_outputColor = getColor(P, N);
-
-
-                if(applyEnviornmentShading == 1)
-                    normal_worldspace = (model_normals * vec4(fn, 1)).xyz;
             }
             else if(algo_shading == 2) //Gouraud shading
             {
                 vec4 P = vPos_Cameraspace;                //Vertex Position in CameraSpace
                 vec4 N = modelview_normals * vec4(vn, 1); //Vertex Normal in CameraSpace
-
-                if(usingNormalMap)
-                {
-                    calcTBN(N);
-                    N = calcNormalTangent();
-                }
         		outputColor = getColor(P, N);
-
-                if(applyEnviornmentShading == 1)
-                    normal_worldspace = (model_normals * vec4(vn, 1)).xyz;
             }
             else if(algo_shading == 3) //Phong shading
             {
@@ -334,21 +328,10 @@ void main()
                 interpolated_Ks = current_Ks;
                 interpolated_EmissiveFactor = current_EmissiveFactor;
                 interpolated_COS_ALPHA = current_COS_ALPHA;
-                
-                if(usingNormalMap)
-                {
-                    calcTBN(interpolated_normal);
-                }
-
-                if(applyEnviornmentShading == 1)
-                    normal_worldspace = (model_normals * vec4(vn, 1)).xyz;
             }
         }
-
     }
 
-    
-    
     gl_Position = resultPosition;
     vertPos = vPosition;
 }

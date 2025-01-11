@@ -71,6 +71,11 @@ GLuint InitShader(const char* vShaderFile, const char* fShaderFile)
     }
 
     /* link  and error check */
+
+	// Specify the varyings to capture
+	const char* varyings[] = { "hitResult.origin_w", "hitResult.hit_point_w", "hitResult.distance", "hitResult.padding" };
+	glTransformFeedbackVaryings(program, 4, varyings, GL_INTERLEAVED_ATTRIBS);
+
     glLinkProgram(program);
 
     GLint  linked;
