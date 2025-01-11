@@ -88,7 +88,7 @@ void RayTransmitter::StartSimulation(uint method)
 				if (!intersected_already) {
 					HIT miss = { 0 };
 					miss.origin_w = this->pos_w;
-					miss.hit_point_w = miss.origin_w + 10000000 * r;
+					miss.hit_point_w = miss.origin_w + 1e20 * r;
 					misses[i].push_back(miss);
 				}
 			}
@@ -99,6 +99,8 @@ void RayTransmitter::StartSimulation(uint method)
 	//GPU version:
 	else
 	{
+		this->start_time = chrono::high_resolution_clock::now();
+
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_FEEDBACK_BUFFER]);
 		glBufferData(GL_ARRAY_BUFFER, scene->num_of_rays * sizeof(HIT), nullptr, GL_DYNAMIC_READ);
 
@@ -152,6 +154,8 @@ void RayTransmitter::StartSimulation(uint method)
 
 
 		glBindVertexArray(0);
+		this->end_time = chrono::high_resolution_clock::now();
+
 	}
 
 	
