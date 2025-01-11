@@ -25,6 +25,8 @@ private:
 	GLuint hitTexture;
 	GLuint vbo;
 	GLuint triangleTexture;
+	GLuint routeTexture;
+	GLuint raysTexture;
 	chrono::high_resolution_clock::time_point start_time;
 	chrono::high_resolution_clock::time_point end_time;
 	void UpdateRaysVisualizationInGPU();

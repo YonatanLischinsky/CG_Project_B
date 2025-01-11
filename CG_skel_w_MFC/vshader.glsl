@@ -40,8 +40,6 @@ in vec3 fPosition;
 in vec3 vn;
 in vec3 fn;
 in vec3 raysPos;
-in vec3 rayDirections;
-in vec3 route;
 in vec3 non_uniformColor_diffuse_FLAT;  //every 3 is duplicated to be the average of the face (to make a uniform same color for FLAT shading)
 in vec3 non_uniformColor_diffuse;       //simple 1to1 mapping for every vertex - it's color
 
@@ -50,21 +48,23 @@ uniform int displayRays;
 uniform int displayMisses;
 uniform int algo_shading;
 uniform int numLights;
-uniform int numTriangles;
-
 uniform float vnFactor;
 uniform float fnFactor;
-
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 model_normals;
 uniform mat4 view_normals;
-
 uniform mat4          projection;
 uniform mat4          projection_normals;
 uniform vec3          wireframeColor;
+
 uniform int           simulation;
+uniform int           numTriangles;
+uniform int           numRoutePoints;
+uniform int           numRays;
 uniform samplerBuffer triangleBuffer;
+uniform samplerBuffer routeBuffer;
+uniform samplerBuffer rayDirections;
 
 
 /* Material */
@@ -188,9 +188,9 @@ vec3 getColor(vec4 point, vec4 normal)
 }
 
 Triangle getTriangle(int index) {
-    vec4 t0 = texelFetch(triangleBuffer, (index * 3) + 0); // First vertex
-    vec4 t1 = texelFetch(triangleBuffer, (index * 3) + 1); // Second vertex
-    vec4 t2 = texelFetch(triangleBuffer, (index * 3) + 2); // Third vertex
+    vec4 t0 = texelFetch(triangleBuffer, (index * 3) + 0);
+    vec4 t1 = texelFetch(triangleBuffer, (index * 3) + 1);
+    vec4 t2 = texelFetch(triangleBuffer, (index * 3) + 2);
     return Triangle(t0.xyz, t1.xyz, t2.xyz);
 }
 
@@ -229,16 +229,21 @@ bool intersectRayTriangle(vec3 origin, vec3 dir, Triangle tri, out float t, out 
 
 void simulate()
 {
-    vec3 rayOrigin = vec3(0,0,0); // Assuming rays originate from (0,0,0)
-    float closestDist = 10e20; // Large initial value
-    vec3 closestHit = vec3(0,0,0);
+    int route_point_index = gl_VertexID % numRoutePoints;
+    int rayIndex          = gl_VertexID / numRoutePoints;
+
+    vec3 rayOrigin = texelFetch(routeBuffer, route_point_index).xyz;
+    vec3 rayDir    = texelFetch(rayDirections, rayIndex).xyz;
+
+    float closestDist = 10e20;
+    vec3 closestHit = vec3(0, 0, 0);
     bool found = false;
 
     for (int i = 0; i < numTriangles; ++i) {
         Triangle tri = getTriangle(i);
         float t;
         vec3 hit;
-        if (intersectRayTriangle(rayOrigin, rayDirections, tri, t, hit) == true) {
+        if (intersectRayTriangle(rayOrigin, rayDir, tri, t, hit) == true) {
             float distance = length(hit - rayOrigin); // Correct distance calculation
             if (distance < closestDist) {
                 closestDist = distance; // Store the correct distance
@@ -248,16 +253,16 @@ void simulate()
         }
     }
 
-
     if (found) {
         hitResult.origin_w = rayOrigin;
         hitResult.hit_point_w = closestHit;
         hitResult.distance = closestDist;
         hitResult.padding = 0.0; // Ensure 16-byte alignment
     }
+
     else {
         hitResult.origin_w = rayOrigin;
-        hitResult.hit_point_w = rayOrigin + normalize(rayDirections) * 1e20;
+        hitResult.hit_point_w = rayOrigin + normalize(rayDir) * 1e20;
         hitResult.distance = -1.0; // Special value for miss
         hitResult.padding = 0.0;
     }

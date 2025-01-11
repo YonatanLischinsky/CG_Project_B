@@ -99,21 +99,16 @@ void RayTransmitter::StartSimulation(uint method)
 	//GPU version:
 	else
 	{
-
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_FEEDBACK_BUFFER]);
-		glBufferData(GL_ARRAY_BUFFER, scene->num_of_rays * sizeof(HIT), nullptr, GL_DYNAMIC_READ);
+		glBufferData(GL_ARRAY_BUFFER, route.size() * scene->num_of_rays * sizeof(HIT), nullptr, GL_DYNAMIC_READ);
 
 		// 1. Load triangles, rays, and route points
 		glBindVertexArray(VAO[1]);
 		LoadSceneTriangles();		// Triangles to the GPU
 		LoadRayDirections();		// Rays to the GPU
-		//LoadRoutePoints();		// Route points to the GPU
+		LoadRoutePoints();			// Route points to the GPU
 
 		// 2. Set up simulation
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_BUFFER, triangleTexture);
-		glUniform1i(glGetUniformLocation(renderer->program, "triangleBuffer"), 0); // Bind triangle buffer
-		glUniform1i(glGetUniformLocation(renderer->program, "numTriangles"), scene_triangles_wrld_pos.size() / 3);
 		glUniform1i(glGetUniformLocation(renderer->program, "simulation"), 1);
 
 		// Bind the feedback buffer
@@ -130,12 +125,13 @@ void RayTransmitter::StartSimulation(uint method)
 
 		// 5. Wait for GPU to finish
 		glFinish(); // Ensure all GPU tasks are complete
+
 		this->end_time = chrono::high_resolution_clock::now();
 
 		// 6. Read back results
-		std::vector<HIT> hitResults(scene->num_of_rays);
+		std::vector<HIT> hitResults(scene->num_of_rays * route.size());
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_FEEDBACK_BUFFER]);
-		glGetBufferSubData(GL_ARRAY_BUFFER, 0, scene->num_of_rays * sizeof(HIT), hitResults.data());
+		glGetBufferSubData(GL_ARRAY_BUFFER, 0, route.size() * scene->num_of_rays * sizeof(HIT), hitResults.data());
 
 		hits.push_back(vector<HIT>(0));
 		misses.push_back(vector<HIT>(0));
@@ -194,20 +190,36 @@ void RayTransmitter::LoadSceneTriangles() {
 	glBindBuffer(GL_TEXTURE_BUFFER, VBO[GPU_TRIANGLE_DATA]);
 	int lenInBytes = scene_triangles_wrld_pos.size() * sizeof(scene_triangles_wrld_pos[0]);
 	glBufferData(GL_TEXTURE_BUFFER, lenInBytes, scene_triangles_wrld_pos.data(), GL_STATIC_DRAW);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, triangleTexture);
+	glUniform1i(glGetUniformLocation(renderer->program, "triangleBuffer"), 0); // Bind triangle buffer
+	glUniform1i(glGetUniformLocation(renderer->program, "numTriangles"), scene_triangles_wrld_pos.size() / 3);
+}
+
+
+void RayTransmitter::LoadRoutePoints() {
+	//Populate the GPU memory
+	glBindBuffer(GL_TEXTURE_BUFFER, VBO[GPU_ROUTE_CHECK_POINTS]);
+	int lenInBytes = route.size() * sizeof(route[0]);
+	glBufferData(GL_TEXTURE_BUFFER, lenInBytes, route.data(), GL_STATIC_DRAW);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_BUFFER, routeTexture);
+	glUniform1i(glGetUniformLocation(renderer->program, "routeBuffer"), 1);
+	glUniform1i(glGetUniformLocation(renderer->program, "numRoutePoints"), route.size());
 }
 
 void RayTransmitter::LoadRayDirections() {
 	//Populate the GPU memory
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_RAY_DIR]);
+	glBindBuffer(GL_TEXTURE_BUFFER, VBO[GPU_RAY_DIR]);
 	int lenInBytes = rays.size() * sizeof(rays[0]);
-	glBufferData(GL_ARRAY_BUFFER, lenInBytes, rays.data(), GL_STATIC_DRAW);
-}
+	glBufferData(GL_TEXTURE_BUFFER, lenInBytes, rays.data(), GL_STATIC_DRAW);
 
-void RayTransmitter::LoadRoutePoints() {
-	//Populate the GPU memory
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_ROUTE_CHECK_POINTS]);
-	int lenInBytes = route.size() * sizeof(route[0]);
-	glBufferData(GL_ARRAY_BUFFER, lenInBytes, route.data(), GL_STATIC_DRAW);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_BUFFER, raysTexture);
+	glUniform1i(glGetUniformLocation(renderer->program, "rayDirections"), 2);
+	glUniform1i(glGetUniformLocation(renderer->program, "numRays"), rays.size());
 }
 
 void RayTransmitter::UpdateRaysVisualizationInGPU()
@@ -283,24 +295,22 @@ void RayTransmitter::GenerateAllGPU_Stuff()
 	glBindVertexArray(VAO[1]);
 	glGenBuffers(4, VBO);
 
+	/* Generate Textures */
 	glBindBuffer(GL_TEXTURE_BUFFER, VBO[GPU_TRIANGLE_DATA]);
 	glGenTextures(1, &triangleTexture);
 	glBindTexture(GL_TEXTURE_BUFFER, triangleTexture);
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, VBO[GPU_TRIANGLE_DATA]);
 
+	glBindBuffer(GL_TEXTURE_BUFFER, VBO[GPU_ROUTE_CHECK_POINTS]);
+	glGenTextures(1, &routeTexture);
+	glBindTexture(GL_TEXTURE_BUFFER, routeTexture);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, VBO[GPU_ROUTE_CHECK_POINTS]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_RAY_DIR]);
-	GLint rayDirections = glGetAttribLocation(renderer->program, "rayDirections");
-	glVertexAttribPointer(rayDirections, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(rayDirections);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_ROUTE_CHECK_POINTS]);
-	GLint route = glGetAttribLocation(renderer->program, "route");
-	glVertexAttribPointer(route, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(route);
-
-
+	glBindBuffer(GL_TEXTURE_BUFFER, VBO[GPU_RAY_DIR]);
+	glGenTextures(1, &raysTexture);
+	glBindTexture(GL_TEXTURE_BUFFER, raysTexture);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, VBO[GPU_RAY_DIR]);
+	
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
