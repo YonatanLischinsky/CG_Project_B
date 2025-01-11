@@ -99,7 +99,6 @@ void RayTransmitter::StartSimulation(uint method)
 	//GPU version:
 	else
 	{
-		this->start_time = chrono::high_resolution_clock::now();
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[GPU_FEEDBACK_BUFFER]);
 		glBufferData(GL_ARRAY_BUFFER, scene->num_of_rays * sizeof(HIT), nullptr, GL_DYNAMIC_READ);
@@ -121,6 +120,7 @@ void RayTransmitter::StartSimulation(uint method)
 		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, VBO[GPU_FEEDBACK_BUFFER]);
 
 		// 3. Run the simulation
+		this->start_time = chrono::high_resolution_clock::now();
 		glBeginTransformFeedback(GL_POINTS);
 		glDrawArrays(GL_POINTS, 0, scene->num_of_rays * route.size());
 		glEndTransformFeedback();
@@ -130,6 +130,7 @@ void RayTransmitter::StartSimulation(uint method)
 
 		// 5. Wait for GPU to finish
 		glFinish(); // Ensure all GPU tasks are complete
+		this->end_time = chrono::high_resolution_clock::now();
 
 		// 6. Read back results
 		std::vector<HIT> hitResults(scene->num_of_rays);
@@ -154,7 +155,6 @@ void RayTransmitter::StartSimulation(uint method)
 
 
 		glBindVertexArray(0);
-		this->end_time = chrono::high_resolution_clock::now();
 
 	}
 
