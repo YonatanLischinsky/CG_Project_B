@@ -43,7 +43,7 @@ RayTransmitter::RayTransmitter(Scene* s, Renderer* r) {
 	GenerateAllGPU_Stuff();
 }
 
-void RayTransmitter::StartSimulation(uint method)
+void RayTransmitter::StartSimulation(int cpu_mode)
 {
 	// Get first time N directions relative to (0,0,0)
 	if (rays.size() == 0) {
@@ -56,7 +56,7 @@ void RayTransmitter::StartSimulation(uint method)
 
 
 	// CPU version:
-	if (method == 0) 
+	if (cpu_mode == 1)
 	{	
 		this->start_time = chrono::high_resolution_clock::now();
 		sim_result.hits = 0;
@@ -156,13 +156,13 @@ void RayTransmitter::StartSimulation(uint method)
 
 	
 	/* Update simulation result */
-	UpdateSimulationResults(method);
+	UpdateSimulationResults(cpu_mode);
 
 	/* visualization the rays */
 	UpdateRaysVisualizationInGPU();
 }
 
-void RayTransmitter::UpdateSimulationResults(uint method) {
+void RayTransmitter::UpdateSimulationResults(int cpu_mode) {
 	/* Update Simulation results object */
 	sim_result.route_pts = route.size();
 	sim_result.rays = rays.size() * route.size();
@@ -172,7 +172,7 @@ void RayTransmitter::UpdateSimulationResults(uint method) {
 	sim_result.time_seconds = std::chrono::duration<float>(sim_time).count();
 	sim_result.time_milli = std::chrono::duration<float>(sim_time).count() * 1000.0f;
 	sim_result.time_micro = std::chrono::duration<float>(sim_time).count() * 1000000.0f;
-	sim_result.method = method;
+	sim_result.cpu_mode = cpu_mode;
 }
 
 void RayTransmitter::LoadSceneTriangles() {
@@ -196,7 +196,6 @@ void RayTransmitter::LoadSceneTriangles() {
 	glUniform1i(glGetUniformLocation(renderer->program, "triangleBuffer"), 0); // Bind triangle buffer
 	glUniform1i(glGetUniformLocation(renderer->program, "numTriangles"), scene_triangles_wrld_pos.size() / 3);
 }
-
 
 void RayTransmitter::LoadRoutePoints() {
 	//Populate the GPU memory
@@ -246,10 +245,12 @@ void RayTransmitter::UpdateRaysVisualizationInGPU()
 	glBindVertexArray(VAO[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
+	UpdateColorsUniforms();
 	int lenInBytes = rays_data_gpu.size() * 3 * sizeof(float);
 	glBufferData(GL_ARRAY_BUFFER, lenInBytes, rays_data_gpu.data(), GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
+
 }
 
 void RayTransmitter::UpdateModelViewInGPU(mat4& Tc, mat4& Tc_for_normals)
@@ -273,6 +274,13 @@ void RayTransmitter::UpdateModelViewInGPU(mat4& Tc, mat4& Tc_for_normals)
 
 	/* Bind the view_normals matrix*/
 	glUniformMatrix4fv(glGetUniformLocation(renderer->program, "view_normals"), 1, GL_TRUE, &(view_normals[0][0]));
+}
+
+void RayTransmitter::UpdateColorsUniforms()
+{
+	if (!scene) return;
+	glUniform3f(glGetUniformLocation(renderer->program, "hitColor"), scene->hitColor.x, scene->hitColor.y, scene->hitColor.z);
+	glUniform3f(glGetUniformLocation(renderer->program, "misColor"), scene->misColor.x, scene->misColor.y, scene->misColor.z);
 }
 
 void RayTransmitter::GenerateAllGPU_Stuff()

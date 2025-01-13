@@ -119,7 +119,7 @@ typedef struct sim_res {
 	float	time_seconds;
 	ULONG64 time_milli;
 	ULONG64 time_micro;
-	UCHAR	method; /*  0 = CPU  ,  1 = GPU  */
+	UCHAR	cpu_mode; /*  1 = CPU  ,  0 = GPU  */
 } SIM_RESULT;
 
 class Line {

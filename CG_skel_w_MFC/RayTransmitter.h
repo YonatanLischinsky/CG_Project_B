@@ -34,7 +34,7 @@ private:
 	void LoadSceneTriangles();
 	void LoadRayDirections();
 	void LoadRoutePoints();
-	void UpdateSimulationResults(uint method);
+	void UpdateSimulationResults(int cpu_mode);
 public:
 	GLuint VAO[2] = { 0 };
 	GLuint VBO[4] = { 0 };
@@ -55,7 +55,7 @@ public:
 		for (auto& i : misses) c += i.size();
 		return c;
 	}
-	void StartSimulation(uint method);
-
+	void StartSimulation(int cpu_mode);
+	void UpdateColorsUniforms();
 };
 

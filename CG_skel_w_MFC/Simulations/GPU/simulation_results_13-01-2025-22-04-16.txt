@@ -1,0 +1,11 @@
+Simulation Results:
+Method: GPU
+Path check-points: 1
+Rays per check-point: 236
+Total Hits: 236
+Total Rays: 236
+Hit Ratio: 100.0 %%
+Total polygons: 902
+Time [seconds]: 0.002
+Time [millisec]: 2
+Time [microsec]: 2081

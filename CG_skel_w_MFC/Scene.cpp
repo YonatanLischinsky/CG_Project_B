@@ -22,7 +22,8 @@
 #define CAMERA_TAB_INDEX	 1
 #define LIGHT_TAB_INDEX		 2
 #define SIM_ROUTE_TAB_INDEX	 3
-#define SIM_TAB_INDEX		 4
+#define SIM_SETT_TAB_INDEX	 4
+#define SIM_RES_TAB_INDEX	 5
 
 using namespace std;
 extern Renderer* renderer;
@@ -31,7 +32,7 @@ extern RayTransmitter* rt;
 static char nameBuffer[64] = { 0 };
 static float posBuffer[3] = { 0 };
 static int g_ortho = 1;
-static int n_rays = 0;
+static int n_rays = 1000;
 static int light_type_radio_button;
 static bool saved_palette_init = true;
 static ImVec4 saved_palette[32] = {};
@@ -39,6 +40,7 @@ static int selectedTab = 0;
 
 bool add_showModelDlg = false, add_showCamDlg = false, add_showLightDlg = false;
 bool simulation_showNumRaysDlg = false;
+bool simulation_showFileSavedDlg = false;
 bool showTransWindow = false;
 bool constScaleRatio = false;
 bool constScaleRatio_w = false;
@@ -417,7 +419,8 @@ void Scene::ResetPopUpFlags()
 	add_showCamDlg = false;				// Reset flag
 	add_showModelDlg = false;			// Reset flag
 	add_showLightDlg = false;			// Reset flag
-	simulation_showNumRaysDlg = false;  // Reset flag
+	simulation_showNumRaysDlg	= false;// Reset flag
+	simulation_showFileSavedDlg = false;// Reset flag
 	memset(nameBuffer, 0, IM_ARRAYSIZE(nameBuffer));
 	memset(posBuffer, 0, sizeof(float) * 3);
 }
@@ -540,9 +543,9 @@ void Scene::drawGUI()
 				if (ImGui::MenuItem("Start Simulation"))
 				{
 					if (rt)
-						rt->StartSimulation(cpu_mode ? 0 : 1);
+						rt->StartSimulation(cpu_mode);
 					showTransWindow = true;
-					selectedTab = SIM_TAB_INDEX;
+					selectedTab = SIM_RES_TAB_INDEX;
 				}
 			}
 			if (ImGui::MenuItem("Number of rays"))
@@ -550,11 +553,11 @@ void Scene::drawGUI()
 				simulation_showNumRaysDlg = true;
 				n_rays = num_of_rays;
 			}
-			if (ImGui::MenuItem("CPU mode", NULL, cpu_mode == true)) {
-				cpu_mode = true;
+			if (ImGui::MenuItem("CPU mode", NULL, cpu_mode == 1)) {
+				cpu_mode = 1;
 			}
-			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == false)) {
-				cpu_mode = false;
+			if (ImGui::MenuItem("GPU mode", NULL, cpu_mode == 0)) {
+				cpu_mode = 0;
 			}
 			ImGui::Checkbox("Show Hits", &display_rays_hits);
 			ImGui::Checkbox("Show Misses", &display_rays_misses);
@@ -732,7 +735,7 @@ void Scene::drawGUI()
 		closedTransfWindowFlag = false;
 		float mainMenuBarHeight = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2.0f;
 		ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarHeight), ImGuiCond_Always);
-		ImGui::SetNextWindowSizeConstraints(ImVec2(350, m_renderer->GetWindowSize().y - mainMenuBarHeight), \
+		ImGui::SetNextWindowSizeConstraints(ImVec2(450, m_renderer->GetWindowSize().y - mainMenuBarHeight), \
 			ImVec2(m_renderer->GetWindowSize().x / 2, m_renderer->GetWindowSize().y - mainMenuBarHeight));
 		if (ImGui::Begin("Control Window", &showTransWindow, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 		{
@@ -743,10 +746,10 @@ void Scene::drawGUI()
 				resize_callback_handle(m_renderer->GetWindowSize().x, m_renderer->GetWindowSize().y);
 			}
 
-			const char* names[5] = { "Model", "Camera", "Light", "Sim Route", "Sim Result" };
+			const char* names[6] = { "Model", "Camera", "Light", "Sim Route", "Sim Settings","Sim Result"};
 			ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 
-			if (ImGui::BeginTabBar("TransBar", tab_bar_flags))
+			if (ImGui::BeginTabBar("ControlBar", tab_bar_flags))
 			{
 				ImGui::PushItemWidth(80);
 
@@ -771,8 +774,10 @@ void Scene::drawGUI()
 							drawLightTab();
 						else if (n == SIM_ROUTE_TAB_INDEX)
 							drawSimRouteTab();
-						else if (n == SIM_TAB_INDEX)
-							drawSimTab();
+						else if (n == SIM_SETT_TAB_INDEX)
+							drawSimSettingsTab();
+						else if (n == SIM_RES_TAB_INDEX)
+							drawSimResultsTab();
 
 						ImGui::EndTabItem();
 					}
@@ -798,12 +803,16 @@ void Scene::drawGUI()
 	{
 		ImGui::OpenPopup("Number of rays");
 	}
+	else if (simulation_showFileSavedDlg)
+	{
+		ImGui::OpenPopup("File Saved");
+	}
 
 	//---------------------------------------------------
 	//------- Begin pop up - MUST BE IN THIS SCOPE ------
 	//---------------------------------------------------
 	if (ImGui::BeginPopupModal("Number of rays", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
-		ImGui::InputInt("Number of rays ", &n_rays);
+		ImGui::InputInt("Number of rays ", &num_of_rays);
 
 		// Add buttons for OK and Cancel
 		ImGui::Button("OK");
@@ -812,7 +821,6 @@ void Scene::drawGUI()
 			GUI_popup_pressedOK = true;
 			GUI_popup_pressedCANCEL = false;
 			ImGui::CloseCurrentPopup();
-			showTransWindow = false;
 		}
 		ImGui::SameLine();
 		ImGui::Button("Cancel");
@@ -821,7 +829,6 @@ void Scene::drawGUI()
 			GUI_popup_pressedOK = false;
 			GUI_popup_pressedCANCEL = true;
 			ImGui::CloseCurrentPopup();
-			showTransWindow = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -919,6 +926,19 @@ void Scene::drawGUI()
 		ImGui::EndPopup();
 	}
 
+	if (ImGui::BeginPopupModal("File Saved", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("The simulation has been saved successfully.");
+		
+		ImGui::Button("OK");
+		if ((ImGui::IsItemClicked() || ImGui::IsKeyReleased(ImGui::GetKeyIndex(ImGuiKey_Enter))))
+		{
+			GUI_popup_pressedOK = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
 	//------------------------------------
 	//--------  Handle pop-ups -----------
 	//------------------------------------
@@ -987,19 +1007,23 @@ void Scene::drawGUI()
 
 		}
 	}
-	
-	if (simulation_showNumRaysDlg)
+	else if (simulation_showNumRaysDlg)
 	{
 		if (GUI_popup_pressedOK)
 		{
 			rt->N_Rays_Updated();
-			num_of_rays = n_rays;
-			ResetPopUpFlags();
-		}
-		else if (GUI_popup_pressedCANCEL) {
 			n_rays = this->num_of_rays;
 			ResetPopUpFlags();
 		}
+		else if (GUI_popup_pressedCANCEL) {
+			num_of_rays = n_rays;
+			ResetPopUpFlags();
+		}
+	}
+	else if (simulation_showFileSavedDlg)
+	{
+		if (GUI_popup_pressedOK)
+			ResetPopUpFlags();
 	}
 }
 
@@ -1678,7 +1702,55 @@ void Scene::drawLightTab()
 		m_renderer->UpdateLightsUBO(false);
 }
 
-void Scene::drawSimTab()
+void Scene::drawSimSettingsTab()
+{
+	bool colorsChanged = false;
+	ImGui::SeparatorText("Simulation configuration");
+
+	ImGui::DragInt("Number of rays##TOTAL_RAYS", &num_of_rays); if (n_rays != num_of_rays) n_rays = num_of_rays;
+
+	ImGui::SeparatorText("Method");
+
+	ImGui::RadioButton("CPU", &cpu_mode, 1);
+	ImGui::RadioButton("GPU", &cpu_mode, 0);
+
+	ImGui::SeparatorText("Rays");
+
+	ImVec4 color_local_hit = ImVec4(hitColor.x, hitColor.y, hitColor.z, 1);
+	colorPicker(&color_local_hit, "Rays Hit Color", "##HitColor");
+	if (hitColor != vec3(color_local_hit.x, color_local_hit.y, color_local_hit.z))
+		colorsChanged = true;
+	hitColor.x = color_local_hit.x;
+	hitColor.y = color_local_hit.y;
+	hitColor.z = color_local_hit.z;
+
+	ImVec4 color_local_mis = ImVec4(misColor.x, misColor.y, misColor.z, 1);
+	colorPicker(&color_local_mis, "Rays Miss Color", "##MisColor");
+	if (misColor != vec3(color_local_mis.x, color_local_mis.y, color_local_mis.z))
+		colorsChanged = true;
+	misColor.x = color_local_mis.x;
+	misColor.y = color_local_mis.y;
+	misColor.z = color_local_mis.z;
+
+	ImGui::Checkbox("Show Hits", &display_rays_hits);
+	ImGui::Checkbox("Show Misses", &display_rays_misses);
+
+	if (colorsChanged)
+		rt->UpdateColorsUniforms();
+	
+	ImGui::SeparatorText("Simulation Actions");
+	if (models.size() > 0 && num_of_rays > 0) {
+		if (ImGui::Button("Start Simulation##simulate"))
+		{
+			rt->StartSimulation(cpu_mode);
+			selectedTab = SIM_RES_TAB_INDEX;
+		}
+	}
+
+
+}
+
+void Scene::drawSimResultsTab()
 {
 	ImGui::SeparatorText("Simulation Results");
 	
@@ -1704,7 +1776,7 @@ void Scene::drawSimTab()
 	time		+= floatToStringWithPrecision(rt->sim_result.time_seconds, 3);
 	time_mili	+= std::to_string(rt->sim_result.time_milli);
 	time_micro	+= std::to_string(rt->sim_result.time_micro);
-	method		+= rt->sim_result.method == 0 ? "CPU" : "GPU";
+	method		+= rt->sim_result.cpu_mode == 1 ? "CPU" : "GPU";
 
 	ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // 2 is the index of the larger font
 	ImGui::Text(method.c_str());
@@ -1721,11 +1793,17 @@ void Scene::drawSimTab()
 
 	if (ImGui::Button("Save results##sim_save"))
 	{
-		std::string directory = "Simulations";
-		std::filesystem::create_directory(directory); // Creates the directory if it doesn't exist
+		std::string directory_main = "Simulations";
+		std::filesystem::create_directory(directory_main); // Creates the directory if it doesn't exist
+
+		std::string directory_CPU = directory_main + "/CPU";
+		std::filesystem::create_directory(directory_CPU); // Creates the directory if it doesn't exist
+
+		std::string directory_GPU = directory_main + "/GPU";
+		std::filesystem::create_directory(directory_GPU); // Creates the directory if it doesn't exist
 
 		// Open a file in write mode
-		string fname = directory + "/" + "simulation_results_" + GetCurrentTimeString() + ".txt";
+		string fname = (rt->sim_result.cpu_mode == 1 ? directory_CPU : directory_GPU) + "/" + "simulation_results_" + GetCurrentTimeString() + ".txt";
 		std::ofstream file(fname);
 
 		// Check if the file is successfully opened
@@ -1736,7 +1814,7 @@ void Scene::drawSimTab()
 
 		// Write the results to the file
 		file << "Simulation Results:\n";
-		file <<  method << "\n";
+		file << method << "\n";
 		file << route_pts << "\n";
 		file << rays_pt << "\n";
 		file << hits << "\n";
@@ -1749,7 +1827,7 @@ void Scene::drawSimTab()
 
 		// Close the file
 		file.close();
-
+		simulation_showFileSavedDlg = true;
 		std::cout << "Results successfully saved to " << fname << std::endl;
 	}
 }

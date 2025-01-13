@@ -65,6 +65,8 @@ uniform int           numRays;
 uniform samplerBuffer triangleBuffer;
 uniform samplerBuffer routeBuffer;
 uniform samplerBuffer rayDirections;
+uniform vec3          hitColor;
+uniform vec3          misColor;
 
 
 /* Material */
@@ -295,10 +297,10 @@ void main()
     {
         resultPosition = projection * modelview * vec4(raysPos, 1);
         if (displayMisses == 0) {
-            outputColor = vec3(0, 1, 0); // Green rays (for hits)
+            outputColor = hitColor;
         }
         else {
-            outputColor = vec3(1, 0, 0); // Red rays (for misses)
+            outputColor = misColor;
         }
     }
     else // draw shading algos

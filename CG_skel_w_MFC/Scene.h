@@ -117,8 +117,9 @@ private:
 	void drawCameraTab();
 	void drawModelTab();
 	void drawLightTab();
-	void drawSimTab();
+	void drawSimResultsTab();
 	void drawSimRouteTab();
+	void drawSimSettingsTab();
 
 	bool GUI_popup_pressedOK = false, GUI_popup_pressedCANCEL = false;
 	bool showGrid = false;
@@ -188,7 +189,7 @@ public:
 	Renderer* m_renderer;
 	Scene(Renderer* renderer) : m_renderer(renderer)
 	{
-		num_of_rays = 500;
+		num_of_rays = 1000;
 		AddCamera();							 //Add the first default camera
 		AddLight ();							 //Add the first default ambient light
 		activeCamera = 0;						 //index = 0 because it is the first
@@ -229,9 +230,12 @@ public:
 	int viewportWidth;
 	int viewportHeight;
 
-	uint num_of_rays;
-	bool cpu_mode = false;
+	int num_of_rays;
+	int cpu_mode = 0;
 	bool display_rays_hits = true;
 	bool display_rays_misses = false;
+
+	vec3 hitColor = vec3(0, 1, 0); //green
+	vec3 misColor = vec3(1, 0, 0); //red
 
 };
