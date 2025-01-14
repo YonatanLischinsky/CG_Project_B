@@ -46,9 +46,9 @@ RayTransmitter::RayTransmitter(Scene* s, Renderer* r) {
 void RayTransmitter::StartSimulation(int cpu_mode)
 {
 	// Get first time N directions relative to (0,0,0)
-	if (rays.size() == 0) {
-		getNrays(scene->num_of_rays);
-	}
+	rays.clear();
+	getNrays(scene->num_of_rays);
+	
 
 	// At this points we got N rays we want to shoot starting from our position.
 	hits.clear();
@@ -148,8 +148,6 @@ void RayTransmitter::StartSimulation(int cpu_mode)
 
 		sim_result.hits = hits[0].size();
 
-
-
 		glBindVertexArray(0);
 
 	}
@@ -246,7 +244,7 @@ void RayTransmitter::UpdateRaysVisualizationInGPU()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	UpdateColorsUniforms();
-	int lenInBytes = rays_data_gpu.size() * 3 * sizeof(float);
+	int lenInBytes = rays_data_gpu.size() * sizeof(rays_data_gpu[0]);
 	glBufferData(GL_ARRAY_BUFFER, lenInBytes, rays_data_gpu.data(), GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
@@ -279,13 +277,14 @@ void RayTransmitter::UpdateModelViewInGPU(mat4& Tc, mat4& Tc_for_normals)
 void RayTransmitter::UpdateColorsUniforms()
 {
 	if (!scene) return;
-	glUniform3f(glGetUniformLocation(renderer->program, "hitColor"), scene->hitColor.x, scene->hitColor.y, scene->hitColor.z);
-	glUniform3f(glGetUniformLocation(renderer->program, "misColor"), scene->misColor.x, scene->misColor.y, scene->misColor.z);
+	glUniform3f(glGetUniformLocation(renderer->program, "hitColor") , scene->hitColor.x, scene->hitColor.y, scene->hitColor.z);
+	glUniform3f(glGetUniformLocation(renderer->program, "misColor") , scene->misColor.x, scene->misColor.y, scene->misColor.z);
+	glUniform3f(glGetUniformLocation(renderer->program, "hitPColor"), scene->hitPColor.x, scene->hitPColor.y, scene->hitPColor.z);
 }
 
 void RayTransmitter::GenerateAllGPU_Stuff()
 {
-	glGenVertexArrays(2, VAO);
+	glGenVertexArrays(3, VAO);
 	
 	/* Visualizations */
 	glBindVertexArray(VAO[0]);
@@ -297,6 +296,16 @@ void RayTransmitter::GenerateAllGPU_Stuff()
 	GLint raysPos = glGetAttribLocation(renderer->program, "raysPos");
 	glVertexAttribPointer(raysPos, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(raysPos);
+
+
+	glBindVertexArray(VAO[2]);
+
+	//Bind rayPos for the CPU visualization:
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glVertexAttribPointer(raysPos, 3, GL_FLOAT, GL_FALSE, sizeof(vec3) * 2, (void*)sizeof(vec3));
+	glEnableVertexAttribArray(raysPos);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
 	/* GPU Simulation */

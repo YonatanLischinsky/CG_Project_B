@@ -44,8 +44,9 @@ in vec3 non_uniformColor_diffuse_FLAT;  //every 3 is duplicated to be the averag
 in vec3 non_uniformColor_diffuse;       //simple 1to1 mapping for every vertex - it's color
 
 /* Uniforms */
-uniform int displayRays;
+uniform int displayHits;
 uniform int displayMisses;
+uniform int displayHitPoints;
 uniform int algo_shading;
 uniform int numLights;
 uniform float vnFactor;
@@ -67,6 +68,7 @@ uniform samplerBuffer routeBuffer;
 uniform samplerBuffer rayDirections;
 uniform vec3          hitColor;
 uniform vec3          misColor;
+uniform vec3          hitPColor;
 
 
 /* Material */
@@ -293,10 +295,13 @@ void main()
     vertPos_worldspace = (model * vPos).xyz;
     resultPosition = projection * vPos_Cameraspace;
 
-    if (displayRays == 1 || displayMisses == 1)
+    if (displayHits == 1 || displayMisses == 1 || displayHitPoints == 1)
     {
         resultPosition = projection * modelview * vec4(raysPos, 1);
-        if (displayMisses == 0) {
+        if (displayHitPoints == 1) {
+            outputColor = hitPColor;
+        }
+        else if (displayMisses == 0) {
             outputColor = hitColor;
         }
         else {

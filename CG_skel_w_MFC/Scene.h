@@ -234,8 +234,11 @@ public:
 	int cpu_mode = 0;
 	bool display_rays_hits = true;
 	bool display_rays_misses = false;
+	bool display_hit_points = false;
+	float pointSize = 10.0f;
 
-	vec3 hitColor = vec3(0, 1, 0); //green
-	vec3 misColor = vec3(1, 0, 0); //red
+	vec3 hitColor = vec3(0, 1, 0);	// green
+	vec3 misColor = vec3(1, 0, 0);	// red
+	vec3 hitPColor = vec3(1, 0, 1); // purple
 
 };

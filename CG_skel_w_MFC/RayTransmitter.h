@@ -36,7 +36,7 @@ private:
 	void LoadRoutePoints();
 	void UpdateSimulationResults(int cpu_mode);
 public:
-	GLuint VAO[2] = { 0 };
+	GLuint VAO[3] = { 0 };
 	GLuint VBO[4] = { 0 };
 	SIM_RESULT sim_result;
 	std::vector<vec3> route;

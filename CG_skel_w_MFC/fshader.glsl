@@ -34,8 +34,9 @@ in vec3       interpolated_diffuse;
 in vec3       interpolated_specular;
 
 /* Uniforms */
-uniform int   displayRays;
+uniform int   displayHits;
 uniform int   displayMisses;
+uniform int   displayHitPoints;
 uniform int   algo_shading;
 uniform int   numLights;
 
@@ -132,9 +133,25 @@ vec3 getColor(vec4 point, vec4 normal)
 /* Main */
 void main()
 {
-    if (algo_shading == 0 || displayRays == 1 || displayMisses == 1) //WireFrame
+    if (algo_shading == 0 || displayHits == 1 || displayMisses == 1 || displayHitPoints == 1)
     {
-        FragColor = vec4(outputColor, 1);
+        if (displayHitPoints == 1) {
+            vec2 pointCoord = gl_PointCoord - vec2(0.5);
+            float distance = length(pointCoord);
+
+            // Discard fragments outside the circle
+            if (distance > 0.5) {
+                discard;
+            }
+
+            // Smooth alpha based on distance (anti-aliasing)
+            float alpha = 1.0 - smoothstep(0.45, 0.5, distance);        // 0.45                    distance 0.5
+
+            FragColor = vec4(outputColor, alpha);
+        }
+        else {
+            FragColor = vec4(outputColor, 1);
+        }
     }
     else
     {

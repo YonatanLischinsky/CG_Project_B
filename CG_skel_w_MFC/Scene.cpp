@@ -561,6 +561,7 @@ void Scene::drawGUI()
 			}
 			ImGui::Checkbox("Show Hits", &display_rays_hits);
 			ImGui::Checkbox("Show Misses", &display_rays_misses);
+			ImGui::Checkbox("Show Hit Points", &display_hit_points);
 			ImGui::EndMenu();
 		}
 		if (models.size() > 0)
@@ -1714,7 +1715,7 @@ void Scene::drawSimSettingsTab()
 	ImGui::RadioButton("CPU", &cpu_mode, 1);
 	ImGui::RadioButton("GPU", &cpu_mode, 0);
 
-	ImGui::SeparatorText("Rays");
+	ImGui::SeparatorText("Visualizations");
 
 	ImVec4 color_local_hit = ImVec4(hitColor.x, hitColor.y, hitColor.z, 1);
 	colorPicker(&color_local_hit, "Rays Hit Color", "##HitColor");
@@ -1732,8 +1733,20 @@ void Scene::drawSimSettingsTab()
 	misColor.y = color_local_mis.y;
 	misColor.z = color_local_mis.z;
 
-	ImGui::Checkbox("Show Hits", &display_rays_hits);
-	ImGui::Checkbox("Show Misses", &display_rays_misses);
+	ImVec4 color_local_hitP = ImVec4(hitPColor.x, hitPColor.y, hitPColor.z, 1);
+	colorPicker(&color_local_hitP, "Hit Points Color", "##HitPColor");
+	if (hitPColor != vec3(color_local_hitP.x, color_local_hitP.y, color_local_hitP.z))
+		colorsChanged = true;
+	hitPColor.x = color_local_hitP.x;
+	hitPColor.y = color_local_hitP.y;
+	hitPColor.z = color_local_hitP.z;
+
+	ImGui::Checkbox("Show Hit Rays", &display_rays_hits);
+	ImGui::Checkbox("Show Miss Rays", &display_rays_misses);
+	ImGui::Checkbox("Show Hit Points", &display_hit_points);
+	ImGui::DragFloat("Points size##PTS_SIZE", &pointSize, 0.1f, 0.1f, 100.0f, "%.1f");
+
+
 
 	if (colorsChanged)
 		rt->UpdateColorsUniforms();
@@ -1890,7 +1903,8 @@ void Scene::UpdateGeneralUniformInGPU()
 	glUniform1i(glGetUniformLocation(m_renderer->program, "numLights"), (int)lights.size());
 	glUniform1i(glGetUniformLocation(m_renderer->program, "simulation"), 0);
 	glUniform1i(glGetUniformLocation(m_renderer->program, "displayMisses"), 0);
-	glUniform1i(glGetUniformLocation(m_renderer->program, "displayRays"), 0);
+	glUniform1i(glGetUniformLocation(m_renderer->program, "displayHits"), 0);
+	glUniform1i(glGetUniformLocation(m_renderer->program, "displayHitPoints"), 0);
 
 	GetActiveCamera()->UpdateProjectionMatInGPU();
 }

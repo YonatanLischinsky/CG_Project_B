@@ -114,15 +114,24 @@ void Renderer::drawRays(mat4& cTransform)
 	rt->UpdateModelViewInGPU(scene->GetActiveCamera()->cTransform, scene->GetActiveCamera()->rotationMat_normals);
 	
 	glBindVertexArray(rt->VAO[0]);
+	GLint raysPos = glGetAttribLocation(program, "raysPos");
 	if (scene->display_rays_hits) {
-		glUniform1i(glGetUniformLocation(program, "displayRays"), 1);
+
+		glUniform1i(glGetUniformLocation(program, "displayHits"), 1);
 		glDrawArrays(GL_LINES, 0, rt->GetHitBufferLen() * 2);
-		glUniform1i(glGetUniformLocation(program, "displayRays"), 0);
+		glUniform1i(glGetUniformLocation(program, "displayHits"), 0);
 	}
 	if (scene->display_rays_misses) {
 		glUniform1i(glGetUniformLocation(program, "displayMisses"), 1);
 		glDrawArrays(GL_LINES, rt->GetHitBufferLen() * 2, rt->GetMissBufferLen() * 2);
 		glUniform1i(glGetUniformLocation(program, "displayMisses"), 0);
+	}
+	if (scene->display_hit_points) {
+		glBindVertexArray(rt->VAO[2]);
+		glUniform1i(glGetUniformLocation(program, "displayHitPoints"), 1);
+		glPointSize(scene->pointSize); // Set point size to 10 pixels
+		glDrawArrays(GL_POINTS, 0, rt->GetHitBufferLen());
+		glUniform1i(glGetUniformLocation(program, "displayHitPoints"), 0);
 	}
 	glBindVertexArray(0);
 }
