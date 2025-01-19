@@ -84,7 +84,7 @@ public:
 	void setStartPosition(vec4& pos) { c_trnsl = pos; }
 	
 	void updateTransform();
-	void ResetTranslation() { c_trnsl = vec4(0,1.5f,3.0f,1); }
+	void ResetTranslation() { c_trnsl = vec4(0, 1.0f, 5.0f, 1); }
 	void ResetRotation() { c_rot = vec4(0,0,0,1); }
 	
 	void iconInit();
@@ -99,7 +99,7 @@ public:
 	void unLockFovy() { lockFov_GUI = false; }
 	bool* getLockFovyPTR() { return &lockFov_GUI; }
 	bool selected = false;
-	bool isOrtho = true;
+	bool isOrtho = false;
 	bool renderCamera = false;
 	bool allowClipping = false;
 };
@@ -212,6 +212,7 @@ public:
 	void setViewPort(vec4& vp);
 	void zoom(double s_offset) { cameras[activeCamera]->zoom(s_offset); }
 	void addPointPath(vec2 mousePos);
+	vec3 Get3dPointFromScreen(vec2 mousePos);
 	
 	Camera* GetActiveCamera();
 	Model* GetActiveModel();

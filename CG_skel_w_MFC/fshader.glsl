@@ -34,11 +34,14 @@ in vec3       interpolated_diffuse;
 in vec3       interpolated_specular;
 
 /* Uniforms */
-uniform int   displayHits;
-uniform int   displayMisses;
-uniform int   displayHitPoints;
-uniform int   algo_shading;
-uniform int   numLights;
+uniform int displayHits;
+uniform int displayMisses;
+uniform int displayHitPoints;
+uniform int algo_shading;
+uniform int numLights;
+uniform int pathSettingMode;
+uniform int displayPathPts;
+
 
 /* Output */
 out vec4 FragColor;
@@ -133,9 +136,9 @@ vec3 getColor(vec4 point, vec4 normal)
 /* Main */
 void main()
 {
-    if (algo_shading == 0 || displayHits == 1 || displayMisses == 1 || displayHitPoints == 1)
+    if (algo_shading == 0 || displayHits == 1 || displayMisses == 1 || displayHitPoints == 1 || pathSettingMode == 1 || displayPathPts == 1)
     {
-        if (displayHitPoints == 1) {
+        if (displayHitPoints == 1 || pathSettingMode == 1 || displayPathPts == 1) {
             vec2 pointCoord = gl_PointCoord - vec2(0.5);
             float distance = length(pointCoord);
 

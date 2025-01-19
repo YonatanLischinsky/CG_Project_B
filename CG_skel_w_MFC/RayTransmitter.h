@@ -23,7 +23,7 @@ private:
 	std::vector<vec3> scene_triangles_wrld_pos;
 	void getNrays(uint n);
 	GLuint hitTexture;
-	GLuint vbo;
+	GLuint vbo[2];
 	GLuint triangleTexture;
 	GLuint routeTexture;
 	GLuint raysTexture;
@@ -36,7 +36,7 @@ private:
 	void LoadRoutePoints();
 	void UpdateSimulationResults(int cpu_mode);
 public:
-	GLuint VAO[3] = { 0 };
+	GLuint VAO[4] = { 0 };
 	GLuint VBO[4] = { 0 };
 	SIM_RESULT sim_result;
 	std::vector<vec3> route;
@@ -57,5 +57,7 @@ public:
 	}
 	void StartSimulation(int cpu_mode);
 	void UpdateColorsUniforms();
+	void UpdateRoutePts();
+	std::vector<std::vector<HIT>>& getHits() { return hits; }
 };
 

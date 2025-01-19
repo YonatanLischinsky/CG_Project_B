@@ -8,6 +8,7 @@
 
 extern Scene* scene;
 extern RayTransmitter* rt;
+extern vec2 mouse_pos;
 
 Renderer::Renderer(int width, int height, GLFWwindow* window) :
 	m_width(width), m_height(height)
@@ -116,7 +117,6 @@ void Renderer::drawRays(mat4& cTransform)
 	glBindVertexArray(rt->VAO[0]);
 	GLint raysPos = glGetAttribLocation(program, "raysPos");
 	if (scene->display_rays_hits) {
-
 		glUniform1i(glGetUniformLocation(program, "displayHits"), 1);
 		glDrawArrays(GL_LINES, 0, rt->GetHitBufferLen() * 2);
 		glUniform1i(glGetUniformLocation(program, "displayHits"), 0);
@@ -133,6 +133,34 @@ void Renderer::drawRays(mat4& cTransform)
 		glDrawArrays(GL_POINTS, 0, rt->GetHitBufferLen());
 		glUniform1i(glGetUniformLocation(program, "displayHitPoints"), 0);
 	}
+	glBindVertexArray(0);
+}
+
+void Renderer::drawPathSetting()
+{
+	if (!rt ) return;
+	rt->UpdateModelViewInGPU(scene->GetActiveCamera()->cTransform, scene->GetActiveCamera()->rotationMat_normals);
+
+	glBindVertexArray(rt->VAO[3]);
+	vec3 p = scene->Get3dPointFromScreen(mouse_pos);
+	glUniform3f(glGetUniformLocation(program, "pathSettingPosition"), p.x, p.y, p.z);
+	glUniform1i(glGetUniformLocation(program, "pathSettingMode"), 1);
+	glPointSize(15.0f);
+	glDrawArrays(GL_POINTS, 0, 1);
+	glUniform1i(glGetUniformLocation(program, "pathSettingMode"), 0);
+	glBindVertexArray(0);
+}
+
+void Renderer::drawPathPoints()
+{
+	if (!rt ) return;
+	rt->UpdateModelViewInGPU(scene->GetActiveCamera()->cTransform, scene->GetActiveCamera()->rotationMat_normals);
+
+	glBindVertexArray(rt->VAO[3]);
+	glUniform1i(glGetUniformLocation(program, "displayPathPts"), 1);
+	glPointSize(15.0f);
+	glDrawArrays(GL_POINTS, 0, rt->route.size());
+	glUniform1i(glGetUniformLocation(program, "displayPathPts"), 0);
 	glBindVertexArray(0);
 }
 

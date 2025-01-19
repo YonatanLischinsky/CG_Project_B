@@ -13,6 +13,9 @@
 #include "CG_skel_w_glfw.h"
 #include "stb_image.h"
 #include "RayTransmitter.h"
+#include <iostream>
+#include <thread>
+#include <chrono>
 
 
 
@@ -31,7 +34,7 @@ extern RayTransmitter* rt;
 
 static char nameBuffer[64] = { 0 };
 static float posBuffer[3] = { 0 };
-static int g_ortho = 1;
+static int g_ortho = 0;
 static int n_rays = 1000;
 static int light_type_radio_button;
 static bool saved_palette_init = true;
@@ -69,7 +72,8 @@ Camera::Camera()
 	ResetRotation();
 	ResetTranslation();
 	resetProjection();
-	setOrtho();
+	//setOrtho();
+	setPerspective();
 	LookAt();
 	name = CAMERA_DEFAULT_NAME;
 }
@@ -453,6 +457,16 @@ void Scene::draw()
 		m_renderer->drawRays(GetActiveCamera()->cTransform);
 	}
 
+	//5. Draw Route setting
+	if (add_path_mode)
+	{
+		m_renderer->drawPathSetting();
+	}
+
+	//6. Draw Route points
+	m_renderer->drawPathPoints();
+	
+
 }
 
 void Scene::drawGUI()
@@ -538,7 +552,7 @@ void Scene::drawGUI()
 		}
 		if (ImGui::BeginMenu("Simulation"))
 		{
-			if (models.size() > 0 && num_of_rays > 0)
+			if (models.size() > 0 && num_of_rays > 0 && rt && rt->route.size() > 0)
 			{
 				if (ImGui::MenuItem("Start Simulation"))
 				{
@@ -747,7 +761,7 @@ void Scene::drawGUI()
 				resize_callback_handle(m_renderer->GetWindowSize().x, m_renderer->GetWindowSize().y);
 			}
 
-			const char* names[6] = { "Model", "Camera", "Light", "Sim Route", "Sim Settings","Sim Result"};
+			const char* names[6] = { "Model", "Camera", "Light", "Path", "Config","Simulation Output"};
 			ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 
 			if (ImGui::BeginTabBar("ControlBar", tab_bar_flags))
@@ -1752,12 +1766,23 @@ void Scene::drawSimSettingsTab()
 		rt->UpdateColorsUniforms();
 	
 	ImGui::SeparatorText("Simulation Actions");
-	if (models.size() > 0 && num_of_rays > 0) {
+	if (models.size() > 0 && num_of_rays > 0 && rt && rt->route.size() > 0) {
 		if (ImGui::Button("Start Simulation##simulate"))
 		{
 			rt->StartSimulation(cpu_mode);
 			selectedTab = SIM_RES_TAB_INDEX;
 		}
+	}
+	else
+	{
+		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+		if (models.size() == 0)
+			ImGui::Text("Please load a model.");
+		else if (num_of_rays <= 0)
+			ImGui::Text("Please set the \"number of rays\" to a positive value.");
+		else if (rt && rt->route.size() == 0)
+			ImGui::Text("Please use the \"Path\" tab to create a path.");
+		ImGui::PopFont();
 	}
 
 
@@ -1837,11 +1862,48 @@ void Scene::drawSimResultsTab()
 		file << time << "\n";
 		file << time_mili << "\n";
 		file << time_micro << "\n";
+		
+		file << "\n" << "List of all Hit points (sorted by length of ray)\nFormat: (x,y,z) - length :" << "\n";
+		std::vector<HIT> sorted;
+
+		for (int i = 0; i < rt->getHits().size(); i++) {
+			for (const auto& h : rt->getHits()[i]) {
+				sorted.push_back(h);
+			}
+		}
+
+		// Sort by the 'value' field
+		std::sort(sorted.begin(), sorted.end(), [](const HIT& a, const HIT& b) {
+			return a.distance < b.distance;
+			});
+
+		for (const auto& i : sorted) {
+			file << std::fixed << std::setprecision(3) << i.hit_point_w << " - " << i.distance << "\n";
+		}
+
+		
 
 		// Close the file
 		file.close();
 		simulation_showFileSavedDlg = true;
 		std::cout << "Results successfully saved to " << fname << std::endl;
+	}
+}
+
+void threadFunction(Scene* c, vec4 target) {
+	const int animationTime = 350; //milli
+	const int fps = 100;
+
+	int delta = 1e6 / fps;
+	int chunks = ((float)animationTime / 1000.0f) * fps;
+
+	vec4 start = c->GetActiveCamera()->c_trnsl;
+	for (int i = 0; i < chunks; i++)
+	{
+		c->GetActiveCamera()->c_trnsl += (target - start) / chunks;
+		c->GetActiveCamera()->LookAt(c->GetActiveModel());
+
+		std::this_thread::sleep_for(std::chrono::microseconds(delta));
 	}
 }
 
@@ -1851,7 +1913,14 @@ void Scene::drawSimRouteTab()
 	bool path_mode = add_path_mode;
 	ImGui::Checkbox("Path editor", &add_path_mode);
 	if (path_mode != add_path_mode) {
-
+		if (add_path_mode == true) {
+			std::thread myThread(threadFunction, this, GetActiveCamera()->c_trnsl + vec4(0, 8, -3.5f, 0));
+			myThread.detach();
+		}
+		else {
+			std::thread myThread(threadFunction, this, GetActiveCamera()->c_trnsl + vec4(0, -8, 3.5f, 0));
+			myThread.detach();
+		}
 	}
 
 	ImGui::SeparatorText("Simulation Route");
@@ -1862,24 +1931,29 @@ void Scene::drawSimRouteTab()
 		std::string line = "Point " + std::to_string(i + 1) + " (x,y,z)";
 		//std::string p = "(" + std::to_string(rt->route[i].x) + ", " + std::to_string(rt->route[i].y) + ", " + std::to_string(rt->route[i].z) + ")";
 		ImGui::Text(line.c_str()); ImGui::SameLine();
-		ImGui::DragFloat((string("##X_PT_") + std::to_string(i)).c_str(), &(rt->route[i].x), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-		ImGui::DragFloat((string("##Y_PT_") + std::to_string(i)).c_str(), &(rt->route[i].y), 0.01f, 0, 0, "%.1f"); ImGui::SameLine();
-		ImGui::DragFloat((string("##Z_PT_") + std::to_string(i)).c_str(), &(rt->route[i].z), 0.01f, 0, 0, "%.1f"); if(rt->route.size() > 1) ImGui::SameLine();
-		if (rt->route.size() > 1) {
-			if (ImGui::Button((string("remove##del_pt_") + std::to_string(i)).c_str()))
-			{
-				rt->route.erase(rt->route.begin() + i);
-			}
+		vec3 local_values = rt->route[i];
+		ImGui::DragFloat((string("##X_PT_") + std::to_string(i)).c_str(), &(rt->route[i].x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+		ImGui::DragFloat((string("##Y_PT_") + std::to_string(i)).c_str(), &(rt->route[i].y), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+		ImGui::DragFloat((string("##Z_PT_") + std::to_string(i)).c_str(), &(rt->route[i].z), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+		if (local_values != rt->route[i]) {
+			rt->UpdateRoutePts();
 		}
-	}
-	if (ImGui::Button("Add point##add_point"))
-	{
-		rt->route.push_back(rt->route[rt->route.size()-1]);
+		if (ImGui::Button((string("remove##del_pt_") + std::to_string(i)).c_str()))
+		{
+			rt->route.erase(rt->route.begin() + i);
+			rt->UpdateRoutePts();
+		}
 	}
 	ImGui::PopFont();
 }
 
 void Scene::addPointPath(vec2 mousePos)
+{
+	rt->route.push_back(Get3dPointFromScreen(mousePos));
+	rt->UpdateRoutePts();
+}
+
+vec3 Scene::Get3dPointFromScreen(vec2 mousePos)
 {
 	// Step 1: Convert screen coordinates to Normalized Device Coordinates (NDC)
 	mousePos -= vec2(viewportX, viewportY + ImGui::GetTextLineHeightWithSpacing() +
@@ -1890,7 +1964,7 @@ void Scene::addPointPath(vec2 mousePos)
 	xNDC = max(min(xNDC, 1.0f), -1.0f);
 	yNDC = max(min(yNDC, 1.0f), -1.0f);
 
-	std::cout << "(debug) NDC coords: " << vec2(xNDC, yNDC) << "\n";
+	//std::cout << "(debug) NDC coords: " << vec2(xNDC, yNDC) << "\n";
 
 	// Step 2: Generate a ray in world space
 	vec4 rayClipNear(xNDC, yNDC, -1.0f, 1.0f);
@@ -1910,17 +1984,14 @@ void Scene::addPointPath(vec2 mousePos)
 	// Step 3: Compute intersection with y = 0 plane (XZ plane)
 	if (abs(rayDirection.y) < 1e-6f) { // Avoid division by zero if the ray is parallel to the plane
 		std::cerr << "Ray is parallel to the y=0 plane; no intersection.\n";
-		return;
+		return vec3(0);
 	}
 
 	float t = -rayOrigin.y / rayDirection.y; // Solve for t where y = 0
 	vec3 pointOnXZPlane = rayOrigin + t * rayDirection;
-
-	std::cout << "(debug) pointOnXZPlane = " << pointOnXZPlane << "\n";
-	rt->route.push_back(pointOnXZPlane);
+	pointOnXZPlane.y = 0;
+	return pointOnXZPlane;
 }
-
-
 
 Camera* Scene::GetActiveCamera()
 {
@@ -1955,7 +2026,6 @@ void Scene::UpdateGeneralUniformInGPU()
 	glUniform1i(glGetUniformLocation(m_renderer->program, "displayMisses"), 0);
 	glUniform1i(glGetUniformLocation(m_renderer->program, "displayHits"), 0);
 	glUniform1i(glGetUniformLocation(m_renderer->program, "displayHitPoints"), 0);
-
 	GetActiveCamera()->UpdateProjectionMatInGPU();
 }
 

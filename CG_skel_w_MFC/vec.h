@@ -328,7 +328,7 @@ struct vec3 {
     //
 
     friend std::ostream& operator << (std::ostream& os, const vec3& v) {
-        return os << "( " << v.x << ", " << v.y << ", " << v.z << " )";
+        return os << "(" << v.x << "," << v.y << "," << v.z << ")";
     }
 
     friend std::istream& operator >> (std::istream& is, vec3& v)

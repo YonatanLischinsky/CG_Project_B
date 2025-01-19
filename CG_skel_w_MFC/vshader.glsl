@@ -42,6 +42,7 @@ in vec3 fn;
 in vec3 raysPos;
 in vec3 non_uniformColor_diffuse_FLAT;  //every 3 is duplicated to be the average of the face (to make a uniform same color for FLAT shading)
 in vec3 non_uniformColor_diffuse;       //simple 1to1 mapping for every vertex - it's color
+in vec3 routePts;
 
 /* Uniforms */
 uniform int displayHits;
@@ -55,14 +56,17 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 model_normals;
 uniform mat4 view_normals;
-uniform mat4          projection;
-uniform mat4          projection_normals;
-uniform vec3          wireframeColor;
+uniform mat4 projection;
+uniform mat4 projection_normals;
+uniform vec3 wireframeColor;
+uniform vec3 pathSettingPosition;
 
 uniform int           simulation;
 uniform int           numTriangles;
 uniform int           numRoutePoints;
 uniform int           numRays;
+uniform int           pathSettingMode;
+uniform int           displayPathPts;
 uniform samplerBuffer triangleBuffer;
 uniform samplerBuffer routeBuffer;
 uniform samplerBuffer rayDirections;
@@ -276,6 +280,20 @@ void main()
 {
     if (simulation == 1) {
         simulate();
+        return;
+    }
+
+    if (pathSettingMode == 1) {
+        vPos = vec4(pathSettingPosition, 1);
+        gl_Position = projection * view * vPos;
+        outputColor = 0.7f * wireframeColor;
+        return;
+    }
+    
+    if (displayPathPts == 1) {
+        vPos = vec4(routePts, 1);
+        gl_Position = projection * view * vPos;
+        outputColor = wireframeColor;
         return;
     }
 

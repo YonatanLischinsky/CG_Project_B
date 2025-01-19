@@ -92,5 +92,7 @@ public:
 	void UpdateLightsUBO(bool reallocate_ubo);
 	void calcResolution(int* w, int* h) { glfwGetFramebufferSize(m_window, w, h); }
 	void drawRays(mat4& cTransform);
+	void drawPathSetting();
+	void drawPathPoints();
 
 };

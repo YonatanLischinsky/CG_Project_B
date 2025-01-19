@@ -38,7 +38,6 @@ RayTransmitter::RayTransmitter(Scene* s, Renderer* r) {
 	misses = std::vector<std::vector<HIT>>(0);
 	scene_triangles_wrld_pos = std::vector<vec3>(0);
 	sim_result = { 0 };
-	route = { vec3(0,0,0) };
 
 	GenerateAllGPU_Stuff();
 }
@@ -241,7 +240,7 @@ void RayTransmitter::UpdateRaysVisualizationInGPU()
 
 
 	glBindVertexArray(VAO[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 
 	UpdateColorsUniforms();
 	int lenInBytes = rays_data_gpu.size() * sizeof(rays_data_gpu[0]);
@@ -284,24 +283,34 @@ void RayTransmitter::UpdateColorsUniforms()
 
 void RayTransmitter::GenerateAllGPU_Stuff()
 {
-	glGenVertexArrays(3, VAO);
+	glGenVertexArrays(4, VAO);
 	
 	/* Visualizations */
 	glBindVertexArray(VAO[0]);
 
-	glGenBuffers(1, &vbo);
+	glGenBuffers(1, vbo);
 	
 	//Bind rayPos for the CPU visualization:
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	GLint raysPos = glGetAttribLocation(renderer->program, "raysPos");
 	glVertexAttribPointer(raysPos, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(raysPos);
+
+	
+	//Route adding visualization:
+	glBindVertexArray(VAO[3]);
+	glGenBuffers(1, &vbo[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+	GLint routePts = glGetAttribLocation(renderer->program, "routePts");
+	glVertexAttribPointer(routePts, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(routePts);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3), (void*)0, GL_STATIC_DRAW);
 
 
 	glBindVertexArray(VAO[2]);
 
 	//Bind rayPos for the CPU visualization:
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glVertexAttribPointer(raysPos, 3, GL_FLOAT, GL_FALSE, sizeof(vec3) * 2, (void*)sizeof(vec3));
 	glEnableVertexAttribArray(raysPos);
 	glEnable(GL_BLEND);
@@ -332,4 +341,15 @@ void RayTransmitter::GenerateAllGPU_Stuff()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindTexture(GL_TEXTURE_BUFFER, 0);
+}
+
+void RayTransmitter::UpdateRoutePts()
+{
+	glBindVertexArray(VAO[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * route.size(), route.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }

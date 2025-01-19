@@ -104,7 +104,7 @@ void mouse_move_callback(GLFWwindow* window, double x, double y)
 
 	if (lb_down)
 	{
-		if (scene->activeModel != NOT_SELECTED)
+		if (scene->activeModel != NOT_SELECTED && !scene->add_path_mode)
 		{
 			//Rotate the selected model:
 			MeshModel* p = (MeshModel*) scene->GetActiveModel();
@@ -123,6 +123,9 @@ void mouse_move_callback(GLFWwindow* window, double x, double y)
 		c->c_rot.y +=  delta.x * (dampingFactor/5);
 
 		c->updateTransform();
+	}
+
+	if(scene->add_path_mode) {
 	}
 }
 
@@ -146,7 +149,8 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 			ypos < scene->viewportY + 3 + y_offset || ypos > scene->viewportY + 3 + scene->viewportHeight + y_offset)
 			return;
 		//cout << "mouse pos  = (" << xpos << ", " << ypos << ")" << endl;
-		if (scene->add_path_mode) {
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && scene->add_path_mode) {
 			scene->addPointPath(vec2(xpos, ypos));
 		}
 	}

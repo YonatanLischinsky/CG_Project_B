@@ -23,10 +23,10 @@
 #define CAMERA_DEFAULT_NAME "Camera"
 #define MODEL_DEFAULT_NAME "Model"
 #define DEF_PARAM_RANGE 20;
-#define DEF_PARAM 1;
+#define DEF_PARAM 1.0f;
 #define DEF_ZNEAR 1;
 #define DEF_ZFAR 20;
-#define DEF_FOV 45
+#define DEF_FOV 12
 #define DEF_ASPECT 1
 #define DEF_MAX_FOG_EFFECT 100
 #define NOISE_MAP_SIZE 512
