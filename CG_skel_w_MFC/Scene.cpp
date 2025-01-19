@@ -1847,6 +1847,13 @@ void Scene::drawSimResultsTab()
 
 void Scene::drawSimRouteTab()
 {
+	ImGui::SeparatorText("Path Editor");
+	bool path_mode = add_path_mode;
+	ImGui::Checkbox("Path editor", &add_path_mode);
+	if (path_mode != add_path_mode) {
+
+	}
+
 	ImGui::SeparatorText("Simulation Route");
 
 	ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // 2 is the index of the larger font
@@ -1871,6 +1878,49 @@ void Scene::drawSimRouteTab()
 	}
 	ImGui::PopFont();
 }
+
+void Scene::addPointPath(vec2 mousePos)
+{
+	// Step 1: Convert screen coordinates to Normalized Device Coordinates (NDC)
+	mousePos -= vec2(viewportX, viewportY + ImGui::GetTextLineHeightWithSpacing() +
+		ImGui::GetStyle().FramePadding.y * 2.0f - 5);
+	float xNDC = (2.0f * mousePos.x) / viewportWidth - 1.0f;
+	float yNDC = 1.0f - (2.0f * mousePos.y) / viewportHeight;
+
+	xNDC = max(min(xNDC, 1.0f), -1.0f);
+	yNDC = max(min(yNDC, 1.0f), -1.0f);
+
+	std::cout << "(debug) NDC coords: " << vec2(xNDC, yNDC) << "\n";
+
+	// Step 2: Generate a ray in world space
+	vec4 rayClipNear(xNDC, yNDC, -1.0f, 1.0f);
+	vec4 rayClipFar(xNDC, yNDC, 1.0f, 1.0f);
+
+	// Transform clip coordinates to world coordinates
+	mat4 inverseVP = InverseMatrix(GetActiveCamera()->projection * GetActiveCamera()->cTransform);
+	vec4 rayWorldNear = inverseVP * rayClipNear;
+	vec4 rayWorldFar = inverseVP * rayClipFar;
+
+	vec3 rayWorldNear3d = vec3(rayWorldNear.x, rayWorldNear.y, rayWorldNear.z) / rayWorldNear.w;
+	vec3 rayWorldFar3d = vec3(rayWorldFar.x, rayWorldFar.y, rayWorldFar.z) / rayWorldFar.w;
+
+	vec3 rayOrigin = rayWorldNear3d;
+	vec3 rayDirection = normalize(rayWorldFar3d - rayWorldNear3d);
+
+	// Step 3: Compute intersection with y = 0 plane (XZ plane)
+	if (abs(rayDirection.y) < 1e-6f) { // Avoid division by zero if the ray is parallel to the plane
+		std::cerr << "Ray is parallel to the y=0 plane; no intersection.\n";
+		return;
+	}
+
+	float t = -rayOrigin.y / rayDirection.y; // Solve for t where y = 0
+	vec3 pointOnXZPlane = rayOrigin + t * rayDirection;
+
+	std::cout << "(debug) pointOnXZPlane = " << pointOnXZPlane << "\n";
+	rt->route.push_back(pointOnXZPlane);
+}
+
+
 
 Camera* Scene::GetActiveCamera()
 {
@@ -1915,6 +1965,8 @@ void Scene::setViewPort(vec4& vp)
 	viewportY	   = vp.y;
 	viewportWidth  = vp.z;
 	viewportHeight = vp.w;
+
+	std::cout << "viewport = " << vp << "\n";
 }
 
 void Scene::resize_callback_handle(int width, int height)

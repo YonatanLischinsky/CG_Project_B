@@ -211,6 +211,7 @@ public:
 	void resize_callback_handle(int width, int height);
 	void setViewPort(vec4& vp);
 	void zoom(double s_offset) { cameras[activeCamera]->zoom(s_offset); }
+	void addPointPath(vec2 mousePos);
 	
 	Camera* GetActiveCamera();
 	Model* GetActiveModel();
@@ -236,6 +237,7 @@ public:
 	bool display_rays_misses = false;
 	bool display_hit_points = false;
 	float pointSize = 10.0f;
+	bool add_path_mode = false;
 
 	vec3 hitColor = vec3(0, 1, 0);	// green
 	vec3 misColor = vec3(1, 0, 0);	// red

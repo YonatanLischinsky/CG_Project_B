@@ -132,6 +132,7 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 	// Let ImGui handle the callback first:
 	ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 
+	//Our callback:
 	if (!renderer || !scene)
 		return;
 
@@ -139,14 +140,17 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		//cout << "xpos = " << xpos << endl << "ypos = " << ypos << endl;
-		//cout << "X viewport = " << scene->viewportX << endl;
 
-		if (xpos < scene->viewportX + 3 || ypos < 40)
+		float y_offset = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y;
+		if (xpos < scene->viewportX + 3 || xpos > scene->viewportX + 3 + scene->viewportWidth ||
+			ypos < scene->viewportY + 3 + y_offset || ypos > scene->viewportY + 3 + scene->viewportHeight + y_offset)
 			return;
+		//cout << "mouse pos  = (" << xpos << ", " << ypos << ")" << endl;
+		if (scene->add_path_mode) {
+			scene->addPointPath(vec2(xpos, ypos));
+		}
 	}
 
-	//Our callback:
 	switch (button)
 	{
 	case GLFW_MOUSE_BUTTON_LEFT:
