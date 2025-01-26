@@ -1,6 +1,13 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(499,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
 cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  MeshModel.cpp
+  Generating Code...
+  Compiling...
   Scene.cpp
+  Renderer.cpp
+  RayTransmitter.cpp
+  RayTracing_GPU_CPU.cpp
+  Generating Code...
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
   Starting pass 1
   Processed /DEFAULTLIB:uuid.lib
@@ -12743,10 +12750,10 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
   Finished searching libraries
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{3DFA7298-440F-4CC7-915F-B2F85E7CEF80}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{7B6A16A0-5F6B-4723-BDA5-C4CB0CFF11DA}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{C378ED8D-3B68-447A-AD7A-6C1B7B80FEF7}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{5BD885DD-8528-43D6-9247-61BDF08BE40E}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -12757,26 +12764,26 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{0D4BC965-6EE0-4870-B87C-9E6A37C8F808}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{823D1C4C-ECEE-45C8-AB76-E78D305EEB7C}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{BE9FA83B-F600-4699-B48C-E7980BB4224A}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{D3F1D07C-7214-4524-8869-F1DCDFB13297}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{0D4BC965-6EE0-4870-B87C-9E6A37C8F808}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{BE9FA83B-F600-4699-B48C-E7980BB4224A}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{823D1C4C-ECEE-45C8-AB76-E78D305EEB7C}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{D3F1D07C-7214-4524-8869-F1DCDFB13297}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{4362D622-492A-4485-BDED-B9BED2C1F742}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{784FA7BE-0CA4-42AA-AD88-92BDD1092DEE}.tmp"
    /readonly
    "Debug\RayTracing_GPU_CPU.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{0D4BC965-6EE0-4870-B87C-9E6A37C8F808}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{BE9FA83B-F600-4699-B48C-E7980BB4224A}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   

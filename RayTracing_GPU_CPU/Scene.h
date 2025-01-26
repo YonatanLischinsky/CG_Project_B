@@ -238,12 +238,11 @@ public:
 	int viewportY;
 	int viewportWidth;
 	int viewportHeight;
-
 	int num_of_rays;
 	int cpu_mode = 0;
 	bool display_rays_hits = true;
 	bool display_rays_misses = false;
-	bool display_hit_points = false;
+	bool display_hit_points = true;
 	float pointSize = 10.0f;
 	bool add_path_mode = false;
 
