@@ -144,7 +144,7 @@ mat4 Camera::LookAt(const vec4& eye, const vec4& at, const vec4& up)
 }
 
 //This function is called from keyboard manager (pressed F to set focus)
-void Camera::LookAt(const Model* target)
+void Camera::LookAt(const Model* target, const vec4 targetPosition)
 {
 	/* Camera position */
 	vec4 eye = c_trnsl;
@@ -153,7 +153,9 @@ void Camera::LookAt(const Model* target)
 	if (target)
 		this->target = ((MeshModel*)target)->getCenterOffMass();
 	else
-		this->target = vec4(0, 0, 0, 1);
+		this->target = targetPosition;
+
+	//std::cout << "look at target: " << targetPosition << "\n";
 
 	/* Up vector */
 	vec4 up = vec4(0, 1, 0, 1);
@@ -383,28 +385,28 @@ void Camera::HandleMovement()
 
 void Camera::MoveForward()
 {
-	vec3 frwd  = normalize(calculateForwardVector(c_rot.x, c_rot.y));
+	vec3 frwd  = normalize(calculateForwardVector());
 	c_trnsl += frwd * CAM_MOVE_SPEED;
 	updateTransform();
 }
 
 void Camera::MoveBackward()
 {
-	vec3 frwd = normalize(calculateForwardVector(c_rot.x, c_rot.y));
+	vec3 frwd = normalize(calculateForwardVector());
 	c_trnsl -= frwd * CAM_MOVE_SPEED;
 	updateTransform();
 }
 
 void Camera::MoveLeft()
 {
-	vec3 right = normalize(calculateRightVector(c_rot.y));
+	vec3 right = normalize(calculateRightVector());
 	c_trnsl -= right * CAM_MOVE_SPEED;
 	updateTransform();
 }
 
 void Camera::MoveRight()
 {
-	vec3 right = normalize(calculateRightVector(c_rot.y));
+	vec3 right = normalize(calculateRightVector());
 	c_trnsl += right * CAM_MOVE_SPEED;
 	updateTransform();
 }
@@ -421,10 +423,10 @@ void Camera::MoveDown()
 	updateTransform();
 }
 
-vec3 Camera::calculateForwardVector(double pitch, double yaw)
+vec3 Camera::calculateForwardVector()
 {
-	float pitchRad = toRadians(pitch);
-	float yawRad = toRadians(yaw);
+	float pitchRad = toRadians(c_rot.x);
+	float yawRad = toRadians(c_rot.y);
 
 	float fx = std::sin(yawRad) * std::cos(pitchRad); // X-axis component
 	float fy = std::sin(pitchRad);                   // Y-axis component
@@ -433,11 +435,9 @@ vec3 Camera::calculateForwardVector(double pitch, double yaw)
 	return vec3(fx, fy, fz);
 }
 
-
-
-vec3 Camera::calculateRightVector(double yaw)
+vec3 Camera::calculateRightVector()
 {
-	float yawRad = toRadians(yaw);
+	float yawRad = toRadians(c_rot.y);
 
 	float rx = std::cos(yawRad); // X-axis component
 	float ry = 0.0;              // Y-axis component
@@ -1987,18 +1987,36 @@ void Scene::drawSimResultsTab()
 	}
 }
 
-void threadFunction(Scene* c, vec4 target) {
-	const int animationTime = 350; //milli
+float easeInOutSin(float t) {
+	return 0.5 * (1 - cos(t * M_PI));
+}
+
+float easeInOutArctan(float t, float k = 6.0f) {
+	return (atan(k * (2.0f * t - 1.0f)) / (2.0f * atan(k))) + 0.5f;
+}
+
+
+
+void threadFunction(Scene* c, vec4 target, bool ascending) {
+	const int animationTime = 820; // milliseconds
 	const int fps = 100;
 
 	int delta = 1e6 / fps;
 	int chunks = ((float)animationTime / 1000.0f) * fps;
 
 	vec4 start = c->GetActiveCamera()->c_trnsl;
-	for (int i = 0; i < chunks; i++)
-	{
-		c->GetActiveCamera()->c_trnsl += (target - start) / chunks;
-		c->GetActiveCamera()->LookAt(c->GetActiveModel());
+	vec4 start_rot = c->GetActiveCamera()->c_rot;
+	vec4 target_rot = start_rot + (ascending ? vec4(-45, 0, 0, 0) : vec4(45, 0, 0, 0));
+	vec4 delta_pos = target - start;
+
+	for (int i = 0; i <= chunks; i++) {
+		float t = (float)i / (float)chunks; // Linear progress [0, 1]
+		float eased_t = easeInOutArctan(t); // Apply easing function
+
+		// Interpolate position and rotation using eased progress
+		c->GetActiveCamera()->c_trnsl = start + delta_pos * eased_t;
+		c->GetActiveCamera()->c_rot = start_rot + (target_rot - start_rot) * eased_t;
+		c->GetActiveCamera()->updateTransform();
 
 		std::this_thread::sleep_for(std::chrono::microseconds(delta));
 	}
@@ -2010,12 +2028,14 @@ void Scene::drawSimRouteTab()
 	bool path_mode = add_path_mode;
 	ImGui::Checkbox("Path editor", &add_path_mode);
 	if (path_mode != add_path_mode) {
+		vec4 lookat_target = GetActiveCamera()->c_trnsl + normalize(vec4(GetActiveCamera()->calculateForwardVector())) * 5;
+		lookat_target.w = 0;
 		if (add_path_mode == true) {
-			std::thread myThread(threadFunction, this, GetActiveCamera()->c_trnsl + vec4(0, 8, -3.5f, 0));
+			std::thread myThread(threadFunction, this, GetActiveCamera()->c_trnsl + vec4(0, 8, 0, 0), true);
 			myThread.detach();
 		}
 		else {
-			std::thread myThread(threadFunction, this, GetActiveCamera()->c_trnsl + vec4(0, -8, 3.5f, 0));
+			std::thread myThread(threadFunction, this, GetActiveCamera()->c_trnsl + vec4(0, -8, 0, 0), false);
 			myThread.detach();
 		}
 	}

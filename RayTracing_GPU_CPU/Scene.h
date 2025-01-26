@@ -66,7 +66,7 @@ public:
 	Camera::Camera();
 	
 	mat4 LookAt(const vec4& eye, const vec4& at, const vec4& up);
-	void Camera::LookAt(const Model* target = nullptr);
+	void Camera::LookAt(const Model* target = nullptr, const vec4 targetPosition = vec4(0));
 	mat4 GetPerspectiveoMatrix();
 
 	void setOrtho();
@@ -89,8 +89,8 @@ public:
 	vec4 getTranslation() { return vec4(c_trnsl); }
 	vec3 getPosition() { return vec3(c_trnsl.x, c_trnsl.y, c_trnsl.z); }
 	void setStartPosition(vec4& pos) { c_trnsl = pos; }
-	vec3 calculateForwardVector(double pitch, double yaw);
-	vec3 calculateRightVector(double yaw);
+	vec3 calculateForwardVector();
+	vec3 calculateRightVector();
 	void updateTransform();
 	void ResetTranslation() { c_trnsl = vec4(0, 1.0f, 5.0f, 1); }
 	void ResetRotation() { c_rot = vec4(0,0,0,1); }
