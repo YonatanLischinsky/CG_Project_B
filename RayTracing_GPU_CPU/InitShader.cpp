@@ -4,26 +4,57 @@
 #include "GL/freeglut_ext.h"
 #include "InitShader.h"
 #include <iostream>
+#include <cctype> // For isprint function
+
 // Create a NULL-terminated string by reading the provided file
 static char* readShaderSource(const char* shaderFile)
 {
     FILE* fp = fopen(shaderFile, "r");
+    if (fp == NULL) {
+        return NULL;
+    }
 
-    if ( fp == NULL ) { return NULL; }
-
+    // Get the file size
     fseek(fp, 0L, SEEK_END);
     long size = ftell(fp);
-
     fseek(fp, 0L, SEEK_SET);
+
+    // Allocate memory for the file content
     char* buf = new char[size + 1];
     fread(buf, 1, size, fp);
-
-    buf[size] = '\0';
+    buf[size] = '\0'; // Ensure null termination
     fclose(fp);
 
-    return buf;
-}
+    // Step 1: Remove non-ASCII and non-printable characters
+    long writeIndex = 0;
+    for (long i = 0; i < size; ++i) {
+        if (isprint(static_cast<unsigned char>(buf[i])) || isspace(static_cast<unsigned char>(buf[i]))) {
+            buf[writeIndex++] = buf[i];
+        }
+    }
+    buf[writeIndex] = '\0'; // Null-terminate the cleaned string
 
+    // Step 2: Trim leading and trailing whitespace
+    // Find the first non-whitespace character
+    char* start = buf;
+    while (*start && isspace(static_cast<unsigned char>(*start))) {
+        ++start;
+    }
+
+    // Find the last non-whitespace character
+    char* end = buf + writeIndex - 1;
+    while (end > start && isspace(static_cast<unsigned char>(*end))) {
+        --end;
+    }
+    *(end + 1) = '\0'; // Null-terminate after the last valid character
+
+    // Step 3: Copy trimmed content to a new buffer
+    char* trimmedBuf = new char[strlen(start) + 1];
+    strcpy(trimmedBuf, start);
+    delete[] buf; // Free the original buffer
+
+    return trimmedBuf;
+}
 
 // Create a GLSL program object from vertex and fragment shader files
 GLuint InitShader(const char* vShaderFile, const char* fShaderFile)

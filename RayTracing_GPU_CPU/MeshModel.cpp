@@ -557,6 +557,13 @@ void MeshModel::initBoundingBox()
 
 	for (unsigned int i = 0; i < num_bbox_vertices; i++)
 		vertex_positions_bbox_gpu[i] = v[indices[i]];
+
+
+	/* Auto rescale the model */
+	float maxDimension = max(max(max_x, max_y), max_z);
+	maxDimension = max(maxDimension, max(max(abs(min_x), abs(min_y)), abs(min_z)));
+	float alpha = 1 / maxDimension;
+	_scale = vec4(alpha, alpha, alpha, 1);
 }
 
 void MeshModel::calculateFaceNormals()

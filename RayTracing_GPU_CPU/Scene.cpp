@@ -44,8 +44,8 @@ bool add_showModelDlg = false, add_showCamDlg = false, add_showLightDlg = false;
 bool simulation_showNumRaysDlg = false;
 bool simulation_showFileSavedDlg = false;
 bool showTransWindow = false;
-bool constScaleRatio = false;
-bool constScaleRatio_w = false;
+bool constScaleRatio = true;
+bool constScaleRatio_w = true;
 int transformationWindowWidth = 0;
 bool closedTransfWindowFlag = false;
 

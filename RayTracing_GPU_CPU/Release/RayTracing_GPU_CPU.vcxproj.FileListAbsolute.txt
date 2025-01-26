@@ -1,0 +1,3 @@
+C:\Project_B\code\CG_Project_B\Release\NotoSans-Medium.ttf
+C:\Project_B\code\CG_Project_B\Release\fshader.glsl
+C:\Project_B\code\CG_Project_B\Release\vshader.glsl
