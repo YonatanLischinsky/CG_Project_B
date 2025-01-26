@@ -49,7 +49,7 @@ private:
 	friend class Scene;	// To acces transformations;
 
 public:
-	uint move_state = 0;
+	unsigned char move_state = 0;
 	float c_left, c_right, c_top, c_bottom, c_fovy , c_aspect , c_zNear, c_zFar;
 	vec4 c_trnsl, c_rot, c_trnsl_viewspace, c_rot_viewspace;
 

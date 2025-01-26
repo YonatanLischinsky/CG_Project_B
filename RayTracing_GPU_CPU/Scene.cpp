@@ -355,32 +355,18 @@ void Camera::zoom(double s_offset, double update_rate)
 
 void Camera::HandleMovement()
 {
-	switch (move_state)
-	{
-	case GLFW_KEY_W: //Move camera
+	if (move_state & KEY_W)
 		MoveForward();
-		break;
-
-	case GLFW_KEY_S:
+	if (move_state & KEY_S)
 		MoveBackward();
-		break;
-
-	case GLFW_KEY_A:
+	if (move_state & KEY_A)
 		MoveLeft();
-		break;
-
-	case GLFW_KEY_D:
+	if (move_state & KEY_D)
 		MoveRight();
-		break;
-
-	case GLFW_KEY_SPACE:
+	if (move_state & KEY_SPACE)
 		MoveUp();
-		break;
-
-	case GLFW_KEY_LEFT_SHIFT:
+	if (move_state & KEY_SHIFT)
 		MoveDown();
-		break;
-	}
 }
 
 void Camera::MoveForward()
@@ -1358,230 +1344,6 @@ void Scene::drawModelTab()
 
 	float* lenFaceNormal = activeMesh->getLengthFaceNormal();
 	float* lenVertNormal = activeMesh->getLengthVertexNormal();
-	//if (ImGui::CollapsingHeader("Displays"))
-	//{
-	//	ImGui::Checkbox("Display Face Normals  ", dispFaceNormal);
-
-	//	if (*dispFaceNormal)
-	//	{
-	//		ImGui::SameLine();
-	//		ImGui::DragFloat("Length##Length_Face_normal", lenFaceNormal, 0.001f, 0, 0, "%.3f");
-	//	}
-
-	//	ImGui::Checkbox("Display Vertex Normals", dispVertexNormal);
-	//	if (*dispVertexNormal)
-	//	{
-	//		ImGui::SameLine();
-	//		ImGui::DragFloat("Length##Length_Vert_normal", lenVertNormal, 0.001f, 0, 0, "%.3f");
-	//	}
-
-	//	ImGui::Checkbox("Display Bounding Box", dispBoundingBox);
-	//}
-
-	//if (ImGui::CollapsingHeader("Material"))
-	//{
-	//	ImGui::SeparatorText("Textures");
-	//	if (ImGui::Button("Load Texture"))
-	//		activeMesh->loadTextureFromFile();
-	//	
-	//	ImGui::SameLine();
-	//	
-	//	if (ImGui::Button("Load Normal Map"))
-	//		activeMesh->loadNMapFromFile();
-
-	//	bool textureCoordsSetOk = (activeMesh->verticesTextures_original_gpu.size()  > 0 && activeMesh->textureMode == TEXTURE_FROM_FILE) || \
-	//							  (activeMesh->verticesTextures_canonical_gpu.size() > 0 && activeMesh->textureMode != TEXTURE_FROM_FILE);
-
-	//	if (activeMesh->textureLoaded)
-	//	{
-	//		if (textureCoordsSetOk)
-	//		{
-	//			// There is texture coordiants, enable the user to select if to use or not
-	//			ImGui::Checkbox("Use Texture", &(activeMesh->useTexture));
-	//		}
-	//		else
-	//		{
-	//			// There is no texture coordiants!
-	//			// Can't use texture
-	//			activeMesh->useTexture = false;
-	//		}
-	//	}
-
-	//	if (activeMesh->normalMapLoaded)
-	//	{
-	//		if (activeMesh->textureLoaded)
-	//		{
-	//			if (textureCoordsSetOk)
-	//			{
-	//				// There is texture coordiants, enable the user to select if to use or not
-	//				ImGui::SameLine();
-	//				ImGui::Checkbox("Use Normal Map", &(activeMesh->useNormalMap));
-	//			}
-	//			else
-	//			{
-	//				// There is no texture coordiants!
-	//				// Can't use normalMap
-	//				activeMesh->useNormalMap = false;
-	//			}
-
-	//		}
-	//	}
-
-	//	const char* items[] = { "Default texture", "XY-Plane Projection", "Spherical Projection" };
-	//	int prevTextMode = (int)activeMesh->textureMode;
-	//	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
-	//	ImGui::Combo("##Texture Mode", &prevTextMode, items, IM_ARRAYSIZE(items), -1.0f);
-	//	if (prevTextMode != activeMesh->textureMode)
-	//	{
-	//		activeMesh->textureMode = (TextureMode)prevTextMode;
-	//		activeMesh->UpdateTextureCoordsInGPU();
-	//	}
-	//	
-	//	
-	//	ImGui::SeparatorText("Marble Effect");
-
-	//	ImGui::Checkbox("Use Marble Texture", &(activeMesh->useProceduralTex));
-	//	if (activeMesh->useProceduralTex)
-	//	{
-	//		activeMesh->useTexture = false;
-	//		activeMesh->useNormalMap = false;
-
-	//		float* vein_freq = &(activeMesh->vein_freq);
-	//		int* vein_thickness = &(activeMesh->vein_thickness);
-	//		float* mix_factor = &(activeMesh->mix_factor);
-	//		float* noise_freq = &(activeMesh->noise_freq);
-	//		int* noise_octaves = &(activeMesh->noise_octaves);
-	//		float* noise_amplitude = &(activeMesh->noise_amplitude);
-
-	//		ImGui::Indent();
-	//		ImGui::SeparatorText("Details");
-	//		
-	//		ImGui::Text("Vein Frequency"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//		ImGui::DragFloat("##V_freq", vein_freq, 0.1f, 0, 30, "%.1f");
-
-	//		ImGui::Text("Vein Thinness"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//		ImGui::DragInt("##V_thickness", vein_thickness, 1, 0, 5);
-
-	//		ImGui::Text("Noise Frequency"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//		ImGui::DragFloat("##N_freq", noise_freq, 0.001f, 0, 5, "%.3f");
-
-	//		ImGui::Text("Noise Octaves"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//		ImGui::DragInt("##N_octaves", noise_octaves, 1, 0, 6);
-
-	//		ImGui::Text("Noise Amplitude"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//		ImGui::DragFloat("##N_amplitude", noise_amplitude, 0.1f, 0, 15, "%.1f");
-
-
-	//		vec3& base_color = (activeMesh->mcolor1);
-	//		vec3& vein_color = (activeMesh->mcolor2);
-
-	//		ImVec4 base_local = ImVec4(base_color.x, base_color.y, base_color.z, 1);
-	//		ImVec4 vein_local = ImVec4(vein_color.x, vein_color.y, vein_color.z, 1);
-	//		
-	//		colorPicker(&base_local, "Base Color", "##pickerBase"); ImGui::SameLine();
-	//		colorPicker(&vein_local, "Vein Color", "##pickerVein");
-
-	//		base_color.x = base_local.x;
-	//		base_color.y = base_local.y;
-	//		base_color.z = base_local.z;
-
-	//		vein_color.x = vein_local.x;
-	//		vein_color.y = vein_local.y;
-	//		vein_color.z = vein_local.z;
-
-	//		ImGui::Text("Color Mix Factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//		ImGui::DragFloat("##C_mixfactor", mix_factor, 0.01f, 0, 1, "%.2f");
-
-
-	//		if (ImGui::Button("Reset all##RK"))
-	//		{
-	//			*vein_freq = DEF_VEIN_FREQ;
-	//			*noise_freq = DEF_NOISE_FREQ;
-	//			*noise_octaves = DEF_NOISE_OCTAVES;
-	//			*noise_amplitude = DEF_NOISE_AMPLITUDE;
-	//			*vein_thickness = DEF_VEIN_THICKNESS;
-	//			*mix_factor = DEF_COL_MIX_FACTOR;
-	//		}
-	//		ImGui::SameLine();
-	//		if (ImGui::Button("Regenerate texture"))
-	//		{
-	//			activeMesh->generateMarbleTexture();
-	//		}
-	//			
-	//	}
-
-
-	//	ImGui::SeparatorText("Material Color");
-
-	//	ImGui::Checkbox("Uniform Material##uni_mat", &activeMesh->isUniformMaterial);
-	//	Material& meshMaterial = activeMesh->getUserDefinedMaterial();
-	//	if (activeMesh->isUniformMaterial)
-	//	{
-	//		vec3& emis_real = meshMaterial.getEmissive();
-	//		vec3& diff_real = meshMaterial.getDiffuse();
-	//		vec3& spec_real = meshMaterial.getSpecular();
-
-	//		ImVec4 emis_local = ImVec4(emis_real.x, emis_real.y, emis_real.z, 1);
-	//		ImVec4 diff_local = ImVec4(diff_real.x, diff_real.y, diff_real.z, 1);
-	//		ImVec4 spec_local = ImVec4(spec_real.x, spec_real.y, spec_real.z, 1);
-
-	//		colorPicker(&emis_local, "Emissive Color", "##pickerEmis");
-	//		colorPicker(&diff_local, "Diffuse Color", "##pickerDiff");
-	//		colorPicker(&spec_local, "Specular Color", "##pickerSpec");
-
-	//		emis_real.x = emis_local.x;
-	//		emis_real.y = emis_local.y;
-	//		emis_real.z = emis_local.z;
-
-	//		diff_real.x = diff_local.x;
-	//		diff_real.y = diff_local.y;
-	//		diff_real.z = diff_local.z;
-
-	//		spec_real.x = spec_local.x;
-	//		spec_real.y = spec_local.y;
-	//		spec_real.z = spec_local.z;
-
-	//	}
-	//	else
-	//	{
-	//		if (ImGui::Button("Generate Random Material"))
-	//		{
-	//			activeMesh->GenerateMaterials();
-	//		}
-	//	}
-	//	
-	//	float* ka = &(meshMaterial.Ka);
-	//	float* kd = &(meshMaterial.Kd);
-	//	float* ks = &(meshMaterial.Ks);
-	//	float* emissivefactor = &(meshMaterial.EmissiveFactor);
-	//	int* alphaFactor = &(meshMaterial.COS_ALPHA);
-
-	//	ImGui::SeparatorText("Intensity");
-	//	ImGui::Text("Ambient Intensity (Ka)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//	ImGui::DragFloat("##K_amb", ka, 0.001f, 0, 10, "%.3f");
-
-	//	ImGui::Text("Diffuse Intensity (Kd)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//	ImGui::DragFloat("##K_dif", kd, 0.001f, 0, 10, "%.3f");
-
-	//	ImGui::Text("Specular Intensity (Ks)"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//	ImGui::DragFloat("##K_spc", ks, 0.001f, 0, 10, "%.3f");
-
-	//	ImGui::Text("Emissive factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//	ImGui::DragFloat("##K_emsv", emissivefactor, 0.001f, 0, 1, "%.3f");
-
-	//	ImGui::Text("ALPHA factor"); ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2, 0);
-	//	ImGui::DragInt("##K_alpha", alphaFactor, 0.01f, 0, 100);
-	//	if (ImGui::Button("Reset all##RK"))
-	//	{
-	//		*ka = DEFUALT_LIGHT_Ka_VALUE;
-	//		*kd = DEFUALT_LIGHT_Kd_VALUE;
-	//		*ks = DEFUALT_LIGHT_Ks_VALUE;
-	//		*emissivefactor = DEFUALT_EMIS_FACTOR;
-	//		*alphaFactor = DEFUALT_LIGHT_ALPHA;
-	//	}
-
-	//	
-	//}
 
 	if (ImGui::CollapsingHeader("Model"))
 	{
@@ -1612,7 +1374,7 @@ void Scene::drawModelTab()
 
 			ImGui::Text("Scale (X Y Z)");
 			ImGui::Checkbox("keep ratio", &constScaleRatio);
-			ImGui::DragFloat("##X_MS", &(g_scale->x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+			ImGui::DragFloat("##X_MS", &(g_scale->x), 0.01f, 0, 0, "%.6f"); ImGui::SameLine();
 			if (constScaleRatio)
 			{
 				g_scale->y = g_scale->z = g_scale->x;
@@ -1663,7 +1425,7 @@ void Scene::drawModelTab()
 
 			ImGui::Text("Scale (X Y Z)");
 			ImGui::Checkbox("keep ratio##keepRatioWorld", &constScaleRatio_w);
-			ImGui::DragFloat("##X_WS", &(scale_w->x), 0.01f, 0, 0, "%.3f"); ImGui::SameLine();
+			ImGui::DragFloat("##X_WS", &(scale_w->x), 0.01f, 0, 0, "%.6f"); ImGui::SameLine();
 			if (constScaleRatio_w)
 			{
 				scale_w->y = scale_w->z = scale_w->x;
@@ -1680,18 +1442,6 @@ void Scene::drawModelTab()
 		}
 		ImGui::Unindent();
 	}
-
-	//if (ImGui::CollapsingHeader("Animation"))
-	//{
-	//	int* colorAnimType = (int*) (&activeMesh->colorAnimationType);
-	//	ImGui::SeparatorText("Colors Animation");
-	//	ImGui::RadioButton("No Color Animation", colorAnimType, COLOR_ANIMATION_STATIC);
-	//	ImGui::RadioButton("Color Animation 1",  colorAnimType, COLOR_ANIMATION_1);
-	//	ImGui::RadioButton("Color Animation 2",  colorAnimType, COLOR_ANIMATION_2);
-	//	ImGui::SeparatorText("Vertex Animation");
-	//	ImGui::Checkbox("Vertex Animation##vertexAnim", &activeMesh->vertexAnimationEnable);
-
-	//}
 
 	// Delete model
 	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
@@ -1793,11 +1543,11 @@ void Scene::drawLightTab()
 
 	else
 	{
-		ImGui::Text("Diffuse Intensity   "); ImGui::SameLine();
-		ImGui::DragFloat("##I_dif", ld, 0.001f, 0, 10, "%.3f");
+		ImGui::Text("Intensity   "); ImGui::SameLine();
+		ImGui::DragFloat("##I_dif", ld, 0.001f, 0, 10, "%.6f");
 	
-		ImGui::Text("Specular Intensity"); ImGui::SameLine();
-		ImGui::DragFloat("##I_spc", ls, 0.001f, 0, 10, "%.3f");
+		//ImGui::Text("Specular Intensity"); ImGui::SameLine();
+		//ImGui::DragFloat("##I_spc", ls, 0.001f, 0, 10, "%.3f");
 	}
 
 

@@ -1,13 +1,6 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(499,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
 cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
-  MeshModel.cpp
-  Generating Code...
-  Compiling...
-  Scene.cpp
-  Renderer.cpp
-  RayTransmitter.cpp
   RayTracing_GPU_CPU.cpp
-  Generating Code...
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
   Starting pass 1
   Processed /DEFAULTLIB:uuid.lib
@@ -6522,7 +6515,7 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
       Discarded "`string'" (??_C@_1OK@IBOCPOAF@?$AAC?$AA?3?$AA?2?$AAP?$AAr?$AAo?$AAg?$AAr?$AAa?$AAm?$AA?5?$AAF?$AAi?$AAl?$AAe@) from RayTracing_GPU_CPU.obj
       Discarded "`string'" (??_C@_1BK@NHECDDNK@?$AAm?$AA_?$AAp?$AAD?$AAa?$AAt?$AAa?$AA?5?$AA?$DN?$AA?$DN?$AA?5?$AA0@) from RayTracing_GPU_CPU.obj
       Discarded "`string'" (??_C@_0BA@FOIKENOD@vector?5too?5long@) from RayTracing_GPU_CPU.obj
-      Discarded __real@3e4ccccd from RayTracing_GPU_CPU.obj
+      Discarded __real@3f000000 from RayTracing_GPU_CPU.obj
       Discarded __real@3f800000 from RayTracing_GPU_CPU.obj
       Discarded __real@40a00000 from RayTracing_GPU_CPU.obj
       Discarded __real@41200000 from RayTracing_GPU_CPU.obj
@@ -12750,10 +12743,10 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
   Finished searching libraries
   Invoking mt.exe:
    /verbose
-   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{7B6A16A0-5F6B-4723-BDA5-C4CB0CFF11DA}.tmp"
+   "/out:C:\Users\Yonatan\AppData\Local\Temp\lnk{8A185019-4843-4A0C-80F0-348AA07F43F0}.tmp"
    /manifest
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\Include\Manifest\dpiaware.manifest"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{5BD885DD-8528-43D6-9247-61BDF08BE40E}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{C60BAD7A-B021-431E-913E-CBA1FA2C110A}.tmp"
   Microsoft (R) Manifest Tool
   
   Copyright (c) Microsoft Corporation. 
@@ -12764,26 +12757,26 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
    /v
    /x
    /fo
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{BE9FA83B-F600-4699-B48C-E7980BB4224A}.tmp"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{D3F1D07C-7214-4524-8869-F1DCDFB13297}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3F0E4F32-E821-4D4B-AC2D-165D6EABB3B1}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{23F6F9EB-FC7E-416C-93E9-F64CA52AA428}.tmp"
   Microsoft (R) Windows (R) Resource Compiler Version 10.0.10011.16384
   
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
   
-  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{BE9FA83B-F600-4699-B48C-E7980BB4224A}.tmp
+  Creating C:\Users\Yonatan\AppData\Local\Temp\lnk{3F0E4F32-E821-4D4B-AC2D-165D6EABB3B1}.tmp
   
   Using codepage 1252 as default
   
-  C:\Users\Yonatan\AppData\Local\Temp\lnk{D3F1D07C-7214-4524-8869-F1DCDFB13297}.tmp.
+  C:\Users\Yonatan\AppData\Local\Temp\lnk{23F6F9EB-FC7E-416C-93E9-F64CA52AA428}.tmp.
   Writing 24:1,	lang:0x409,	size 548
   Invoking cvtres.exe:
    /machine:x86
    /verbose
-   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{784FA7BE-0CA4-42AA-AD88-92BDD1092DEE}.tmp"
+   /out:"C:\Users\Yonatan\AppData\Local\Temp\lnk{571DDC37-509D-499A-A974-EAE97FFFE3C7}.tmp"
    /readonly
    "Debug\RayTracing_GPU_CPU.res"
-   "C:\Users\Yonatan\AppData\Local\Temp\lnk{BE9FA83B-F600-4699-B48C-E7980BB4224A}.tmp"
+   "C:\Users\Yonatan\AppData\Local\Temp\lnk{3F0E4F32-E821-4D4B-AC2D-165D6EABB3B1}.tmp"
   Microsoft (R) Windows Resource To Object Converter Version 14.29.30157.0
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
@@ -16321,7 +16314,6 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           ??_C@_1M@CEEDODME@?$AAr?$AAu?$AA?9?$AAr?$AAu@		; mfcs140d.lib(nolib.obj)
           ??_C@_0BI@JNHDNJAG@glBlendEquationSeparate@		; glew.lib(glew.obj)
           __scrt_dllmain_exception_filter		; MSVCRTD.lib(utility.obj)
-          ??_C@_07OCMODKNK@?$CD?$CDI_spc@		; Scene.obj
           _real@3e23d70a		; imgui_draw.obj
           ??_C@_0BD@BKDKPNMJ@Example?3?5Documents@		; imgui_demo.obj
           ??_C@_0BI@NIHPFDMO@?$CF04d?3?5scrollable?5region@		; imgui_demo.obj
@@ -16586,6 +16578,7 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           _imp__memcmp		; vcruntimed.lib(VCRUNTIME140D.dll)
           ??$addressof@V?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@std@@@std@@YAPAV?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@0@AAV10@@Z		; RayTransmitter.obj
           ?_Umove@?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@std@@AAEPAV?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@2@PAV32@00@Z		; RayTransmitter.obj
+          ??_C@_0N@LDBPLGAL@Intensity?5?5?5@		; Scene.obj
           ??Yvec4@@QAEAAU0@ABU0@@Z		; Scene.obj
           ??_C@_1M@MFNHNHEO@?$AAe?$AAn?$AA?9?$AAz?$AAw@		; mfcs140d.lib(nolib.obj)
           ??_C@_0CI@MPJNGPNP@EGL?3?5Failed?5to?5make?5context?5cur@		; glfw3.lib(egl_context.obj)
@@ -17456,6 +17449,7 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           ??_C@_0BD@KOADKDIA@atlTraceDBProvider@		; MeshModel.obj
           ??_C@_1DO@EEGFHBNA@?$AAc?$AAh?$AAa?$AAn?$AAn?$AAe?$AAl?$AA_?$AAn?$AAo?$AA?5?$AA?$DM?$AA?5?$AAm?$AAa@		; imgui_tables.obj
           ?GetMapSize@?$ImPool@UImGuiTabBar@@@@QBEHXZ		; imgui.obj
+          ??_C@_04GDFACFJI@?$CF?46f@		; Scene.obj
           ??0?$CTraceCategoryEx@$07$0A@@ATL@@QAE@PBD@Z		; MeshModel.obj
           ??1?$_Compressed_pair@V?$allocator@D@std@@V?$_String_val@U?$_Simple_types@D@std@@@2@$00@std@@QAE@XZ		; Light.obj
           ??_C@_0L@DDMADIHO@Pos?$DN?$CFd?0?$CFd?6@		; imgui.obj
@@ -21579,7 +21573,6 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           ??_C@_0N@OGLMDNKC@glClearColor@		; imgui_impl_opengl3.obj
           ??_C@_0BB@OGEGHANL@Mouse?5source?3?5?$CFs@		; imgui.obj
           ??_C@_0EN@CIIGDABJ@EGL?3?5The?5context?5must?5be?5curren@		; glfw3.lib(egl_context.obj)
-          ??_C@_0BD@OIAHFMBL@Specular?5Intensity@		; Scene.obj
           ??_C@_07EHKCJOLG@raysPos@		; RayTransmitter.obj
           ??_GImGuiWindow@@QAEPAXI@Z		; imgui.obj
           ?back@?$ImVector@PAUImGuiWindow@@@@QAEAAPAUImGuiWindow@@XZ		; imgui.obj
@@ -26821,7 +26814,6 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           ??_C@_05PONODPI@CLEAR@		; imgui_demo.obj
           ?NavMoveRequestApplyResult@ImGui@@YAXXZ		; imgui.obj
           _real@477fff00		; glfw3.lib(monitor.obj)
-          ??_C@_0BF@JEBCCPP@Diffuse?5Intensity?5?5?5@		; Scene.obj
           ?CollapsingHeader@ImGui@@YA_NPBDPA_NH@Z		; imgui_widgets.obj
           ?TreeNodeEx@ImGui@@YA_NPBXHPBDZZ		; imgui_widgets.obj
           ?SliderFloat2@ImGui@@YA_NPBDQAMMM0H@Z		; imgui_widgets.obj
@@ -34363,15 +34355,15 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
       Selected symbol:
           "private: void __thiscall std::vector<int,class std::allocator<int> >::_Orphan_range(int *,int *)const " (?_Orphan_range@?$vector@HV?$allocator@H@std@@@std@@ABEXPAH0@Z) from MeshModel.obj
       Replaced symbol(s):
-          "private: void __thiscall std::vector<class Model *,class std::allocator<class Model *> >::_Orphan_range(class Model * *,class Model * *)const " (?_Orphan_range@?$vector@PAVModel@@V?$allocator@PAVModel@@@std@@@std@@ABEXPAPAVModel@@0@Z) from Scene.obj
-          "private: void __thiscall std::vector<class Light *,class std::allocator<class Light *> >::_Orphan_range(class Light * *,class Light * *)const " (?_Orphan_range@?$vector@PAVLight@@V?$allocator@PAVLight@@@std@@@std@@ABEXPAPAVLight@@0@Z) from Scene.obj
           "private: void __thiscall std::vector<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> >,class std::allocator<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> > > >::_Orphan_range(class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> > *,class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> > *)const " (?_Orphan_range@?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@std@@ABEXPAV?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@2@0@Z) from RayTransmitter.obj
           "private: void __thiscall std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> >::_Orphan_range(struct hit_tuple *,struct hit_tuple *)const " (?_Orphan_range@?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@ABEXPAUhit_tuple@@0@Z) from RayTransmitter.obj
           "private: void __thiscall std::vector<class Camera *,class std::allocator<class Camera *> >::_Orphan_range(class Camera * *,class Camera * *)const " (?_Orphan_range@?$vector@PAVCamera@@V?$allocator@PAVCamera@@@std@@@std@@ABEXPAPAVCamera@@0@Z) from Scene.obj
-          "private: void __thiscall std::vector<struct FaceIdcs,class std::allocator<struct FaceIdcs> >::_Orphan_range(struct FaceIdcs *,struct FaceIdcs *)const " (?_Orphan_range@?$vector@UFaceIdcs@@V?$allocator@UFaceIdcs@@@std@@@std@@ABEXPAUFaceIdcs@@0@Z) from MeshModel.obj
-          "private: void __thiscall std::vector<struct vec2,class std::allocator<struct vec2> >::_Orphan_range(struct vec2 *,struct vec2 *)const " (?_Orphan_range@?$vector@Uvec2@@V?$allocator@Uvec2@@@std@@@std@@ABEXPAUvec2@@0@Z) from MeshModel.obj
-          "private: void __thiscall std::vector<struct vec3,class std::allocator<struct vec3> >::_Orphan_range(struct vec3 *,struct vec3 *)const " (?_Orphan_range@?$vector@Uvec3@@V?$allocator@Uvec3@@@std@@@std@@ABEXPAUvec3@@0@Z) from MeshModel.obj
           "private: void __thiscall std::vector<class Material,class std::allocator<class Material> >::_Orphan_range(class Material *,class Material *)const " (?_Orphan_range@?$vector@VMaterial@@V?$allocator@VMaterial@@@std@@@std@@ABEXPAVMaterial@@0@Z) from MeshModel.obj
+          "private: void __thiscall std::vector<class Light *,class std::allocator<class Light *> >::_Orphan_range(class Light * *,class Light * *)const " (?_Orphan_range@?$vector@PAVLight@@V?$allocator@PAVLight@@@std@@@std@@ABEXPAPAVLight@@0@Z) from Scene.obj
+          "private: void __thiscall std::vector<class Model *,class std::allocator<class Model *> >::_Orphan_range(class Model * *,class Model * *)const " (?_Orphan_range@?$vector@PAVModel@@V?$allocator@PAVModel@@@std@@@std@@ABEXPAPAVModel@@0@Z) from Scene.obj
+          "private: void __thiscall std::vector<struct vec2,class std::allocator<struct vec2> >::_Orphan_range(struct vec2 *,struct vec2 *)const " (?_Orphan_range@?$vector@Uvec2@@V?$allocator@Uvec2@@@std@@@std@@ABEXPAUvec2@@0@Z) from MeshModel.obj
+          "private: void __thiscall std::vector<struct FaceIdcs,class std::allocator<struct FaceIdcs> >::_Orphan_range(struct FaceIdcs *,struct FaceIdcs *)const " (?_Orphan_range@?$vector@UFaceIdcs@@V?$allocator@UFaceIdcs@@@std@@@std@@ABEXPAUFaceIdcs@@0@Z) from MeshModel.obj
+          "private: void __thiscall std::vector<struct vec3,class std::allocator<struct vec3> >::_Orphan_range(struct vec3 *,struct vec3 *)const " (?_Orphan_range@?$vector@Uvec3@@V?$allocator@Uvec3@@@std@@@std@@ABEXPAUvec3@@0@Z) from MeshModel.obj
       Selected symbol:
           "public: __thiscall ImGuiInputEvent::ImGuiInputEvent(void)" (??0ImGuiInputEvent@@QAE@XZ) from imgui.obj
       Replaced symbol(s):
@@ -34451,8 +34443,8 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
       Selected symbol:
           "public: class std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Camera *> > > & __thiscall std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Camera *> > >::operator+=(int)" (??Y?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@PAVCamera@@@std@@@std@@@std@@QAEAAV01@H@Z) from Scene.obj
       Replaced symbol(s):
-          "public: class std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Model *> > > & __thiscall std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Model *> > >::operator+=(int)" (??Y?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@PAVModel@@@std@@@std@@@std@@QAEAAV01@H@Z) from Scene.obj
           "public: class std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Light *> > > & __thiscall std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Light *> > >::operator+=(int)" (??Y?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@PAVLight@@@std@@@std@@@std@@QAEAAV01@H@Z) from Scene.obj
+          "public: class std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Model *> > > & __thiscall std::_Vector_const_iterator<class std::_Vector_val<struct std::_Simple_types<class Model *> > >::operator+=(int)" (??Y?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@PAVModel@@@std@@@std@@@std@@QAEAAV01@H@Z) from Scene.obj
       Selected symbol:
           "public: __thiscall std::_Vector_val<struct std::_Simple_types<struct vec3> >::_Vector_val<struct std::_Simple_types<struct vec3> >(struct vec3 *,struct vec3 *,struct vec3 *)" (??0?$_Vector_val@U?$_Simple_types@Uvec3@@@std@@@std@@QAE@PAUvec3@@00@Z) from MeshModel.obj
       Replaced symbol(s):
@@ -34479,8 +34471,8 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
       Selected symbol:
           "struct ImVec2 __cdecl operator*(struct ImVec2 const &,float)" (??D@YA?AUImVec2@@ABU0@M@Z) from imgui.obj
       Replaced symbol(s):
-          "struct ImVec2 __cdecl operator*(struct ImVec2 const &,float)" (??D@YA?AUImVec2@@ABU0@M@Z) from imgui_draw.obj
           "struct ImVec2 __cdecl operator*(struct ImVec2 const &,float)" (??D@YA?AUImVec2@@ABU0@M@Z) from imgui_widgets.obj
+          "struct ImVec2 __cdecl operator*(struct ImVec2 const &,float)" (??D@YA?AUImVec2@@ABU0@M@Z) from imgui_draw.obj
       Selected symbol:
           "struct ImVec2 __cdecl operator-(struct ImVec2 const &,struct ImVec2 const &)" (??G@YA?AUImVec2@@ABU0@0@Z) from imgui.obj
       Replaced symbol(s):
@@ -35024,21 +35016,21 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           "public: class std::_Vector_iterator<class std::_Vector_val<struct std::_Simple_types<class Model *> > > __thiscall std::_Vector_iterator<class std::_Vector_val<struct std::_Simple_types<class Model *> > >::operator+(int)const " (??H?$_Vector_iterator@V?$_Vector_val@U?$_Simple_types@PAVModel@@@std@@@std@@@std@@QBE?AV01@H@Z) from Scene.obj
           "public: class std::_Vector_iterator<class std::_Vector_val<struct std::_Simple_types<class Light *> > > __thiscall std::_Vector_iterator<class std::_Vector_val<struct std::_Simple_types<class Light *> > >::operator+(int)const " (??H?$_Vector_iterator@V?$_Vector_val@U?$_Simple_types@PAVLight@@@std@@@std@@@std@@QBE?AV01@H@Z) from Scene.obj
       Selected symbol:
+          "public: unsigned int __thiscall std::vector<class std::vector<int,class std::allocator<int> >,class std::allocator<class std::vector<int,class std::allocator<int> > > >::max_size(void)const " (?max_size@?$vector@V?$vector@HV?$allocator@H@std@@@std@@V?$allocator@V?$vector@HV?$allocator@H@std@@@std@@@2@@std@@QBEIXZ) from MeshModel.obj
+      Replaced symbol(s):
+          "public: unsigned int __thiscall std::vector<struct _STB_Image,class std::allocator<struct _STB_Image> >::max_size(void)const " (?max_size@?$vector@U_STB_Image@@V?$allocator@U_STB_Image@@@std@@@std@@QBEIXZ) from RayTracing_GPU_CPU.obj
+          "public: unsigned int __thiscall std::vector<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> >,class std::allocator<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> > > >::max_size(void)const " (?max_size@?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@std@@QBEIXZ) from RayTransmitter.obj
+      Selected symbol:
           "public: unsigned int __thiscall std::vector<int,class std::allocator<int> >::max_size(void)const " (?max_size@?$vector@HV?$allocator@H@std@@@std@@QBEIXZ) from MeshModel.obj
       Replaced symbol(s):
           "public: unsigned int __thiscall std::vector<class Model *,class std::allocator<class Model *> >::max_size(void)const " (?max_size@?$vector@PAVModel@@V?$allocator@PAVModel@@@std@@@std@@QBEIXZ) from Scene.obj
           "public: unsigned int __thiscall std::vector<class Camera *,class std::allocator<class Camera *> >::max_size(void)const " (?max_size@?$vector@PAVCamera@@V?$allocator@PAVCamera@@@std@@@std@@QBEIXZ) from Scene.obj
           "public: unsigned int __thiscall std::vector<class Light *,class std::allocator<class Light *> >::max_size(void)const " (?max_size@?$vector@PAVLight@@V?$allocator@PAVLight@@@std@@@std@@QBEIXZ) from Scene.obj
       Selected symbol:
-          "public: unsigned int __thiscall std::vector<class std::vector<int,class std::allocator<int> >,class std::allocator<class std::vector<int,class std::allocator<int> > > >::max_size(void)const " (?max_size@?$vector@V?$vector@HV?$allocator@H@std@@@std@@V?$allocator@V?$vector@HV?$allocator@H@std@@@std@@@2@@std@@QBEIXZ) from MeshModel.obj
-      Replaced symbol(s):
-          "public: unsigned int __thiscall std::vector<struct _STB_Image,class std::allocator<struct _STB_Image> >::max_size(void)const " (?max_size@?$vector@U_STB_Image@@V?$allocator@U_STB_Image@@@std@@@std@@QBEIXZ) from RayTracing_GPU_CPU.obj
-          "public: unsigned int __thiscall std::vector<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> >,class std::allocator<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> > > >::max_size(void)const " (?max_size@?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@std@@QBEIXZ) from RayTransmitter.obj
-      Selected symbol:
           "void __cdecl std::_Construct_in_place<char *,char * &>(char * &,char * &)" (??$_Construct_in_place@PADAAPAD@std@@YAXAAPAD0@Z) from Light.obj
       Replaced symbol(s):
-          "void __cdecl std::_Construct_in_place<char *,char * const &>(char * &,char * const &)" (??$_Construct_in_place@PADABQAD@std@@YAXAAPADABQAD@Z) from Light.obj
           "void __cdecl std::_Construct_in_place<wchar_t *,wchar_t * const &>(wchar_t * &,wchar_t * const &)" (??$_Construct_in_place@PA_WABQA_W@std@@YAXAAPA_WABQA_W@Z) from Scene.obj
+          "void __cdecl std::_Construct_in_place<char *,char * const &>(char * &,char * const &)" (??$_Construct_in_place@PADABQAD@std@@YAXAAPADABQAD@Z) from Light.obj
           "void __cdecl std::_Construct_in_place<wchar_t *,wchar_t * &>(wchar_t * &,wchar_t * &)" (??$_Construct_in_place@PA_WAAPA_W@std@@YAXAAPA_W0@Z) from Scene.obj
       Selected symbol:
           "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<struct hit_tuple> >::construct<struct hit_tuple,struct hit_tuple &>(class std::allocator<struct hit_tuple> &,struct hit_tuple * const,struct hit_tuple &)" (??$construct@Uhit_tuple@@AAU1@@?$_Default_allocator_traits@V?$allocator@Uhit_tuple@@@std@@@std@@SAXAAV?$allocator@Uhit_tuple@@@1@QAUhit_tuple@@AAU3@@Z) from RayTransmitter.obj
@@ -35046,15 +35038,15 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
           "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<struct hit_tuple> >::construct<struct hit_tuple,struct hit_tuple>(class std::allocator<struct hit_tuple> &,struct hit_tuple * const,struct hit_tuple &&)" (??$construct@Uhit_tuple@@U1@@?$_Default_allocator_traits@V?$allocator@Uhit_tuple@@@std@@@std@@SAXAAV?$allocator@Uhit_tuple@@@1@QAUhit_tuple@@$$QAU3@@Z) from RayTransmitter.obj
           "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<struct hit_tuple> >::construct<struct hit_tuple,struct hit_tuple const &>(class std::allocator<struct hit_tuple> &,struct hit_tuple * const,struct hit_tuple const &)" (??$construct@Uhit_tuple@@ABU1@@?$_Default_allocator_traits@V?$allocator@Uhit_tuple@@@std@@@std@@SAXAAV?$allocator@Uhit_tuple@@@1@QAUhit_tuple@@ABU3@@Z) from RayTransmitter.obj
       Selected symbol:
-          "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<class Material> >::construct<class Material,class Material &>(class std::allocator<class Material> &,class Material * const,class Material &)" (??$construct@VMaterial@@AAV1@@?$_Default_allocator_traits@V?$allocator@VMaterial@@@std@@@std@@SAXAAV?$allocator@VMaterial@@@1@QAVMaterial@@AAV3@@Z) from MeshModel.obj
-      Replaced symbol(s):
-          "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<class Material> >::construct<class Material,class Material>(class std::allocator<class Material> &,class Material * const,class Material &&)" (??$construct@VMaterial@@V1@@?$_Default_allocator_traits@V?$allocator@VMaterial@@@std@@@std@@SAXAAV?$allocator@VMaterial@@@1@QAVMaterial@@$$QAV3@@Z) from MeshModel.obj
-          "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<class Material> >::construct<class Material,class Material const &>(class std::allocator<class Material> &,class Material * const,class Material const &)" (??$construct@VMaterial@@ABV1@@?$_Default_allocator_traits@V?$allocator@VMaterial@@@std@@@std@@SAXAAV?$allocator@VMaterial@@@1@QAVMaterial@@ABV3@@Z) from MeshModel.obj
-      Selected symbol:
           "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<struct vec2> >::construct<struct vec2,struct vec2 &>(class std::allocator<struct vec2> &,struct vec2 * const,struct vec2 &)" (??$construct@Uvec2@@AAU1@@?$_Default_allocator_traits@V?$allocator@Uvec2@@@std@@@std@@SAXAAV?$allocator@Uvec2@@@1@QAUvec2@@AAU3@@Z) from MeshModel.obj
       Replaced symbol(s):
           "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<struct vec2> >::construct<struct vec2,struct vec2>(class std::allocator<struct vec2> &,struct vec2 * const,struct vec2 &&)" (??$construct@Uvec2@@U1@@?$_Default_allocator_traits@V?$allocator@Uvec2@@@std@@@std@@SAXAAV?$allocator@Uvec2@@@1@QAUvec2@@$$QAU3@@Z) from MeshModel.obj
           "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<struct vec2> >::construct<struct vec2,struct vec2 const &>(class std::allocator<struct vec2> &,struct vec2 * const,struct vec2 const &)" (??$construct@Uvec2@@ABU1@@?$_Default_allocator_traits@V?$allocator@Uvec2@@@std@@@std@@SAXAAV?$allocator@Uvec2@@@1@QAUvec2@@ABU3@@Z) from MeshModel.obj
+      Selected symbol:
+          "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<class Material> >::construct<class Material,class Material &>(class std::allocator<class Material> &,class Material * const,class Material &)" (??$construct@VMaterial@@AAV1@@?$_Default_allocator_traits@V?$allocator@VMaterial@@@std@@@std@@SAXAAV?$allocator@VMaterial@@@1@QAVMaterial@@AAV3@@Z) from MeshModel.obj
+      Replaced symbol(s):
+          "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<class Material> >::construct<class Material,class Material const &>(class std::allocator<class Material> &,class Material * const,class Material const &)" (??$construct@VMaterial@@ABV1@@?$_Default_allocator_traits@V?$allocator@VMaterial@@@std@@@std@@SAXAAV?$allocator@VMaterial@@@1@QAVMaterial@@ABV3@@Z) from MeshModel.obj
+          "public: static void __cdecl std::_Default_allocator_traits<class std::allocator<class Material> >::construct<class Material,class Material>(class std::allocator<class Material> &,class Material * const,class Material &&)" (??$construct@VMaterial@@V1@@?$_Default_allocator_traits@V?$allocator@VMaterial@@@std@@@std@@SAXAAV?$allocator@VMaterial@@@1@QAVMaterial@@$$QAV3@@Z) from MeshModel.obj
       Selected symbol:
           "public: void __thiscall ImGuiStorage::SetInt(unsigned int,int)" (?SetInt@ImGuiStorage@@QAEXIH@Z) from imgui.obj
       Replaced symbol(s):
@@ -35250,8 +35242,8 @@ LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; us
       Selected symbol:
           "private: void __thiscall std::vector<class std::vector<int,class std::allocator<int> >,class std::allocator<class std::vector<int,class std::allocator<int> > > >::_Buy_raw(unsigned int)" (?_Buy_raw@?$vector@V?$vector@HV?$allocator@H@std@@@std@@V?$allocator@V?$vector@HV?$allocator@H@std@@@std@@@2@@std@@AAEXI@Z) from MeshModel.obj
       Replaced symbol(s):
-          "private: void __thiscall std::vector<struct _STB_Image,class std::allocator<struct _STB_Image> >::_Buy_raw(unsigned int)" (?_Buy_raw@?$vector@U_STB_Image@@V?$allocator@U_STB_Image@@@std@@@std@@AAEXI@Z) from RayTracing_GPU_CPU.obj
           "private: void __thiscall std::vector<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> >,class std::allocator<class std::vector<struct hit_tuple,class std::allocator<struct hit_tuple> > > >::_Buy_raw(unsigned int)" (?_Buy_raw@?$vector@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@V?$allocator@V?$vector@Uhit_tuple@@V?$allocator@Uhit_tuple@@@std@@@std@@@2@@std@@AAEXI@Z) from RayTransmitter.obj
+          "private: void __thiscall std::vector<struct _STB_Image,class std::allocator<struct _STB_Image> >::_Buy_raw(unsigned int)" (?_Buy_raw@?$vector@U_STB_Image@@V?$allocator@U_STB_Image@@@std@@@std@@AAEXI@Z) from RayTracing_GPU_CPU.obj
       Selected symbol:
           "public: void __thiscall std::_Uninitialized_backout_al<class std::allocator<class std::vector<int,class std::allocator<int> > > >::_Emplace_back<>(void)" (??$_Emplace_back@$$V@?$_Uninitialized_backout_al@V?$allocator@V?$vector@HV?$allocator@H@std@@@std@@@std@@@std@@QAEXXZ) from MeshModel.obj
       Replaced symbol(s):

@@ -25,7 +25,7 @@
 #define DEF_PARAM_RANGE 20;
 #define DEF_PARAM 1.0f;
 #define DEF_ZNEAR 1;
-#define DEF_ZFAR 20;
+#define DEF_ZFAR 1000;
 #define DEF_FOV 12
 #define DEF_ASPECT 1
 #define DEF_MAX_FOG_EFFECT 100
@@ -41,6 +41,12 @@
 //#define DEF_NOISE_SCALE 100
 //#define DEF_NOISE_LACUNARITY 5.54
 
+const unsigned char KEY_W = 1;
+const unsigned char KEY_S = 2;
+const unsigned char KEY_A = 4;
+const unsigned char KEY_D = 8;
+const unsigned char KEY_SPACE = 16;
+const unsigned char KEY_SHIFT = 32;
 
 typedef unsigned int UINT;
 typedef unsigned int uint;

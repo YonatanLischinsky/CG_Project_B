@@ -61,29 +61,74 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (action == GLFW_PRESS)
 	{
-		scene->GetActiveCamera()->move_state = key;
+		
 		switch (key)
 		{
 		case GLFW_KEY_F: //Set focus on active model
 			if (scene->activeCamera != NOT_SELECTED && scene->activeModel != NOT_SELECTED)
-			{
 				scene->GetActiveCamera()->LookAt(scene->GetActiveModel());
-			}
 			break;
 
 		case GLFW_KEY_LEFT_CONTROL:
 			ctrlPressing = true;
 			break;
+
+		case GLFW_KEY_W: 
+			scene->GetActiveCamera()->move_state |= KEY_W;
+			break;
+
+		case GLFW_KEY_S:
+			scene->GetActiveCamera()->move_state |= KEY_S;
+			break;
+
+		case GLFW_KEY_A:
+			scene->GetActiveCamera()->move_state |= KEY_A;
+			break;
+
+		case GLFW_KEY_D:
+			scene->GetActiveCamera()->move_state |= KEY_D;
+			break;
+
+		case GLFW_KEY_SPACE:
+			scene->GetActiveCamera()->move_state |= KEY_SPACE;
+			break;
+
+		case GLFW_KEY_LEFT_SHIFT:
+			scene->GetActiveCamera()->move_state |= KEY_SHIFT;
+			break;
 		}
 	}
 	
-	if (action == GLFW_RELEASE)
+	else if (action == GLFW_RELEASE)
 	{
-		scene->GetActiveCamera()->move_state = 0;
 		switch (key)
 		{
 		case GLFW_KEY_LEFT_CONTROL:
 			ctrlPressing = false;
+			break;
+
+		case GLFW_KEY_W:
+			scene->GetActiveCamera()->move_state &= ~KEY_W; 
+			break;
+
+		case GLFW_KEY_S:
+			scene->GetActiveCamera()->move_state &= ~KEY_S;
+			break;
+
+		case GLFW_KEY_A:
+			scene->GetActiveCamera()->move_state &= ~KEY_A;
+			break;
+
+		case GLFW_KEY_D:
+			scene->GetActiveCamera()->move_state &= ~KEY_D;
+			break;
+
+		case GLFW_KEY_SPACE:
+			scene->GetActiveCamera()->move_state &= ~KEY_SPACE;
+			break;
+
+		case GLFW_KEY_LEFT_SHIFT:
+			scene->GetActiveCamera()->move_state &= ~KEY_SHIFT;
 			break;
 		}
 	}
@@ -103,7 +148,7 @@ void mouse_move_callback(GLFWwindow* window, double x, double y)
 	mouse_pos = vec2(x, y);
 	vec2 delta = mouse_pos - mouse_pos_prev;
 
-	float dampingFactor = 0.2f;
+	float dampingFactor = 0.5f;
 
 	if (lb_down)
 	{
