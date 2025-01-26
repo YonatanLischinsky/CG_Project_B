@@ -61,22 +61,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (action == GLFW_PRESS)
 	{
+		scene->GetActiveCamera()->move_state = key;
 		switch (key)
 		{
-			case GLFW_KEY_F: //Set focus on active model
-				if (scene->activeCamera != NOT_SELECTED && scene->activeModel != NOT_SELECTED)
-				{
-					scene->GetActiveCamera()->LookAt(scene->GetActiveModel());
-				}
-				break;
-			case GLFW_KEY_LEFT_CONTROL:
-				ctrlPressing = true;
-				break;
+		case GLFW_KEY_F: //Set focus on active model
+			if (scene->activeCamera != NOT_SELECTED && scene->activeModel != NOT_SELECTED)
+			{
+				scene->GetActiveCamera()->LookAt(scene->GetActiveModel());
+			}
+			break;
+
+		case GLFW_KEY_LEFT_CONTROL:
+			ctrlPressing = true;
+			break;
 		}
 	}
 	
 	if (action == GLFW_RELEASE)
 	{
+		scene->GetActiveCamera()->move_state = 0;
 		switch (key)
 		{
 		case GLFW_KEY_LEFT_CONTROL:

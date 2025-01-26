@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Project_B\code\CG_Project_B\Debug\RayTracing_GPU_CPU.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Project_B\code\CG_Project_B\RayTracing_GPU_CPU\NotoSans-Medium.ttf</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Project_B\code\CG_Project_B\RayTracing_GPU_CPU\fshader.glsl</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Project_B\code\CG_Project_B\RayTracing_GPU_CPU\vshader.glsl</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

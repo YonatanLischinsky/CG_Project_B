@@ -30,7 +30,7 @@
 #define DEF_ASPECT 1
 #define DEF_MAX_FOG_EFFECT 100
 #define NOISE_MAP_SIZE 512
-
+#define CAM_MOVE_SPEED 0.1f
 #define DEF_VEIN_FREQ 20
 #define DEF_VEIN_THICKNESS 3
 #define DEF_COL_MIX_FACTOR 0.8
@@ -275,3 +275,8 @@ typedef enum TextureMode
 	TEXTURE_CANONICAL_2,		// Spherical 
 } TextureMode;
 
+
+// Converts degrees to radians
+constexpr double toRadians(double degrees) {
+	return degrees * M_PI / 180.0;
+}

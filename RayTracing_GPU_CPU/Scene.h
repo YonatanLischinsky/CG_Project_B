@@ -46,10 +46,10 @@ private:
 	unsigned int num_icon_vertices;
 
 	bool lockFov_GUI = false;
-
 	friend class Scene;	// To acces transformations;
 
 public:
+	uint move_state = 0;
 	float c_left, c_right, c_top, c_bottom, c_fovy , c_aspect , c_zNear, c_zFar;
 	vec4 c_trnsl, c_rot, c_trnsl_viewspace, c_rot_viewspace;
 
@@ -76,17 +76,24 @@ public:
 	void UpdateProjectionMatInGPU();
 	void resetProjection();
 	void zoom(double s_offset, double update_rate = 0.02);
-	
+	void HandleMovement();
+	void MoveForward();
+	void MoveBackward();
+	void MoveLeft();
+	void MoveRight();
+	void MoveUp();
+	void MoveDown();
+
 	void setName(std::string newName) { name = newName; }
 	std::string& getName() { return name; }
 	vec4 getTranslation() { return vec4(c_trnsl); }
 	vec3 getPosition() { return vec3(c_trnsl.x, c_trnsl.y, c_trnsl.z); }
 	void setStartPosition(vec4& pos) { c_trnsl = pos; }
-	
+	vec3 calculateForwardVector(double pitch, double yaw);
+	vec3 calculateRightVector(double yaw);
 	void updateTransform();
 	void ResetTranslation() { c_trnsl = vec4(0, 1.0f, 5.0f, 1); }
 	void ResetRotation() { c_rot = vec4(0,0,0,1); }
-	
 	void iconInit();
 	bool iconDraw(mat4& active_cTransform, mat4& active_projection);
 	vec2* getIconBuffer() { return iconBuffer; }

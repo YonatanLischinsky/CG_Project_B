@@ -351,6 +351,100 @@ void Camera::zoom(double s_offset, double update_rate)
 		setPerspectiveByParams();
 }
 
+void Camera::HandleMovement()
+{
+	switch (move_state)
+	{
+	case GLFW_KEY_W: //Move camera
+		MoveForward();
+		break;
+
+	case GLFW_KEY_S:
+		MoveBackward();
+		break;
+
+	case GLFW_KEY_A:
+		MoveLeft();
+		break;
+
+	case GLFW_KEY_D:
+		MoveRight();
+		break;
+
+	case GLFW_KEY_SPACE:
+		MoveUp();
+		break;
+
+	case GLFW_KEY_LEFT_SHIFT:
+		MoveDown();
+		break;
+	}
+}
+
+void Camera::MoveForward()
+{
+	vec3 frwd  = normalize(calculateForwardVector(c_rot.x, c_rot.y));
+	c_trnsl += frwd * CAM_MOVE_SPEED;
+	updateTransform();
+}
+
+void Camera::MoveBackward()
+{
+	vec3 frwd = normalize(calculateForwardVector(c_rot.x, c_rot.y));
+	c_trnsl -= frwd * CAM_MOVE_SPEED;
+	updateTransform();
+}
+
+void Camera::MoveLeft()
+{
+	vec3 right = normalize(calculateRightVector(c_rot.y));
+	c_trnsl -= right * CAM_MOVE_SPEED;
+	updateTransform();
+}
+
+void Camera::MoveRight()
+{
+	vec3 right = normalize(calculateRightVector(c_rot.y));
+	c_trnsl += right * CAM_MOVE_SPEED;
+	updateTransform();
+}
+
+void Camera::MoveUp()
+{
+	c_trnsl += vec3(0, 1, 0) * CAM_MOVE_SPEED;
+	updateTransform();
+}
+
+void Camera::MoveDown()
+{
+	c_trnsl -= vec3(0, 1, 0) * CAM_MOVE_SPEED;
+	updateTransform();
+}
+
+vec3 Camera::calculateForwardVector(double pitch, double yaw)
+{
+	float pitchRad = toRadians(pitch);
+	float yawRad = toRadians(yaw);
+
+	float fx = std::sin(yawRad) * std::cos(pitchRad); // X-axis component
+	float fy = std::sin(pitchRad);                   // Y-axis component
+	float fz = -std::cos(yawRad) * std::cos(pitchRad); // Z-axis component
+
+	return vec3(fx, fy, fz);
+}
+
+
+
+vec3 Camera::calculateRightVector(double yaw)
+{
+	float yawRad = toRadians(yaw);
+
+	float rx = std::cos(yawRad); // X-axis component
+	float ry = 0.0;              // Y-axis component
+	float rz = std::sin(yawRad); // Z-axis component
+
+	return vec3(rx, ry, rz);
+}
 
 
 
@@ -430,6 +524,10 @@ void Scene::ResetPopUpFlags()
 
 void Scene::draw()
 {
+
+	//0. Move Camera
+	GetActiveCamera()->HandleMovement();
+
 	//1. Clear the pixel buffer before drawing new frame.
 	m_renderer->clearBuffer();
 
